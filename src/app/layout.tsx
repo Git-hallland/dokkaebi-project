@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Sidebar } from "@/components/Sidebar";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             {children}
           </main>
         </div>
+        <MobileBottomNav />
       </body>
     </html>
   );

@@ -55,7 +55,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className={styles.section} aria-labelledby="category-title">
+      <section
+        id="main-categories"
+        className={styles.section}
+        aria-labelledby="category-title"
+      >
         <div className={styles.sectionHeading}>
           <div>
             <p className={styles.sectionLabel}>탐색</p>

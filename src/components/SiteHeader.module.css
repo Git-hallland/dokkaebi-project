@@ -73,44 +73,113 @@
   font-size: 0.76rem;
 }
 
+.mobileAction {
+  display: none;
+}
+
 @media (max-width: 62rem) {
+  .header {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    transition:
+      transform 440ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 300ms ease-out 80ms;
+    will-change: transform, opacity;
+  }
+
+  .headerHidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate3d(0, -140%, 0);
+    transition:
+      transform 320ms cubic-bezier(0.4, 0, 1, 1),
+      opacity 180ms ease-in;
+  }
+
+  .headerHidden:focus-within {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate3d(0, 0, 0);
+  }
+
   .inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
     gap: 0.4rem;
     padding-inline: 1.5rem;
   }
 
   .search {
-    grid-column: 1;
+    grid-column: 1 / -1;
+    grid-row: 2;
     justify-self: center;
     width: min(100%, 18rem);
   }
 
   .brand {
-    grid-column: 1;
+    grid-column: 2;
+    grid-row: 1;
     justify-self: center;
+    max-width: 100%;
+  }
+
+  .mobileAction {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
+    color: var(--text-muted);
+    background: rgb(18 21 46 / 54%);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+  }
+
+  .mobileAction:disabled {
+    color: var(--text-muted);
+    background: rgb(18 21 46 / 54%);
+    border-color: var(--border);
+    cursor: not-allowed;
+  }
+
+  .mobileAction svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+  }
+
+  .menuAction {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .notificationAction {
+    grid-column: 3;
+    grid-row: 1;
   }
 
   .wordmark {
-    width: 17rem;
+    width: min(17rem, 100%);
     height: 3.5rem;
   }
 }
 
 @media (max-width: 40rem) {
-  .header {
-    position: static;
-  }
-
   .inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
     gap: 0.7rem;
     padding: 0.8rem 1rem;
   }
 
-  .brand,
+  .brand {
+    grid-column: 2;
+  }
+
   .search {
-    grid-column: 1;
+    grid-column: 1 / -1;
     justify-self: center;
   }
 
@@ -122,5 +191,11 @@
   .search input,
   .search button {
     min-height: 2.5rem;
+  }
+}
+
+@media (max-width: 62rem) and (prefers-reduced-motion: reduce) {
+  .header {
+    transition: none;
   }
 }

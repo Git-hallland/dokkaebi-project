@@ -35,6 +35,10 @@
   .shell::after {
     display: none;
   }
+
+  .content {
+    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+  }
 }
 
 @media (max-width: 40rem) {
