@@ -1,6 +1,7 @@
 .shell {
   display: grid;
-  grid-template-columns: 15rem minmax(0, 1fr);
+  grid-template-columns: 15rem minmax(0, 66rem) 15rem;
+  justify-content: center;
   gap: 1.5rem;
   width: min(100%, 100rem);
   min-height: calc(100vh - var(--header-height));
@@ -8,15 +9,31 @@
   padding: 0 1rem 0 0.5rem;
 }
 
+.shell::after {
+  content: "";
+}
+
 .content {
+  width: min(100%, 66rem);
   min-width: 0;
+  margin-inline: auto;
   padding: 1.75rem 0 4rem;
+}
+
+@media (min-width: 120rem) {
+  .shell {
+    margin-inline: auto;
+  }
 }
 
 @media (max-width: 62rem) {
   .shell {
     display: block;
     padding-inline: 1.5rem;
+  }
+
+  .shell::after {
+    display: none;
   }
 }
 

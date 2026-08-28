@@ -1,6 +1,7 @@
 .card {
+  position: relative;
   min-height: 8.25rem;
-  padding: 1rem 1.05rem;
+  padding: 0.85rem 1.05rem 1rem;
   background: rgb(18 21 46 / 58%);
   border: 1px solid var(--border);
   border-radius: 0.4rem;
@@ -18,15 +19,41 @@
   transform: translateY(-1px);
 }
 
+.icon {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.85rem;
+  width: 1.625rem;
+  height: 1.625rem;
+  color: var(--primary-hover);
+  opacity: 0.68;
+  transition:
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.card:hover .icon,
+.card:focus-within .icon {
+  color: var(--primary);
+  opacity: 0.9;
+}
+
 .card h3 {
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.75rem;
+  padding-right: 2.5rem;
   color: var(--text-strong);
   font-size: 0.98rem;
+  transition: color 160ms ease;
+}
+
+.card:hover h3,
+.card:focus-within h3 {
+  color: var(--primary-hover);
 }
 
 .card p {
   margin-bottom: 0;
   color: var(--text-muted);
   font-size: 0.83rem;
-  line-height: 1.55;
+  line-height: 1.65;
 }
