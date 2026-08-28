@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ContentStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+model Content {
+  id          String        @id @default(cuid())
+  type        String
+  title       String
+  slug        String?       @unique
+  summary     String?
+  body        String?
+  status      ContentStatus @default(DRAFT)
+  checkedAt   DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  publishedAt DateTime?
+
+  claims    Claim[]
+  sources   ContentSource[]
+  revisions ContentRevision[]
+  reports   Report[]
+
+  @@index([status])
+  @@index([checkedAt])
+}
+
+model Claim {
+  id         String    @id @default(cuid())
+  contentId  String
+  text       String
+  type       String?
+  checkedAt  DateTime?
+  validFrom  DateTime?
+  validUntil DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  content Content       @relation(fields: [contentId], references: [id], onDelete: Restrict)
+  sources ClaimSource[]
+  reports Report[]
+
+  @@index([contentId])
+}
+
+model Source {
+  id          String    @id @default(cuid())
+  url         String    @unique
+  publisher   String
+  title       String
+  publishedAt DateTime?
+  checkedAt   DateTime
+  sourceTier  Int
+  sourceType  String
+  status      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  contents ContentSource[]
+  claims   ClaimSource[]
+
+  @@index([checkedAt])
+  @@index([status])
+}
+
+model ContentSource {
+  contentId String
+  sourceId  String
+
+  content Content @relation(fields: [contentId], references: [id], onDelete: Restrict)
+  source  Source  @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@id([contentId, sourceId])
+  @@index([sourceId])
+}
+
+model ClaimSource {
+  claimId          String
+  sourceId         String
+  evidenceRole     String
+  locator          String?
+  timestampSeconds Int?
+  note             String?
+
+  claim  Claim  @relation(fields: [claimId], references: [id], onDelete: Restrict)
+  source Source @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@id([claimId, sourceId])
+  @@index([sourceId])
+}
+
+model ContentRevision {
+  id         String         @id @default(cuid())
+  contentId  String
+  changedAt  DateTime       @default(now())
+  changedBy  String?
+  reason     String?
+  summary    String?
+  fromStatus ContentStatus?
+  toStatus   ContentStatus?
+
+  content Content @relation(fields: [contentId], references: [id], onDelete: Restrict)
+
+  @@index([contentId, changedAt])
+}
+
+model Report {
+  id         String    @id @default(cuid())
+  contentId  String
+  claimId    String?
+  type       String
+  message    String
+  status     String
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+  resolution String?
+
+  content Content @relation(fields: [contentId], references: [id], onDelete: Restrict)
+  claim   Claim?  @relation(fields: [claimId], references: [id], onDelete: Restrict)
+
+  @@index([contentId])
+  @@index([claimId])
+  @@index([status])
+}
