@@ -1,0 +1,126 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: var(--header-height);
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgb(2 3 12 / 16%);
+  backdrop-filter: blur(14px);
+}
+
+.header::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  content: "";
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem;
+  width: min(100%, 90rem);
+  min-height: var(--header-height);
+  margin: 0 auto;
+  padding: 0.25rem 2rem;
+}
+
+.brand {
+  display: inline-flex;
+  grid-column: 2;
+  align-items: center;
+  justify-self: center;
+  width: fit-content;
+  overflow: hidden;
+}
+
+.wordmark {
+  display: block;
+  width: 19rem;
+  height: 4rem;
+  object-fit: cover;
+  object-position: center;
+}
+
+.search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  grid-column: 3;
+  justify-self: end;
+  width: min(100%, 16.5rem);
+}
+
+.search input {
+  width: 100%;
+  min-height: 2.15rem;
+  padding: 0.35rem 0.65rem;
+  background: rgb(14 17 37 / 74%);
+  border-color: var(--border-strong);
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.search button {
+  min-height: 2.15rem;
+  padding-inline: 0.7rem;
+  border-radius: 0.4rem;
+  font-size: 0.76rem;
+}
+
+@media (max-width: 62rem) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    padding-inline: 1.5rem;
+  }
+
+  .search {
+    grid-column: 1;
+    justify-self: center;
+    width: min(100%, 18rem);
+  }
+
+  .brand {
+    grid-column: 1;
+    justify-self: center;
+  }
+
+  .wordmark {
+    width: 17rem;
+    height: 3.5rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  .header {
+    position: static;
+  }
+
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .brand,
+  .search {
+    grid-column: 1;
+    justify-self: center;
+  }
+
+  .wordmark {
+    width: min(18rem, 88vw);
+    height: 3.65rem;
+  }
+
+  .search input,
+  .search button {
+    min-height: 2.5rem;
+  }
+}

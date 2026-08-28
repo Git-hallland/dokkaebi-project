@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { Sidebar } from "@/components/Sidebar";
+import { SiteHeader } from "@/components/SiteHeader";
+
 import "./globals.css";
+import styles from "./layout.module.css";
 
 export const metadata: Metadata = {
   title: "DokkaebiProject | 도깨비의세계 비공식 위키",
@@ -15,7 +19,18 @@ type RootLayoutProps = Readonly<{
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        <a className="skip-link" href="#main-content">
+          본문으로 건너뛰기
+        </a>
+        <SiteHeader />
+        <div className={styles.shell}>
+          <Sidebar />
+          <main id="main-content" className={styles.content}>
+            {children}
+          </main>
+        </div>
+      </body>
     </html>
   );
 }

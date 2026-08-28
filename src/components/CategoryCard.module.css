@@ -1,0 +1,32 @@
+.card {
+  min-height: 8.25rem;
+  padding: 1rem 1.05rem;
+  background: rgb(18 21 46 / 58%);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  box-shadow: inset 0 1px rgb(255 255 255 / 3%);
+  backdrop-filter: blur(14px);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.card:hover {
+  background: rgb(31 34 67 / 66%);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.card h3 {
+  margin-bottom: 0.65rem;
+  color: var(--text-strong);
+  font-size: 0.98rem;
+}
+
+.card p {
+  margin-bottom: 0;
+  color: var(--text-muted);
+  font-size: 0.83rem;
+  line-height: 1.55;
+}
