@@ -5,7 +5,7 @@ type CategoryIconProps = Readonly<{
 
 function IconPaths({ title }: Readonly<{ title: string }>) {
   switch (title) {
-    case "초보자 가이드":
+    case "공략게시판":
       return (
         <>
           <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5Z" />

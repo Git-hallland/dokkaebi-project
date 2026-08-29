@@ -1,0 +1,187 @@
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.breadcrumbs a:hover,
+.breadcrumbs a:focus-visible,
+.backLink {
+  color: var(--primary-hover);
+}
+
+.article {
+  background: var(--surface-glass);
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  box-shadow: inset 0 1px rgb(255 255 255 / 3%);
+  backdrop-filter: blur(14px);
+}
+
+.articleHeader {
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+  border-bottom: 1px solid var(--border);
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.category {
+  margin-bottom: 0.4rem;
+  color: var(--primary-hover);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.titleRow h1 {
+  margin-bottom: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.55rem);
+}
+
+.bookmarkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.bookmarkButton svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.summary {
+  max-width: 46rem;
+  margin: 1rem 0 0;
+  color: var(--text-muted);
+}
+
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin: 1.2rem 0 0;
+}
+
+.metadata div {
+  display: flex;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+}
+
+.metadata dt {
+  color: var(--text-muted);
+}
+
+.metadata dd {
+  margin: 0;
+  color: var(--text);
+}
+
+.documentBody {
+  max-width: 48rem;
+  margin-inline: auto;
+  padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+.documentBody section {
+  scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+
+.documentBody h2 {
+  margin: 2.25rem 0 0.75rem;
+  font-size: 1.35rem;
+}
+
+.documentBody h3 {
+  margin: 1.75rem 0 0.65rem;
+  font-size: 1.08rem;
+}
+
+.documentBody p,
+.documentBody li {
+  color: var(--text-muted);
+}
+
+.documentBody ol {
+  display: grid;
+  gap: 0.55rem;
+  padding-left: 1.4rem;
+}
+
+.placeholderNotice {
+  padding: 0.8rem 0.95rem;
+  background: var(--primary-soft);
+  border: 1px solid var(--border-strong);
+  border-radius: 0.45rem;
+  font-size: 0.82rem;
+}
+
+.imagePlaceholder {
+  margin: 2.25rem 0;
+}
+
+.imagePlaceholder > div {
+  display: grid;
+  place-items: center;
+  min-height: 15rem;
+  color: var(--text-muted);
+  background: var(--surface-inset);
+  border: 1px dashed var(--border-strong);
+  border-radius: 0.45rem;
+}
+
+.imagePlaceholder figcaption {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.supportingSection {
+  margin-top: 2.25rem;
+  padding-top: 0.1rem;
+  border-top: 1px solid var(--border);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-top: 0.5rem;
+  font-weight: 700;
+}
+
+@media (max-width: 44rem) {
+  .titleRow {
+    flex-direction: column;
+  }
+
+  .bookmarkButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .imagePlaceholder > div {
+    min-height: 11rem;
+  }
+}

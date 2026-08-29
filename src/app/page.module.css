@@ -10,6 +10,10 @@
   backdrop-filter: blur(16px);
 }
 
+.mobileSearch {
+  display: none;
+}
+
 .hero {
   position: relative;
   display: grid;
@@ -103,6 +107,7 @@
 .heroCopy h1 {
   max-width: none;
   margin-bottom: 0.65rem;
+  color: var(--hero-text);
   font-family: var(--font-display);
   font-size: clamp(2rem, 3.4vw, 3rem);
   font-weight: 700;
@@ -129,6 +134,7 @@
   border: 1px solid var(--border-strong);
   border-radius: 999px;
   font-size: 0.68rem;
+  color: var(--hero-accent);
 }
 
 .heroDescription {
@@ -212,7 +218,7 @@
 .emptyState {
   min-height: 8rem;
   padding: 1.25rem 1.25rem 1.25rem 1.4rem;
-  background: rgb(9 11 26 / 46%);
+  background: var(--surface-inset);
   border-left: 2px solid var(--border-strong);
 }
 
@@ -268,6 +274,25 @@
 
   .categoryGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 62rem) {
+  .mobileSearch {
+    display: block;
+    position: absolute;
+    right: 1.15rem;
+    bottom: 15%;
+    left: 1.15rem;
+    z-index: 2;
+  }
+
+  .heroDescription {
+    display: none;
+  }
+
+  .section {
+    display: none;
   }
 }
 

@@ -1,8 +1,9 @@
 .card {
   position: relative;
+  display: block;
   min-height: 8.25rem;
   padding: 0.85rem 1.05rem 1rem;
-  background: rgb(18 21 46 / 58%);
+  background: var(--card-surface);
   border: 1px solid var(--border);
   border-radius: 0.4rem;
   box-shadow: inset 0 1px rgb(255 255 255 / 3%);
@@ -13,8 +14,12 @@
     transform 160ms ease;
 }
 
+.linkCard {
+  cursor: pointer;
+}
+
 .card:hover {
-  background: rgb(31 34 67 / 66%);
+  background: var(--card-surface-hover);
   border-color: var(--border-strong);
   transform: translateY(-1px);
 }

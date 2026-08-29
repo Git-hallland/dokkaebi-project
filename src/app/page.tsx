@@ -1,11 +1,13 @@
 import { CategoryCard } from "@/components/CategoryCard";
+import { SiteSearch } from "@/components/SiteSearch";
 
 import styles from "./page.module.css";
 
 const categories = [
   {
-    title: "초보자 가이드",
-    description: "처음 시작할 때 필요한 공식 확인 정보를 순서대로 정리할 예정입니다.",
+    title: "공략게시판",
+    description: "게임 플레이에 도움이 되는 검수된 공략을 확인할 수 있습니다.",
+    href: "/guides",
   },
   {
     title: "클래스 / 스킬",
@@ -49,9 +51,12 @@ export default function Home() {
           <p className={styles.eyebrow}>비공식 팬 위키</p>
           <h1 id="home-title">도깨비의 세계 WIKI</h1>
           <p className={styles.heroDescription}>
-            공식 발표와 확인 가능한 근거를 정리하는 팬 위키로, 카카오게임즈·슈퍼캣의
-            공식 서비스가 아닙니다.
+            공식 발표와 확인 가능한 근거를 바탕으로 게임 정보를 정리합니다.
           </p>
+        </div>
+
+        <div className={styles.mobileSearch}>
+          <SiteSearch inputId="mobile-site-search" />
         </div>
       </section>
 
@@ -73,6 +78,7 @@ export default function Home() {
               key={category.title}
               title={category.title}
               description={category.description}
+              href={category.href}
             />
           ))}
         </div>
