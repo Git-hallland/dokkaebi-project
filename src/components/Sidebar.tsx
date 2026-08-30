@@ -3,20 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import styles from "./Sidebar.module.css";
+import { boardCategories } from "@/lib/board-categories";
 
-const navigationItems = [
-  "홈",
-  "공략게시판",
-  "클래스 / 스킬",
-  "아이템 / 장비",
-  "몬스터 / 보스",
-  "지역 / NPC",
-  "던전 / 콘텐츠",
-  "제작 / 생활",
-  "이벤트 / 쿠폰",
-  "패치노트",
-];
+import styles from "./Sidebar.module.css";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -26,33 +15,30 @@ export function Sidebar() {
       <nav aria-label="위키 카테고리">
         <p className={styles.title}>정보 탐색</p>
         <ul className={styles.navigation}>
-          {navigationItems.map((item, index) => (
-            <li key={item}>
-              {index === 0 || item === "공략게시판" ? (
+          <li>
+            <Link
+              href="/"
+              className={pathname === "/" ? styles.current : undefined}
+              aria-current={pathname === "/" ? "page" : undefined}
+            >
+              홈
+            </Link>
+          </li>
+          {boardCategories.map((item) => {
+            const isCurrent = pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+            return (
+              <li key={item.key}>
                 <Link
-                  href={index === 0 ? "/" : "/guides"}
-                  className={
-                    (index === 0 && pathname === "/") ||
-                    (item === "공략게시판" && pathname.startsWith("/guides"))
-                      ? styles.current
-                      : undefined
-                  }
-                  aria-current={
-                    (index === 0 && pathname === "/") ||
-                    (item === "공략게시판" && pathname.startsWith("/guides"))
-                      ? "page"
-                      : undefined
-                  }
+                  href={item.href}
+                  className={isCurrent ? styles.current : undefined}
+                  aria-current={isCurrent ? "page" : undefined}
                 >
-                  {item}
+                  {item.title}
                 </Link>
-              ) : (
-                <span aria-disabled="true" title="콘텐츠 준비 중">
-                  {item}
-                </span>
-              )}
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       </nav>
 

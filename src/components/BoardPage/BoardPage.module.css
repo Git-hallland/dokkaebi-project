@@ -1,0 +1,139 @@
+.page {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.breadcrumbs a:hover,
+.breadcrumbs a:focus-visible {
+  color: var(--primary-hover);
+}
+
+.intro,
+.tools,
+.emptyState {
+  background: var(--surface-glass);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px rgb(255 255 255 / 3%);
+  backdrop-filter: blur(14px);
+}
+
+.intro {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: 0.55rem;
+}
+
+.eyebrow {
+  margin-bottom: 0.45rem;
+  color: var(--primary-hover);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.intro h1 {
+  overflow-wrap: anywhere;
+  margin-bottom: 0.55rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+}
+
+.intro > p:last-child,
+.sectionHeading p,
+.emptyState p {
+  margin-bottom: 0;
+  color: var(--text-muted);
+}
+
+.tools {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(12rem, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.55rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding-inline: 0.8rem;
+  color: var(--text-muted);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  font: inherit;
+  opacity: 1;
+}
+
+.field input:disabled,
+.field select:disabled {
+  cursor: not-allowed;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.sectionHeading h2 {
+  margin-bottom: 0;
+  font-size: 1.25rem;
+}
+
+.sectionHeading p {
+  font-size: 0.82rem;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.emptyState {
+  display: grid;
+  gap: 0.35rem;
+  min-height: 8rem;
+  padding: 1.25rem;
+  align-content: center;
+  border-radius: 0.5rem;
+}
+
+.emptyState strong {
+  color: var(--text-strong);
+}
+
+.emptyState p {
+  font-size: 0.86rem;
+}
+
+@media (max-width: 44rem) {
+  .tools {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+}

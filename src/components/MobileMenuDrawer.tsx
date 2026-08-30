@@ -5,39 +5,16 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
+import { boardCategories, type BoardCategoryKey } from "@/lib/board-categories";
+
 import { CategoryIcon } from "./CategoryIcon";
 import styles from "./MobileMenuDrawer.module.css";
 
 const MENU_ORDER_KEY = "dokkaebiMobileMenuOrder";
 
-type MenuKey =
-  | "guides"
-  | "skills"
-  | "items"
-  | "monsters"
-  | "regions"
-  | "dungeons"
-  | "crafting"
-  | "events"
-  | "patches";
+type MenuKey = BoardCategoryKey;
 
-type MenuItem = Readonly<{
-  key: MenuKey;
-  title: string;
-  href?: string;
-}>;
-
-const menuItems: readonly MenuItem[] = [
-  { key: "guides", title: "공략게시판", href: "/guides" },
-  { key: "skills", title: "클래스 / 스킬" },
-  { key: "items", title: "아이템 / 장비" },
-  { key: "monsters", title: "몬스터 / 보스" },
-  { key: "regions", title: "지역 / NPC" },
-  { key: "dungeons", title: "던전 / 콘텐츠" },
-  { key: "crafting", title: "제작 / 생활" },
-  { key: "events", title: "이벤트 / 쿠폰" },
-  { key: "patches", title: "패치노트" },
-] as const;
+const menuItems = boardCategories;
 
 type MoveDirection = "left" | "right" | "up" | "down";
 
@@ -260,31 +237,17 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
                 );
               }
 
-              if (item.href) {
-                const isCurrent = pathname === item.href || pathname.startsWith(`${item.href}/`);
-                return (
-                  <Link
-                    key={item.key}
-                    className={`${styles.menuItem} ${isCurrent ? styles.current : ""}`}
-                    href={item.href}
-                    aria-current={isCurrent ? "page" : undefined}
-                    onClick={closeDrawer}
-                  >
-                    {itemContent}
-                  </Link>
-                );
-              }
-
+              const isCurrent = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
-                <button
+                <Link
                   key={item.key}
-                  className={styles.menuItem}
-                  type="button"
-                  disabled
-                  title={`${item.title} 콘텐츠 준비 중`}
+                  className={`${styles.menuItem} ${isCurrent ? styles.current : ""}`}
+                  href={item.href}
+                  aria-current={isCurrent ? "page" : undefined}
+                  onClick={closeDrawer}
                 >
                   {itemContent}
-                </button>
+                </Link>
               );
             })}
           </div>
