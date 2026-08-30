@@ -107,6 +107,17 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
 
     const previousOverflow = document.body.style.overflow;
     const triggerElement = triggerRef.current;
+    const layerElement = drawerRef.current?.parentElement;
+    const backgroundElements = Array.from(document.body.children)
+      .filter(
+        (element): element is HTMLElement =>
+          element instanceof HTMLElement && element !== layerElement,
+      )
+      .map((element) => ({ element, wasInert: element.inert }));
+
+    backgroundElements.forEach(({ element }) => {
+      element.inert = true;
+    });
     document.body.style.overflow = "hidden";
 
     const focusTimer = window.requestAnimationFrame(() => closeButtonRef.current?.focus());
@@ -146,6 +157,9 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
       window.cancelAnimationFrame(focusTimer);
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
+      backgroundElements.forEach(({ element, wasInert }) => {
+        element.inert = wasInert;
+      });
       triggerElement?.focus();
     };
   }, [closeDrawer, isOpen]);

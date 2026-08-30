@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { guideExamples } from "./guide-data";
+import { publishedGuides } from "./guide-data";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -46,11 +46,11 @@ export default function GuidesPage() {
         </div>
 
         <p className={styles.placeholderNotice} role="note">
-          아래 항목은 UI 확인용 예시이며 실제 게임 정보가 아닙니다.
+          출시 전 정보는 공식 발표 범위만 다루며, 실제 서비스 이후 다시 검수합니다.
         </p>
 
         <ul className={styles.list}>
-          {guideExamples.map((guide) => (
+          {publishedGuides.map((guide) => (
             <li key={guide.slug}>
               <Link className={styles.guideItem} href={`/guides/${guide.slug}`}>
                 <div className={styles.itemBody}>
@@ -59,6 +59,10 @@ export default function GuidesPage() {
                   <p>{guide.summary}</p>
                 </div>
                 <dl className={styles.metadata}>
+                  <div>
+                    <dt>콘텐츠 상태</dt>
+                    <dd>{guide.contentStatus}</dd>
+                  </div>
                   {guide.updatedAt ? (
                     <div>
                       <dt>수정일</dt>

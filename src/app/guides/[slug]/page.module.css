@@ -123,7 +123,8 @@
   color: var(--text-muted);
 }
 
-.documentBody ol {
+.documentBody ol,
+.documentBody ul {
   display: grid;
   gap: 0.55rem;
   padding-left: 1.4rem;
@@ -137,30 +138,30 @@
   font-size: 0.82rem;
 }
 
-.imagePlaceholder {
-  margin: 2.25rem 0;
-}
-
-.imagePlaceholder > div {
-  display: grid;
-  place-items: center;
-  min-height: 15rem;
-  color: var(--text-muted);
-  background: var(--surface-inset);
-  border: 1px dashed var(--border-strong);
-  border-radius: 0.45rem;
-}
-
-.imagePlaceholder figcaption {
-  margin-top: 0.55rem;
-  color: var(--text-muted);
-  font-size: 0.76rem;
-}
-
 .supportingSection {
   margin-top: 2.25rem;
   padding-top: 0.1rem;
   border-top: 1px solid var(--border);
+}
+
+.sourceList {
+  list-style: none;
+  padding-left: 0;
+}
+
+.sourceList li {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.sourceList a {
+  color: var(--primary-hover);
+  font-weight: 700;
+}
+
+.sourceList span {
+  color: var(--text-muted);
+  font-size: 0.76rem;
 }
 
 .backLink {
@@ -179,9 +180,5 @@
   .bookmarkButton {
     width: 100%;
     justify-content: center;
-  }
-
-  .imagePlaceholder > div {
-    min-height: 11rem;
   }
 }

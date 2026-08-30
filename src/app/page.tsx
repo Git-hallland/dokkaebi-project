@@ -1,5 +1,9 @@
+import Link from "next/link";
+
 import { CategoryCard } from "@/components/CategoryCard";
 import { SiteSearch } from "@/components/SiteSearch";
+
+import { publishedGuides } from "./guides/guide-data";
 
 import styles from "./page.module.css";
 
@@ -44,6 +48,8 @@ const categories = [
 ];
 
 export default function Home() {
+  const latestGuide = publishedGuides[0];
+
   return (
     <div className={styles.page}>
       <section className={styles.hero} aria-labelledby="home-title">
@@ -93,10 +99,21 @@ export default function Home() {
             </div>
           </div>
           <div className={styles.emptyState}>
-            <strong>아직 공개된 위키 문서가 없습니다.</strong>
-            <p>
-              공식 출처로 확인할 수 있는 정보부터 작성하고 검수한 뒤 이곳에 표시합니다.
-            </p>
+            {latestGuide ? (
+              <>
+                <strong>
+                  <Link href={`/guides/${latestGuide.slug}`}>{latestGuide.title}</Link>
+                </strong>
+                <p>{latestGuide.summary}</p>
+              </>
+            ) : (
+              <>
+                <strong>아직 공개된 위키 문서가 없습니다.</strong>
+                <p>
+                  공식 출처로 확인할 수 있는 정보부터 작성하고 검수한 뒤 이곳에 표시합니다.
+                </p>
+              </>
+            )}
           </div>
         </section>
 

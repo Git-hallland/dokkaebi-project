@@ -29,8 +29,9 @@ export function SiteSearch({ inputId, className }: SiteSearchProps) {
       <input
         id={inputId}
         type="search"
-        placeholder="공략, 아이템, 콘텐츠 검색"
+        placeholder="검색 기능 준비 중"
         aria-describedby={statusId}
+        disabled
       />
       <button type="button" disabled>
         검색
