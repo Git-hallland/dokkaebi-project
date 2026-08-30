@@ -1,84 +1,40 @@
-:root,
-[data-theme="dark"] {
-  --background: #090b1a;
-  --background-raised: #0e1125;
-  --surface: #14172f;
-  --surface-muted: #191d39;
-  --surface-accent: #24264a;
-  --surface-glass: rgb(20 23 47 / 62%);
-  --surface-glass-strong: rgb(16 19 40 / 74%);
-  --surface-glass-muted: rgb(27 30 59 / 56%);
+:root {
+  --background: #13172e;
+  --background-raised: #1a2040;
+  --surface: #23294d;
+  --surface-accent: #353d6b;
+  --surface-glass: rgb(35 41 77 / 76%);
+  --surface-glass-muted: rgb(43 50 91 / 72%);
   --text: #e8e7f2;
   --text-strong: #f8f7fc;
-  --text-muted: #aaa9c0;
-  --border: rgb(170 148 229 / 18%);
-  --border-strong: rgb(177 154 239 / 32%);
-  --primary: #9185d9;
-  --primary-hover: #aaa0e8;
-  --primary-soft: rgb(139 123 211 / 16%);
-  --focus: #c0b4ff;
-  --shadow-sm: 0 14px 34px rgb(2 3 12 / 24%);
-  --shadow-lg: 0 22px 54px rgb(2 3 12 / 34%);
+  --text-muted: #c3c1d5;
+  --border: rgb(187 168 239 / 30%);
+  --border-strong: rgb(197 179 248 / 46%);
+  --primary: #a99bed;
+  --primary-hover: #c0b5f5;
+  --primary-soft: rgb(164 145 232 / 25%);
+  --focus: #cbbfff;
   --shadow-color: rgb(2 3 12 / 34%);
-  --body-glow-primary: rgb(105 82 175 / 20%);
-  --body-glow-secondary: rgb(63 83 149 / 12%);
-  --card-surface: rgb(18 21 46 / 58%);
-  --card-surface-hover: rgb(31 34 67 / 66%);
-  --surface-inset: rgb(9 11 26 / 54%);
-  --sidebar-tint: rgb(15 17 39 / 30%);
-  --search-surface: rgb(25 29 57 / 82%);
-  --nav-surface: rgb(9 11 26 / 88%);
-  --footer-surface: rgb(7 9 22 / 72%);
-  --ad-surface: rgb(18 21 46 / 48%);
-  --floating-surface: rgb(12 15 34 / 94%);
-  --drawer-surface: rgb(12 15 34 / 98%);
+  --body-glow-primary: rgb(133 105 207 / 27%);
+  --body-glow-secondary: rgb(82 108 183 / 20%);
+  --card-surface: rgb(34 40 75 / 78%);
+  --card-surface-hover: rgb(50 57 101 / 84%);
+  --surface-inset: rgb(20 24 48 / 72%);
+  --sidebar-tint: rgb(29 35 68 / 48%);
+  --search-surface: rgb(43 50 91 / 92%);
+  --nav-surface: rgb(20 24 48 / 94%);
+  --footer-surface: rgb(18 22 44 / 86%);
+  --ad-surface: rgb(34 40 75 / 68%);
+  --floating-surface: rgb(25 30 59 / 97%);
+  --drawer-surface: rgb(25 30 59 / 99%);
   --drawer-backdrop: rgb(2 3 12 / 62%);
   --hero-text: #f8f7fc;
-  --hero-accent: #aaa0e8;
+  --hero-accent: #c0b5f5;
   --header-height: 4.75rem;
   --font-display: "Noto Serif KR", "Nanum Myeongjo", Batang, serif;
   color-scheme: dark;
   font-family:
     Arial, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-}
-
-[data-theme="light"] {
-  --background: #f4f2fa;
-  --background-raised: #ebe8f4;
-  --surface: #ffffff;
-  --surface-muted: #eeeaf6;
-  --surface-accent: #e4def1;
-  --surface-glass: rgb(255 255 255 / 78%);
-  --surface-glass-strong: rgb(255 255 255 / 90%);
-  --surface-glass-muted: rgb(239 235 248 / 82%);
-  --text: #343047;
-  --text-strong: #211d35;
-  --text-muted: #6e687f;
-  --border: rgb(91 76 137 / 18%);
-  --border-strong: rgb(91 76 137 / 32%);
-  --primary: #7562b8;
-  --primary-hover: #5e4ca3;
-  --primary-soft: rgb(117 98 184 / 14%);
-  --focus: #6955b4;
-  --shadow-sm: 0 14px 34px rgb(55 45 90 / 12%);
-  --shadow-lg: 0 22px 54px rgb(55 45 90 / 16%);
-  --shadow-color: rgb(55 45 90 / 20%);
-  --body-glow-primary: rgb(136 113 202 / 16%);
-  --body-glow-secondary: rgb(99 122 185 / 10%);
-  --card-surface: rgb(255 255 255 / 76%);
-  --card-surface-hover: rgb(244 240 251 / 92%);
-  --surface-inset: rgb(235 231 245 / 76%);
-  --sidebar-tint: rgb(229 224 242 / 54%);
-  --search-surface: rgb(255 255 255 / 84%);
-  --nav-surface: rgb(248 246 252 / 92%);
-  --footer-surface: rgb(235 231 245 / 82%);
-  --ad-surface: rgb(244 241 250 / 76%);
-  --floating-surface: rgb(250 248 253 / 96%);
-  --drawer-surface: rgb(248 246 252 / 98%);
-  --drawer-backdrop: rgb(35 29 55 / 34%);
-  --hero-text: #f8f7fc;
-  --hero-accent: #c1b7f0;
-  color-scheme: light;
 }
 
 *,

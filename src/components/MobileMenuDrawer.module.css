@@ -106,23 +106,6 @@
   stroke-width: 1.8;
 }
 
-.themeRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 1rem 0;
-  padding: 0.75rem 0.85rem;
-  background: var(--surface-glass-muted);
-  border: 1px solid var(--border);
-  border-radius: 0.55rem;
-}
-
-.themeRow > span {
-  font-size: 0.8rem;
-  font-weight: 750;
-}
-
 .menuGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

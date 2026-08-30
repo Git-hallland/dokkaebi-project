@@ -6,7 +6,6 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 import { createPortal } from "react-dom";
 
 import { CategoryIcon } from "./CategoryIcon";
-import { ThemeToggle } from "./ThemeToggle";
 import styles from "./MobileMenuDrawer.module.css";
 
 const MENU_ORDER_KEY = "dokkaebiMobileMenuOrder";
@@ -175,7 +174,11 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
         nextOrder[targetIndex],
         nextOrder[currentIndex],
       ];
-      window.localStorage.setItem(MENU_ORDER_KEY, JSON.stringify(nextOrder));
+      try {
+        window.localStorage.setItem(MENU_ORDER_KEY, JSON.stringify(nextOrder));
+      } catch {
+        // Keep the reordered menu in memory when storage is unavailable.
+      }
       return nextOrder;
     });
   };
@@ -218,11 +221,6 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
             </svg>
           </button>
         </header>
-
-        <div className={styles.themeRow}>
-          <span>화면 테마</span>
-          <ThemeToggle />
-        </div>
 
         <nav aria-label="모바일 전체 카테고리">
           <div className={`${styles.menuGrid} ${isEditing ? styles.editing : ""}`}>

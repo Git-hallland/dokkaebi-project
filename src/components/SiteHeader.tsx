@@ -4,7 +4,6 @@ import Link from "next/link";
 import { MobileMenuDrawer } from "./MobileMenuDrawer";
 import { MobileHeaderVisibility } from "./MobileHeaderVisibility";
 import { SiteSearch } from "./SiteSearch";
-import { ThemeToggle } from "./ThemeToggle";
 import styles from "./SiteHeader.module.css";
 
 export function SiteHeader() {
@@ -43,7 +42,6 @@ export function SiteHeader() {
 
         <div className={styles.desktopTools}>
           <SiteSearch className={styles.desktopSearch} inputId="desktop-site-search" />
-          <ThemeToggle />
         </div>
       </div>
     </MobileHeaderVisibility>

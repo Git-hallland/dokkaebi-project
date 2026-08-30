@@ -7,8 +7,6 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Sidebar } from "@/components/Sidebar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { ThemeProvider } from "@/components/ThemeProvider";
-
 import "./globals.css";
 import styles from "./layout.module.css";
 
@@ -23,24 +21,22 @@ type RootLayoutProps = Readonly<{
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="ko" data-theme="dark">
+    <html lang="ko">
       <body>
-        <ThemeProvider>
-          <a className="skip-link" href="#main-content">
-            본문으로 건너뛰기
-          </a>
-          <SiteHeader />
-          <div className={styles.shell}>
-            <Sidebar />
-            <main id="main-content" className={styles.content}>
-              {children}
-            </main>
-            <DesktopAdRail />
-          </div>
-          <SiteFooter />
-          <FloatingAdSlot />
-          <MobileBottomNav />
-        </ThemeProvider>
+        <a className="skip-link" href="#main-content">
+          본문으로 건너뛰기
+        </a>
+        <SiteHeader />
+        <div className={styles.shell}>
+          <Sidebar />
+          <main id="main-content" className={styles.content}>
+            {children}
+          </main>
+          <DesktopAdRail />
+        </div>
+        <SiteFooter />
+        <FloatingAdSlot />
+        <MobileBottomNav />
       </body>
     </html>
   );
