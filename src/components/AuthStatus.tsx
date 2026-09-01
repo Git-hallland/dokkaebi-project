@@ -8,7 +8,19 @@ import { UserAvatar } from "./UserAvatar";
 import { NotificationBell } from "./NotificationBell";
 import styles from "./AuthStatus.module.css";
 
-export function AuthStatus() {
+function PreviewAuthStatus() {
+  return (
+    <Link className={styles.signIn} href="/profile" title="로그인 기능은 개발 환경에서 확인할 수 있습니다.">
+      <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+        <circle cx="8" cy="12" r="4" />
+        <path d="m11 9 9-6M16 6l2 2M14 8l2 2" />
+      </svg>
+      로그인
+    </Link>
+  );
+}
+
+function LiveAuthStatus() {
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
@@ -33,4 +45,8 @@ export function AuthStatus() {
 
   const canViewReports = session.user.role === "REVIEWER" || session.user.role === "ADMIN";
   return <><NotificationBell />{canViewReports ? <Link className={styles.admin} href="/admin">신고 관리</Link> : null}<Link className={styles.profile} href="/profile" aria-label={`${session.user.name} 프로필`}><UserAvatar image={session.user.image} name={session.user.name} size="small" /><span className={styles.name}>프로필</span></Link></>;
+}
+
+export function AuthStatus({ frontendOnly = false }: Readonly<{ frontendOnly?: boolean }>) {
+  return frontendOnly ? <PreviewAuthStatus /> : <LiveAuthStatus />;
 }

@@ -1,14 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { createHash } from "node:crypto";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { CommunityPostEditor } from "@/components/CommunityPostEditor";
-import { auth } from "@/lib/auth";
+import { FrontendPreviewNotice } from "@/components/FrontendPreviewNotice";
 import type { CommunityDocument } from "@/lib/guide-community";
-import { prisma } from "@/lib/prisma";
+import { isFrontendOnly } from "@/lib/runtime-mode";
 import styles from "../../community.module.css";
 
+export const metadata: Metadata = { title: "게시물 수정", robots: { index: false, follow: false } };
+
 export default async function CommunityEditPage({ params }: { params: Promise<{ id: string }> }) {
+  if (isFrontendOnly()) return <div className={styles.page}><FrontendPreviewNotice heading="게시물 수정 미리보기" description="게시물 수정 기능은 로컬 개발 환경에서 확인할 수 있습니다." /></div>;
+  const [{ auth }, { prisma }] = await Promise.all([import("@/lib/auth"), import("@/lib/prisma")]);
   const { id } = await params;
   const [post, session] = await Promise.all([prisma.guidePost.findFirst({ where: { id, deletedAt: null }, select: { id: true, authorId: true, title: true, category: true, body: true } }), headers().then((value) => auth.api.getSession({ headers: value }))]);
   if (!post) notFound();

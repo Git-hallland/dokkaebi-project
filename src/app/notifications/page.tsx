@@ -3,14 +3,16 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { NotificationEntryLink } from "@/components/NotificationEntryLink";
 import { NotificationReadAll } from "@/components/NotificationReadAll";
-import { auth } from "@/lib/auth";
+import { FrontendPreviewNotice } from "@/components/FrontendPreviewNotice";
 import { formatCommunityPostTime } from "@/lib/guide-community";
-import { prisma } from "@/lib/prisma";
+import { isFrontendOnly } from "@/lib/runtime-mode";
 import styles from "../community/community.module.css";
 
 export const metadata: Metadata = { title: "알림 | 도깨비의세계 비공식 위키", robots: { index: false, follow: false } };
 const messages = { POST_LIKE: "회원님의 글을 좋아합니다.", POST_COMMENT: "회원님의 글에 댓글을 남겼습니다.", COMMENT_REPLY: "회원님의 댓글에 답글을 남겼습니다.", COMMENT_LIKE: "회원님의 댓글을 좋아합니다." } as const;
 export default async function NotificationsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  if (isFrontendOnly()) return <FrontendPreviewNotice heading="알림 미리보기" description="알림 데이터는 로컬 개발 환경에서 확인할 수 있습니다." />;
+  const [{ auth }, { prisma }] = await Promise.all([import("@/lib/auth"), import("@/lib/prisma")]);
   const [session, params] = await Promise.all([headers().then((value) => auth.api.getSession({ headers: value })), searchParams]);
   if (!session) return <div className={styles.empty}><h1>로그인이 필요합니다</h1><p>내 알림은 로그인 후 확인할 수 있습니다.</p><Link className={styles.write} href="/profile">로그인하러 가기</Link></div>;
   const cursor = typeof params.cursor === "string" ? params.cursor : undefined;

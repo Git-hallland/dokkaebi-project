@@ -22,9 +22,13 @@ function ItemContent({ label, icon }: PendingItem) {
   );
 }
 
-export function MobileBottomNav() {
+function LiveMobileBottomNav() {
   const pathname = usePathname();
   const { data: session, isPending } = authClient.useSession();
+  return <MobileBottomNavContent pathname={pathname} profileLabel={isPending ? "계정" : session ? "프로필" : "로그인"} profileIcon={session || isPending ? "profile" : "key"} />;
+}
+
+function MobileBottomNavContent({ pathname, profileLabel, profileIcon }: Readonly<{ pathname: string; profileLabel: string; profileIcon: MobileNavIconName }>) {
   const isHome = pathname === "/";
   const isGuides = pathname === "/community" || pathname.startsWith("/community/");
   const isProfile = pathname === "/profile" || pathname.startsWith("/profile/");
@@ -67,12 +71,18 @@ export function MobileBottomNav() {
             aria-current={isProfile ? "page" : undefined}
           >
             <ItemContent
-              label={isPending ? "계정" : session ? "프로필" : "로그인"}
-              icon={session || isPending ? "profile" : "key"}
+              label={profileLabel}
+              icon={profileIcon}
             />
           </Link>
         </li>
       </ul>
     </nav>
   );
+}
+
+export function MobileBottomNav({ frontendOnly = false }: Readonly<{ frontendOnly?: boolean }>) {
+  const pathname = usePathname();
+  if (frontendOnly) return <MobileBottomNavContent pathname={pathname} profileLabel="로그인" profileIcon="key" />;
+  return <LiveMobileBottomNav />;
 }

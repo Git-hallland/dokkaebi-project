@@ -17,6 +17,28 @@
   padding: 1.75rem 0 4rem;
 }
 
+.previewBadge {
+  position: fixed;
+  z-index: 30;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--nav-surface);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+@media (max-width: 62rem) {
+  .previewBadge {
+    bottom: calc(4.6rem + env(safe-area-inset-bottom));
+  }
+}
+
 @media (min-width: 120rem) {
   .shell {
     margin-inline: auto;

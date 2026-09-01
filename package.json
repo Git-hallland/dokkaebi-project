@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "test:auth": "node --test src/lib/kakao-profile.test.mjs src/lib/profile-input.test.mjs src/lib/profile-image.test.mjs src/lib/youtube-videos.test.mjs",
+    "test:auth": "node --test src/lib/kakao-profile.test.mjs src/lib/profile-input.test.mjs src/lib/profile-image.test.mjs src/lib/youtube-videos.test.mjs src/lib/runtime-mode.test.mjs src/lib/frontend-preview.test.mjs",
     "test:community": "node --test src/lib/guide-community.test.mjs src/lib/community-interactions.test.mjs src/lib/community-comments.test.mjs src/lib/community-reports.test.mjs src/lib/community-video.test.mjs"
   },
   "dependencies": {

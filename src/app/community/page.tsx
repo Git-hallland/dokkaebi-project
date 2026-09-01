@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { FrontendPreviewNotice } from "@/components/FrontendPreviewNotice";
 import { COMMUNITY_PAGE_SIZE, COMMUNITY_VISIBLE_WHERE, communityOrderBy, formatCommunityPostTime, isNewCommunityPost, normalizeCommunitySort } from "@/lib/guide-community";
-import { prisma } from "@/lib/prisma";
+import { isFrontendOnly } from "@/lib/runtime-mode";
 import styles from "./community.module.css";
 
-export const metadata: Metadata = { title: "공략게시판 | 도깨비의세계 비공식 위키", description: "이용자가 작성한 도깨비의세계 공략과 팁입니다." };
+export function generateMetadata(): Metadata {
+  return { title: "공략게시판 | 도깨비의세계 비공식 위키", description: "이용자가 작성한 도깨비의세계 공략과 팁입니다.", ...(isFrontendOnly() ? { robots: { index: false, follow: false } } : {}) };
+}
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export default async function CommunityPage({ searchParams }: Props) {
+  if (isFrontendOnly()) return <div className={styles.page}><header className={styles.header}><div><p>COMMUNITY</p><h1>공략게시판</h1><span>이용자가 직접 작성한 공략과 짧은 팁을 공유합니다.</span></div></header><FrontendPreviewNotice heading="게시판 미리보기" description="현재 프론트엔드 미리보기 환경입니다. 게시판 데이터와 글쓰기 기능은 로컬 개발 환경에서 확인할 수 있습니다." /></div>;
+  const [{ auth }, { prisma }] = await Promise.all([import("@/lib/auth"), import("@/lib/prisma")]);
   const [params, session] = await Promise.all([searchParams, headers().then((value) => auth.api.getSession({ headers: value }))]);
   const sort = normalizeCommunitySort(params.sort);
   const cursor = typeof params.cursor === "string" ? params.cursor : undefined;

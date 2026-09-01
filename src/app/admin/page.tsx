@@ -2,16 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { forbidden, redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { FrontendPreviewNotice } from "@/components/FrontendPreviewNotice";
 import { GUIDE_REPORT_PAGE_SIZE, communityDocumentPreview, hasCommunityCapability } from "@/lib/community-reports";
-import { prisma } from "@/lib/prisma";
+import { isFrontendOnly } from "@/lib/runtime-mode";
 import styles from "./admin.module.css";
 
-export const metadata: Metadata = { title: "Community 신고 관리 | DokkaebiProject" };
+export const metadata: Metadata = { title: "Community 신고 관리 | DokkaebiProject", robots: { index: false, follow: false } };
 const statuses = { PENDING: "미처리", RESOLVED: "처리됨", DISMISSED: "기각됨" } as const;
 const reasons = { SPAM:"스팸/도배",ABUSE:"욕설/괴롭힘",MISINFORMATION:"잘못된 정보",COPYRIGHT:"저작권 침해",OTHER:"기타" } as const;
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  if (isFrontendOnly()) return <div className={styles.page}><FrontendPreviewNotice heading="관리자 기능 미리보기" description="관리자 신고 관리 기능은 로컬 개발 환경에서 확인할 수 있습니다." /></div>;
+  const [{ auth }, { prisma }] = await Promise.all([import("@/lib/auth"), import("@/lib/prisma")]);
   const [session, query] = await Promise.all([headers().then((value) => auth.api.getSession({ headers: value })), searchParams]);
   if (!session) redirect("/profile");
   if (!hasCommunityCapability(session.user.role, "viewReports")) forbidden();

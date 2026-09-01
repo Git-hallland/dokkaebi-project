@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { FrontendPreviewNotice } from "@/components/FrontendPreviewNotice";
 import { formatCommunityPostTime } from "@/lib/guide-community";
-import { prisma } from "@/lib/prisma";
+import { isFrontendOnly } from "@/lib/runtime-mode";
 import styles from "../community/community.module.css";
 
 export const metadata: Metadata = { title: "즐겨찾기 | 도깨비의세계 비공식 위키", robots: { index: false, follow: false } };
 export default async function FavoritesPage() {
+  if (isFrontendOnly()) return <FrontendPreviewNotice heading="즐겨찾기 미리보기" description="즐겨찾기 데이터는 로컬 개발 환경에서 확인할 수 있습니다." />;
+  const [{ auth }, { prisma }] = await Promise.all([import("@/lib/auth"), import("@/lib/prisma")]);
   const session = await headers().then((value) => auth.api.getSession({ headers: value }));
   if (!session) return <div className={styles.empty}><h1>로그인이 필요합니다</h1><p>내가 즐겨찾기한 공략은 로그인 후 확인할 수 있습니다.</p><Link className={styles.write} href="/profile">로그인하러 가기</Link></div>;
   const favorites = await prisma.guidePostFavorite.findMany({

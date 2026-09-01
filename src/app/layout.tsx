@@ -7,6 +7,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Sidebar } from "@/components/Sidebar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { isFrontendOnly } from "@/lib/runtime-mode";
 import "./globals.css";
 import styles from "./layout.module.css";
 
@@ -20,13 +21,15 @@ type RootLayoutProps = Readonly<{
 }>;
 
 export default function RootLayout({ children }: RootLayoutProps) {
+  const frontendOnly = isFrontendOnly();
   return (
     <html lang="ko">
       <body>
         <a className="skip-link" href="#main-content">
           본문으로 건너뛰기
         </a>
-        <SiteHeader />
+        <SiteHeader frontendOnly={frontendOnly} />
+        {frontendOnly ? <div className={styles.previewBadge}>Frontend Preview</div> : null}
         <div className={styles.shell}>
           <Sidebar />
           <main id="main-content" className={styles.content}>
@@ -36,7 +39,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         </div>
         <SiteFooter />
         <FloatingAdSlot />
-        <MobileBottomNav />
+        <MobileBottomNav frontendOnly={frontendOnly} />
       </body>
     </html>
   );

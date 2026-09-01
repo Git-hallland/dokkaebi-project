@@ -8,7 +8,7 @@ import { NotificationBell } from "./NotificationBell";
 import { SiteSearch } from "./SiteSearch";
 import styles from "./SiteHeader.module.css";
 
-export function SiteHeader() {
+export function SiteHeader({ frontendOnly = false }: Readonly<{ frontendOnly?: boolean }>) {
   return (
     <MobileHeaderVisibility
       className={styles.header}
@@ -30,11 +30,11 @@ export function SiteHeader() {
           />
         </Link>
 
-        <NotificationBell className={`${styles.mobileAction} ${styles.notificationAction}`} />
+        <NotificationBell className={`${styles.mobileAction} ${styles.notificationAction}`} frontendOnly={frontendOnly} />
 
         <div className={styles.desktopTools}>
           <SiteSearch className={styles.desktopSearch} inputId="desktop-site-search" />
-          <AuthStatus />
+          <AuthStatus frontendOnly={frontendOnly} />
         </div>
       </div>
     </MobileHeaderVisibility>

@@ -9,6 +9,7 @@ import {
   verifyProfileImageUpdateProof,
 } from "@/lib/cloudinary-profile";
 import { normalizeProfileName } from "@/lib/profile-input";
+import { isFrontendOnly } from "@/lib/runtime-mode";
 
 function requireServerEnv(name: string) {
   const value = process.env[name]?.trim();
@@ -20,7 +21,8 @@ function requireServerEnv(name: string) {
   return value;
 }
 
-export const auth = betterAuth({
+function createAuth() {
+  return betterAuth({
   baseURL: requireServerEnv("BETTER_AUTH_URL"),
   secret: requireServerEnv("BETTER_AUTH_SECRET"),
   database: prismaAdapter(prisma, {
@@ -94,5 +96,26 @@ export const auth = betterAuth({
         email: getKakaoUserEmail(profile),
       }),
     },
+  },
+  });
+}
+
+type Auth = ReturnType<typeof createAuth>;
+
+let authInstance: Auth | undefined;
+
+export function getAuth() {
+  if (isFrontendOnly()) {
+    throw new Error("Authentication is unavailable in frontend-only preview mode.");
+  }
+  authInstance ??= createAuth();
+  return authInstance;
+}
+
+export const auth = new Proxy({} as Auth, {
+  get(_target, property) {
+    const instance = getAuth();
+    const value = Reflect.get(instance, property, instance) as unknown;
+    return typeof value === "function" ? value.bind(instance) : value;
   },
 });

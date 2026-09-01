@@ -5,6 +5,7 @@ import { SiteSearch } from "@/components/SiteSearch";
 import { boardCategories } from "@/lib/board-categories";
 import { COMMUNITY_VISIBLE_WHERE } from "@/lib/guide-community";
 import { prisma } from "@/lib/prisma";
+import { isFrontendOnly } from "@/lib/runtime-mode";
 import { getPopularYouTubeVideos } from "@/lib/youtube-videos";
 
 import styles from "./page.module.css";
@@ -17,9 +18,10 @@ const guideCategoryLabels = {
 } as const;
 
 export default async function Home() {
+  const frontendOnly = isFrontendOnly();
   const [popularVideos, popularGuidePosts] = await Promise.all([
     getPopularYouTubeVideos(),
-    prisma.guidePost.findMany({ where: COMMUNITY_VISIBLE_WHERE, orderBy: [{ likeCount: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 3, select: { id: true, title: true, category: true, likeCount: true, author: { select: { name: true } } } }),
+    frontendOnly ? Promise.resolve([]) : prisma.guidePost.findMany({ where: COMMUNITY_VISIBLE_WHERE, orderBy: [{ likeCount: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 3, select: { id: true, title: true, category: true, likeCount: true, author: { select: { name: true } } } }),
   ]);
 
   return (
@@ -86,6 +88,11 @@ export default async function Home() {
               </li>
             ))}
           </ol>
+        ) : frontendOnly ? (
+          <div className={styles.emptyState} role="status">
+            <strong>프론트엔드 미리보기 환경입니다.</strong>
+            <p>인기 공략 데이터는 로컬 개발 환경에서 확인할 수 있습니다.</p>
+          </div>
         ) : (
           <div className={styles.emptyState} role="status">
             <strong>아직 등록된 인기 공략이 없습니다.</strong>
