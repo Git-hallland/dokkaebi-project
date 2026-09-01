@@ -1,4 +1,4 @@
-export type MobileNavIconName = "home" | "board" | "bookmark" | "profile";
+export type MobileNavIconName = "home" | "board" | "bookmark" | "profile" | "key";
 
 type MobileNavIconProps = Readonly<{
   name: MobileNavIconName;
@@ -23,6 +23,13 @@ function IconPaths({ name }: Readonly<{ name: MobileNavIconName }>) {
         <>
           <circle cx="12" cy="8" r="4" />
           <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+        </>
+      );
+    case "key":
+      return (
+        <>
+          <circle cx="8" cy="12" r="4" />
+          <path d="m11 9 9-6M16 6l2 2M14 8l2 2" />
         </>
       );
   }

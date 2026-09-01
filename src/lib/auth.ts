@@ -1,8 +1,14 @@
 import { betterAuth } from "better-auth";
+import { APIError } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
 import { getKakaoUserEmail } from "@/lib/kakao-profile";
 import { prisma } from "@/lib/prisma";
+import {
+  PROFILE_IMAGE_PROOF_HEADER,
+  verifyProfileImageUpdateProof,
+} from "@/lib/cloudinary-profile";
+import { normalizeProfileName } from "@/lib/profile-input";
 
 function requireServerEnv(name: string) {
   const value = process.env[name]?.trim();
@@ -34,6 +40,40 @@ export const auth = betterAuth({
       },
     },
   },
+  databaseHooks: {
+    user: {
+      update: {
+        before: async (user, context) => {
+          try {
+            if (user.image !== undefined) {
+              const sessionUserId = context?.context.session?.user.id;
+              const proof = context?.headers?.get(PROFILE_IMAGE_PROOF_HEADER) ?? null;
+
+              if (
+                typeof user.image !== "string" ||
+                !sessionUserId ||
+                !verifyProfileImageUpdateProof(sessionUserId, user.image, proof)
+              ) {
+                throw new Error("검증된 프로필 이미지 업로드만 저장할 수 있습니다.");
+              }
+            }
+
+            return {
+              data: {
+                ...user,
+                ...(user.name !== undefined ? { name: normalizeProfileName(user.name) } : {}),
+              },
+            };
+          } catch (error) {
+            throw new APIError("BAD_REQUEST", {
+              code: "INVALID_PROFILE_INPUT",
+              message: error instanceof Error ? error.message : "프로필 입력값이 올바르지 않습니다.",
+            });
+          }
+        },
+      },
+    },
+  },
   account: {
     encryptOAuthTokens: true,
     accountLinking: {
@@ -48,6 +88,8 @@ export const auth = betterAuth({
     kakao: {
       clientId: requireServerEnv("KAKAO_CLIENT_ID"),
       clientSecret: requireServerEnv("KAKAO_CLIENT_SECRET"),
+      disableDefaultScope: true,
+      scope: ["profile_nickname", "profile_image"],
       mapProfileToUser: (profile) => ({
         email: getKakaoUserEmail(profile),
       }),

@@ -9,13 +9,22 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "test:auth": "node --test src/lib/kakao-profile.test.mjs"
+    "test:auth": "node --test src/lib/kakao-profile.test.mjs src/lib/profile-input.test.mjs src/lib/profile-image.test.mjs src/lib/youtube-videos.test.mjs",
+    "test:community": "node --test src/lib/guide-community.test.mjs src/lib/community-interactions.test.mjs src/lib/community-comments.test.mjs src/lib/community-reports.test.mjs src/lib/community-video.test.mjs"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "1.7.2",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
+    "@tiptap/core": "^3.30.6",
+    "@tiptap/extension-image": "^3.30.6",
+    "@tiptap/extension-link": "^3.30.6",
+    "@tiptap/extension-text-style": "^3.30.6",
+    "@tiptap/pm": "^3.30.6",
+    "@tiptap/react": "^3.30.6",
+    "@tiptap/starter-kit": "^3.30.6",
     "better-auth": "1.7.2",
+    "cloudinary": "2.11.0",
     "dotenv": "^17.4.2",
     "next": "16.3.3",
     "pg": "8.23.0",

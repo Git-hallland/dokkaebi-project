@@ -1,0 +1,5 @@
+.actions { display:flex; align-items:center; gap:.25rem; }
+.actions a,.actions button { display:inline-flex; align-items:center; min-height:2.25rem; padding:.3rem .55rem; color:#bcb5c8; background:transparent; border:1px solid transparent; border-radius:.45rem; font-size:.82rem; font-weight:700; }
+.actions a:hover,.actions a:focus-visible,.actions button:not(:disabled):hover,.actions button:not(:disabled):focus-visible { color:#f1eef6; background:rgba(82,71,101,.28); border-color:rgba(126,110,151,.35); }
+.actions .delete:not(:disabled):hover,.actions .delete:not(:disabled):focus-visible { color:#ffabb2; background:rgba(116,39,50,.18); border-color:rgba(185,78,91,.35); }
+.actions button:disabled { background:transparent; border-color:transparent; }

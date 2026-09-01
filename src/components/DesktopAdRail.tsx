@@ -1,7 +1,3 @@
-"use client";
-
-import { usePathname } from "next/navigation";
-
 import styles from "./DesktopAdRail.module.css";
 
 function AdPlaceholder({ position }: Readonly<{ position: number }>) {
@@ -14,16 +10,10 @@ function AdPlaceholder({ position }: Readonly<{ position: number }>) {
 }
 
 export function DesktopAdRail() {
-  const pathname = usePathname();
-
   return (
-    <aside className={styles.rail} aria-label={pathname === "/" ? "홈 우측 광고" : undefined}>
-      {pathname === "/" ? (
-        <>
-          <AdPlaceholder position={1} />
-          <AdPlaceholder position={2} />
-        </>
-      ) : null}
+    <aside className={styles.rail} aria-label="우측 광고">
+      <AdPlaceholder position={1} />
+      <AdPlaceholder position={2} />
     </aside>
   );
 }

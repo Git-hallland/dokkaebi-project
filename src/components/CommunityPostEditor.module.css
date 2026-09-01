@@ -1,0 +1,14 @@
+.editorShell { display: grid; gap: 1rem; }
+.editorShell label { display: grid; gap: .45rem; font-weight: 700; }
+.editorShell input, .editorShell select, .toolbar button, .toolbar select { color: #eeedf5; background: #181522; border: 1px solid #4e485f; border-radius: .5rem; padding: .7rem .8rem; }
+.toolbar { display: flex; gap: .45rem; overflow-x: auto; padding-bottom: .25rem; }
+.toolbar > * { flex: 0 0 auto; }
+.content { min-height: 22rem; padding: 1rem; border: 1px solid #4e485f; border-radius: .75rem; background: rgba(13,11,20,.72); }
+.content :global(.tiptap) { min-height: 20rem; outline: none; line-height: 1.75; }
+.content :global(.video-placeholder) { padding: 2rem; border: 1px dashed #8576ad; border-radius: .6rem; text-align: center; }
+.content :global(img) { max-width: 100%; height: auto; }
+.hiddenInput { display: none; }
+.note, .status { margin: 0; color: #bcb7c9; font-size: .9rem; }
+.status { color: #ffd089; }
+.submit { justify-self: end; border: 0; border-radius: .6rem; padding: .8rem 1.3rem; color: #17121f; background: #f0ca68; font-weight: 800; }
+@media (max-width: 40rem) { .content { min-height: 18rem; padding: .75rem; } .submit { width: 100%; } }

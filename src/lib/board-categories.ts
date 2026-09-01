@@ -21,9 +21,9 @@ export const boardCategories: readonly BoardCategory[] = [
   {
     key: "guides",
     title: "공략게시판",
-    href: "/guides",
-    description: "게임 플레이에 도움이 되는 검수된 공략을 모아볼 수 있습니다.",
-    homeDescription: "게임 플레이에 도움이 되는 검수된 공략을 확인할 수 있습니다.",
+    href: "/community",
+    description: "이용자가 작성한 공략과 팁을 최신순 또는 인기순으로 확인합니다.",
+    homeDescription: "이용자가 공유한 공략과 팁을 확인하고 직접 작성할 수 있습니다.",
   },
   {
     key: "skills",

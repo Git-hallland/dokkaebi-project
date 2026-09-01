@@ -56,7 +56,7 @@
 }
 
 .desktopSearch {
-  width: min(100%, 16.5rem);
+  width: clamp(10rem, 18vw, 16.5rem);
 }
 
 .mobileAction {

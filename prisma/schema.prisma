@@ -21,17 +21,55 @@ enum UserRole {
   ADMIN
 }
 
+enum GuidePostCategory {
+  GUIDE
+  TIP
+}
+
+enum GuideNotificationType {
+  POST_LIKE
+  POST_COMMENT
+  COMMENT_REPLY
+  COMMENT_LIKE
+}
+
+enum GuideReportReason {
+  SPAM
+  ABUSE
+  MISINFORMATION
+  COPYRIGHT
+  OTHER
+}
+
+enum GuideReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  role          UserRole  @default(USER)
-  sessions      Session[]
-  accounts      Account[]
+  id                         String                 @id
+  name                       String
+  email                      String
+  emailVerified              Boolean                @default(false)
+  image                      String?
+  createdAt                  DateTime               @default(now())
+  updatedAt                  DateTime               @updatedAt
+  role                       UserRole               @default(USER)
+  sessions                   Session[]
+  accounts                   Account[]
+  contents                   Content[]
+  contentRevisions           ContentRevision[]
+  guidePosts                 GuidePost[]
+  guideComments              GuideComment[]
+  guidePostLikes             GuidePostLike[]
+  guideCommentLikes          GuideCommentLike[]
+  guidePostFavorites         GuidePostFavorite[]
+  guideReadingProgress       GuideReadingProgress[]
+  guideNotificationsReceived GuideNotification[]    @relation("GuideNotificationRecipient")
+  guideNotificationActions   GuideNotification[]    @relation("GuideNotificationActor")
+  guideReportsSubmitted      GuideReport[]           @relation("GuideReportReporter")
+  guideReportsResolved       GuideReport[]           @relation("GuideReportResolver")
 
   @@unique([email])
   @@map("user")
@@ -99,7 +137,9 @@ model Content {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   publishedAt DateTime?
+  authorId    String?
 
+  author    User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
   claims    Claim[]
   sources   ContentSource[]
   revisions ContentRevision[]
@@ -107,6 +147,7 @@ model Content {
 
   @@index([status])
   @@index([checkedAt])
+  @@index([authorId])
 }
 
 model Claim {
@@ -182,10 +223,13 @@ model ContentRevision {
   summary    String?
   fromStatus ContentStatus?
   toStatus   ContentStatus?
+  authorId   String?
 
   content Content @relation(fields: [contentId], references: [id], onDelete: Restrict)
+  author  User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([contentId, changedAt])
+  @@index([authorId, changedAt])
 }
 
 model Report {
@@ -205,4 +249,161 @@ model Report {
   @@index([contentId])
   @@index([claimId])
   @@index([status])
+}
+
+model GuidePost {
+  id           String            @id @default(cuid())
+  authorId     String?
+  category     GuidePostCategory
+  title        String
+  body         Json
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  deletedAt    DateTime?
+  viewCount    Int               @default(0)
+  likeCount    Int               @default(0)
+  commentCount Int               @default(0)
+
+  author            User?                  @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  comments          GuideComment[]
+  likes             GuidePostLike[]
+  favorites         GuidePostFavorite[]
+  readingProgresses GuideReadingProgress[]
+  views             GuidePostView[]
+  notifications     GuideNotification[]
+  reports           GuideReport[]
+
+  @@index([deletedAt, createdAt])
+  @@index([deletedAt, likeCount, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model GuideComment {
+  id        String    @id @default(cuid())
+  postId    String
+  authorId  String?
+  parentId  String?
+  body      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  likeCount Int       @default(0)
+
+  post          GuidePost           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author        User?               @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  parent        GuideComment?       @relation("GuideCommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies       GuideComment[]      @relation("GuideCommentReplies")
+  likes         GuideCommentLike[]
+  notifications GuideNotification[]
+  reports       GuideReport[]
+
+  @@index([postId, createdAt])
+  @@index([parentId, createdAt])
+}
+
+model GuidePostLike {
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post GuidePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
+}
+
+model GuideCommentLike {
+  userId    String
+  commentId String
+  createdAt DateTime @default(now())
+
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment GuideComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@id([userId, commentId])
+  @@index([commentId])
+}
+
+model GuidePostFavorite {
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post GuidePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
+}
+
+model GuideReadingProgress {
+  userId    String
+  postId    String
+  progress  Float
+  updatedAt DateTime @updatedAt
+
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post GuidePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
+}
+
+model GuidePostView {
+  postId        String
+  viewerKeyHash String
+  viewedOn      DateTime @db.Date
+  createdAt     DateTime @default(now())
+
+  post GuidePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, viewerKeyHash, viewedOn])
+  @@index([postId, createdAt])
+}
+
+model GuideNotification {
+  id          String                @id @default(cuid())
+  recipientId String
+  actorId     String?
+  type        GuideNotificationType
+  postId      String?
+  commentId   String?
+  dedupeKey   String                @unique
+  createdAt   DateTime              @default(now())
+  readAt      DateTime?
+
+  recipient User          @relation("GuideNotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor     User?         @relation("GuideNotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  post      GuidePost?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment   GuideComment? @relation(fields: [commentId], references: [id], onDelete: SetNull)
+
+  @@index([recipientId, createdAt])
+  @@index([recipientId, readAt])
+}
+
+model GuideReport {
+  id           String            @id @default(cuid())
+  reporterId   String?
+  postId       String?
+  commentId    String?
+  reason       GuideReportReason
+  description  String?
+  status       GuideReportStatus @default(PENDING)
+  createdAt    DateTime          @default(now())
+  resolvedAt   DateTime?
+  resolvedById String?
+  resolution   String?
+
+  reporter   User?         @relation("GuideReportReporter", fields: [reporterId], references: [id], onDelete: SetNull)
+  resolvedBy User?         @relation("GuideReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+  post       GuidePost?    @relation(fields: [postId], references: [id], onDelete: Restrict)
+  comment    GuideComment? @relation(fields: [commentId], references: [id], onDelete: Restrict)
+
+  @@unique([reporterId, postId])
+  @@unique([reporterId, commentId])
+  @@index([status, createdAt])
+  @@index([postId])
+  @@index([commentId])
+  @@index([resolvedById, resolvedAt])
 }

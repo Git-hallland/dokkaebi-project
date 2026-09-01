@@ -41,12 +41,6 @@ export function Sidebar() {
           })}
         </ul>
       </nav>
-
-      <div className={styles.status}>
-        <span>콘텐츠 상태</span>
-        <strong>공식 확인 정보 준비 중</strong>
-        <p>검수 기준을 충족한 문서만 공개합니다.</p>
-      </div>
     </aside>
   );
 }

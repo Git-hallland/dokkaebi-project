@@ -1,0 +1,7 @@
+.content { color: #e8e7ef; line-height: 1.8; overflow-wrap: anywhere; }
+.content p { min-height: 1.5em; margin: .75rem 0; }
+.content h2, .content h3 { color: #fff; margin: 1.5rem 0 .6rem; }
+.content blockquote { border-left: 3px solid #8c77cf; margin: 1rem 0; padding: .25rem 1rem; color: #c9c5d8; }
+.content a { color: #9dc7ff; text-decoration: underline; }
+.content img { display: block; max-width: 100%; height: auto; margin: 1rem auto; border-radius: .8rem; }
+.video { display:block; width:100%; max-height:min(72vh,42rem); margin:1.25rem auto; border-radius:.8rem; background:#090812; object-fit:contain; }

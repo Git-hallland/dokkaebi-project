@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { authClient } from "@/lib/auth-client";
+
 import { MobileNavIcon, type MobileNavIconName } from "./MobileNavIcon";
 import styles from "./MobileBottomNav.module.css";
 
@@ -10,11 +12,6 @@ type PendingItem = Readonly<{
   label: string;
   icon: MobileNavIconName;
 }>;
-
-const pendingItems: readonly PendingItem[] = [
-  { label: "즐겨찾기", icon: "bookmark" },
-  { label: "프로필", icon: "profile" },
-];
 
 function ItemContent({ label, icon }: PendingItem) {
   return (
@@ -27,8 +24,11 @@ function ItemContent({ label, icon }: PendingItem) {
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const { data: session, isPending } = authClient.useSession();
   const isHome = pathname === "/";
-  const isGuides = pathname === "/guides" || pathname.startsWith("/guides/");
+  const isGuides = pathname === "/community" || pathname.startsWith("/community/");
+  const isProfile = pathname === "/profile" || pathname.startsWith("/profile/");
+  const isFavorites = pathname === "/favorites" || pathname.startsWith("/favorites/");
 
   return (
     <nav className={styles.nav} aria-label="모바일 주요 탐색">
@@ -45,24 +45,33 @@ export function MobileBottomNav() {
         <li>
           <Link
             className={`${styles.item} ${isGuides ? styles.current : ""}`}
-            href="/guides"
+            href="/community"
             aria-current={isGuides ? "page" : undefined}
           >
             <ItemContent label="공략게시판" icon="board" />
           </Link>
         </li>
-        {pendingItems.map((item) => (
-          <li key={item.label}>
-            <button
-              className={styles.item}
-              type="button"
-              disabled
-              title={`${item.label} 기능 준비 중`}
-            >
-              <ItemContent {...item} />
-            </button>
-          </li>
-        ))}
+        <li>
+          <Link
+            className={`${styles.item} ${isFavorites ? styles.current : ""}`}
+            href="/favorites"
+            aria-current={isFavorites ? "page" : undefined}
+          >
+            <ItemContent label="즐겨찾기" icon="bookmark" />
+          </Link>
+        </li>
+        <li>
+          <Link
+            className={`${styles.item} ${isProfile ? styles.current : ""}`}
+            href="/profile"
+            aria-current={isProfile ? "page" : undefined}
+          >
+            <ItemContent
+              label={isPending ? "계정" : session ? "프로필" : "로그인"}
+              icon={session || isPending ? "profile" : "key"}
+            />
+          </Link>
+        </li>
       </ul>
     </nav>
   );

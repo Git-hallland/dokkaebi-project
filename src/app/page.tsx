@@ -1,15 +1,26 @@
-import Link from "next/link";
+import Image from "next/image";
 
 import { CategoryCard } from "@/components/CategoryCard";
 import { SiteSearch } from "@/components/SiteSearch";
 import { boardCategories } from "@/lib/board-categories";
-
-import { publishedGuides } from "./guides/guide-data";
+import { COMMUNITY_VISIBLE_WHERE } from "@/lib/guide-community";
+import { prisma } from "@/lib/prisma";
+import { getPopularYouTubeVideos } from "@/lib/youtube-videos";
 
 import styles from "./page.module.css";
 
-export default function Home() {
-  const latestGuide = publishedGuides[0];
+export const dynamic = "force-dynamic";
+
+const guideCategoryLabels = {
+  GUIDE: "공략",
+  TIP: "팁",
+} as const;
+
+export default async function Home() {
+  const [popularVideos, popularGuidePosts] = await Promise.all([
+    getPopularYouTubeVideos(),
+    prisma.guidePost.findMany({ where: COMMUNITY_VISIBLE_WHERE, orderBy: [{ likeCount: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 3, select: { id: true, title: true, category: true, likeCount: true, author: { select: { name: true } } } }),
+  ]);
 
   return (
     <div className={styles.page}>
@@ -51,56 +62,78 @@ export default function Home() {
         </div>
       </section>
 
-      <div className={styles.infoGrid}>
-        <section className={styles.panel} aria-labelledby="latest-title">
-          <div className={styles.panelHeading}>
-            <div>
-              <p className={styles.sectionLabel}>업데이트</p>
-              <h2 id="latest-title">최신 정보</h2>
-            </div>
+      <section className={`${styles.panel} ${styles.popularPanel}`} aria-labelledby="popular-title">
+        <div className={styles.panelHeading}>
+          <div>
+            <p className={styles.sectionLabel}>BEST 3</p>
+            <h2 id="popular-title">공략게시판 인기글</h2>
           </div>
-          <div className={styles.emptyState}>
-            {latestGuide ? (
-              <>
-                <strong>
-                  <Link href={`/guides/${latestGuide.slug}`}>{latestGuide.title}</Link>
-                </strong>
-                <p>{latestGuide.summary}</p>
-              </>
-            ) : (
-              <>
-                <strong>아직 공개된 위키 문서가 없습니다.</strong>
-                <p>
-                  공식 출처로 확인할 수 있는 정보부터 작성하고 검수한 뒤 이곳에 표시합니다.
-                </p>
-              </>
-            )}
+          <p>좋아요가 많은 공략과 팁을 소개합니다.</p>
+        </div>
+        {popularGuidePosts.length > 0 ? (
+          <ol className={styles.popularList}>
+            {popularGuidePosts.slice(0, 3).map((post, index) => (
+              <li key={post.id}>
+                <span className={styles.rank}>{index + 1}</span>
+                <div className={styles.postSummary}>
+                  <span>{guideCategoryLabels[post.category]}</span>
+                  <strong><a href={`/community/${post.id}`}>{post.title}</a></strong>
+                  <small>{post.author?.name ?? "탈퇴한 사용자"}</small>
+                </div>
+                <span className={styles.likeCount} aria-label={`좋아요 ${post.likeCount}개`}>
+                  ♥ {post.likeCount}
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <div className={styles.emptyState} role="status">
+            <strong>아직 등록된 인기 공략이 없습니다.</strong>
+            <p>공략게시판이 열리고 이용자 글이 등록되면 인기 순으로 이곳에 표시됩니다.</p>
           </div>
-        </section>
+        )}
+      </section>
 
-        <section className={styles.panel} aria-labelledby="source-title">
-          <div className={styles.panelHeading}>
-            <div>
-              <p className={styles.sectionLabel}>편집 원칙</p>
-              <h2 id="source-title">근거와 사실을 함께</h2>
-            </div>
+      <section className={`${styles.panel} ${styles.videoPanel}`} aria-labelledby="video-title">
+        <div className={styles.panelHeading}>
+          <div>
+            <p className={styles.sectionLabel}>YouTube</p>
+            <h2 id="video-title">도깨비의세계 인기 영상</h2>
           </div>
-          <ul className={styles.policyList}>
-            <li>
-              <strong>공식 확인</strong>
-              <span>공식 발표와 직접 확인할 수 있는 자료를 우선합니다.</span>
-            </li>
-            <li>
-              <strong>출처 추적</strong>
-              <span>핵심 정보에는 출처와 확인 시점을 함께 남깁니다.</span>
-            </li>
-            <li>
-              <strong>변경 이력 보존</strong>
-              <span>현재 정보와 함께 중요한 변경 근거를 보존합니다.</span>
-            </li>
+          <p>YouTube 조회수 기준 검색 결과입니다.</p>
+        </div>
+        {popularVideos.length > 0 ? (
+          <ul className={styles.videoGrid}>
+            {popularVideos.map((video) => (
+              <li key={video.videoId}>
+                <a
+                  href={`https://www.youtube.com/watch?v=${encodeURIComponent(video.videoId)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className={styles.thumbnail}>
+                    <Image
+                      src={video.thumbnailUrl}
+                      alt=""
+                      width={480}
+                      height={270}
+                      sizes="(max-width: 44rem) 100vw, 22rem"
+                    />
+                    <span aria-hidden="true">▶</span>
+                  </span>
+                  <strong>{video.title}</strong>
+                  <small>{video.channelTitle}</small>
+                </a>
+              </li>
+            ))}
           </ul>
-        </section>
-      </div>
+        ) : (
+          <div className={styles.emptyState} role="status">
+            <strong>현재 인기 영상을 불러올 수 없습니다.</strong>
+            <p>서버 설정 또는 YouTube 응답을 확인한 뒤 자동으로 다시 시도합니다.</p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

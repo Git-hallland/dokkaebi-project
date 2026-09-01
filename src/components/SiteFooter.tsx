@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import styles from "./SiteFooter.module.css";
 
 export function SiteFooter() {
@@ -19,7 +21,9 @@ export function SiteFooter() {
             ‘도깨비의세계’ 명칭, 상표 및 게임 관련 자료의 권리는 카카오게임즈·슈퍼캣 등
             각 권리자에게 있습니다.
           </p>
-          <div className={styles.policyArea}>문의·정책 안내는 관련 문서 준비 후 제공합니다.</div>
+          <div className={styles.policyArea}>
+            <Link href="/editorial-policy">위키 운영 원칙</Link>
+          </div>
           <small>© 2026 DokkaebiProject. 사이트 자체 제작 문서에 한함.</small>
         </div>
       </div>

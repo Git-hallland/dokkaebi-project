@@ -1,0 +1,38 @@
+.avatar,
+.fallback {
+  flex: 0 0 auto;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+}
+
+.avatar {
+  display: block;
+  object-fit: cover;
+}
+
+.fallback {
+  display: inline-grid;
+  place-items: center;
+  color: var(--background);
+  background: var(--primary-hover);
+  font-weight: 900;
+}
+
+.small {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.82rem;
+}
+
+.large {
+  width: 5.5rem;
+  height: 5.5rem;
+  font-size: 2rem;
+}
+
+@media (max-width: 40rem) {
+  .large {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+}

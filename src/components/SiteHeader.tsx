@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { AuthStatus } from "./AuthStatus";
 import { MobileMenuDrawer } from "./MobileMenuDrawer";
 import { MobileHeaderVisibility } from "./MobileHeaderVisibility";
+import { NotificationBell } from "./NotificationBell";
 import { SiteSearch } from "./SiteSearch";
 import styles from "./SiteHeader.module.css";
 
@@ -28,20 +30,11 @@ export function SiteHeader() {
           />
         </Link>
 
-        <button
-          className={`${styles.mobileAction} ${styles.notificationAction}`}
-          type="button"
-          aria-label="알림"
-          title="알림 기능 준비 중"
-          disabled
-        >
-          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
-            <path d="M6.5 9a5.5 5.5 0 0 1 11 0v4l2 3H4.5l2-3ZM10 19h4" />
-          </svg>
-        </button>
+        <NotificationBell className={`${styles.mobileAction} ${styles.notificationAction}`} />
 
         <div className={styles.desktopTools}>
           <SiteSearch className={styles.desktopSearch} inputId="desktop-site-search" />
+          <AuthStatus />
         </div>
       </div>
     </MobileHeaderVisibility>

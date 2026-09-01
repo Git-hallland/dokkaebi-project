@@ -66,6 +66,11 @@
   border-top: 1px solid var(--border);
 }
 
+.policyArea a:hover,
+.policyArea a:focus-visible {
+  color: var(--primary-hover);
+}
+
 @media (max-width: 62rem) {
   .footer {
     padding-bottom: calc(10.5rem + env(safe-area-inset-bottom));
