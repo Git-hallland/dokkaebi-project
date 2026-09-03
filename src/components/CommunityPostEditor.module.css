@@ -1,14 +1,59 @@
 .editorShell { display: grid; gap: 1rem; }
-.editorShell label { display: grid; gap: .45rem; font-weight: 700; }
-.editorShell input, .editorShell select, .toolbar button, .toolbar select { color: #eeedf5; background: #181522; border: 1px solid #4e485f; border-radius: .5rem; padding: .7rem .8rem; }
-.toolbar { display: flex; gap: .45rem; overflow-x: auto; padding-bottom: .25rem; }
-.toolbar > * { flex: 0 0 auto; }
-.content { min-height: 22rem; padding: 1rem; border: 1px solid #4e485f; border-radius: .75rem; background: rgba(13,11,20,.72); }
-.content :global(.tiptap) { min-height: 20rem; outline: none; line-height: 1.75; }
-.content :global(.video-placeholder) { padding: 2rem; border: 1px dashed #8576ad; border-radius: .6rem; text-align: center; }
-.content :global(img) { max-width: 100%; height: auto; }
+.editorShell label { font-weight: 700; }
+.editorShell input, .editorShell select, .toolbar button, .toolbar select, .actions button, .previewHeader button { color: var(--text); background: var(--surface-inset); border: 1px solid var(--border); border-radius: .55rem; }
+.editorShell input, .editorShell select { padding: .72rem .8rem; }
+.documentFields { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: .85rem; padding: 1rem; border: 1px solid var(--border); border-radius: .85rem; background: var(--card-surface); }
+.documentFields label { display: grid; gap: .4rem; }
+.documentFields label > span { color: var(--text-muted); font-size: .78rem; }
+.composer { overflow: visible; border: 1px solid var(--border-strong); border-radius: .85rem; background: var(--surface-inset); box-shadow: 0 1rem 2.5rem var(--shadow-color); }
+.toolbar { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: .45rem; padding: .65rem; border-bottom: 1px solid var(--border); border-radius: .85rem .85rem 0 0; background: var(--surface-glass-muted); }
+.toolGroup { position: relative; display: flex; align-items: center; gap: .3rem; padding-right: .45rem; border-right: 1px solid var(--border); }
+.toolGroup:last-of-type { padding-right: 0; border-right: 0; }
+.toolbar button, .toolbar select { min-height: 2.35rem; padding: .42rem .65rem; font-size: .78rem; white-space: nowrap; }
+.toolbar button:not(:disabled):hover, .toolbar button:not(:disabled):focus-visible, .toolbar select:focus-visible { color: var(--primary-hover); background: var(--primary-soft); border-color: var(--border-strong); }
+.iconButton { width: 2.35rem; padding-inline: 0 !important; }
+.colorPicker { position: relative; }
+.colorTrigger span { display: inline-grid; place-items: center; width: 1.15rem; margin-right: .25rem; border-bottom: 3px solid var(--primary); font-weight: 900; }
+.colorPopover { position: absolute; top: calc(100% + .5rem); right: 0; z-index: 20; width: 15.5rem; padding: .75rem; border: 1px solid var(--border-strong); border-radius: .7rem; background: var(--drawer-surface); box-shadow: 0 1rem 2.5rem var(--shadow-color); }
+.palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: .4rem; }
+.palette .swatch { width: 1.85rem; min-height: 1.85rem; padding: 0; border: 2px solid rgb(255 255 255 / 28%); border-radius: .35rem; }
+.palette .swatch:hover, .palette .swatch:focus-visible { border-color: var(--focus); transform: scale(1.08); }
+.resetColor { width: 100%; margin-top: .65rem; }
+.content { min-height: 28rem; padding: 1.25rem 1.5rem; background: rgb(13 11 20 / 72%); border-radius: 0 0 .85rem .85rem; }
+.content :global(.tiptap) { min-height: 25rem; outline: none; line-height: 1.8; }
+.content :global(.tiptap:focus) { caret-color: var(--primary-hover); }
+.content :global(.video-placeholder) { padding: 2rem; border: 1px dashed var(--border-strong); border-radius: .6rem; text-align: center; }
+.content :global(img) { display: block; max-width: 100%; height: auto; margin: 1rem auto; border-radius: .8rem; }
 .hiddenInput { display: none; }
-.note, .status { margin: 0; color: #bcb7c9; font-size: .9rem; }
+.note, .status { margin: 0; color: var(--text-muted); font-size: .86rem; }
 .status { color: #ffd089; }
-.submit { justify-self: end; border: 0; border-radius: .6rem; padding: .8rem 1.3rem; color: #17121f; background: #f0ca68; font-weight: 800; }
-@media (max-width: 40rem) { .content { min-height: 18rem; padding: .75rem; } .submit { width: 100%; } }
+.actions { display: flex; justify-content: flex-end; gap: .6rem; }
+.actions button { min-width: 6.5rem; padding: .78rem 1.2rem; font-weight: 800; }
+.previewButton { color: var(--text-strong) !important; background: var(--surface-accent) !important; }
+.submit { border-color: transparent !important; color: #17121f !important; background: #f0ca68 !important; }
+.previewDialog { width: min(92vw, 64rem); max-height: 88vh; padding: 0; overflow: auto; color: var(--text); background: var(--background); border: 1px solid var(--border-strong); border-radius: 1rem; box-shadow: 0 1.5rem 5rem rgb(0 0 0 / 55%); }
+.previewDialog::backdrop { background: rgb(4 3 10 / 76%); backdrop-filter: blur(4px); }
+.previewArticle { display: grid; gap: 1rem; padding: 1rem; }
+.previewHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.25rem 1.4rem; border: 1px solid var(--border); border-radius: .85rem; background: linear-gradient(135deg, rgb(40 33 54 / 92%), rgb(20 17 29 / 92%)); }
+.previewHeader span { color: #d2ad52; font-size: .75rem; font-weight: 800; letter-spacing: .12em; }
+.previewHeader h1 { margin: .35rem 0; font-size: clamp(1.45rem, 4vw, 2rem); }
+.previewHeader p { margin: 0; color: var(--text-muted); font-size: .82rem; }
+.previewHeader button { padding: .55rem .8rem; }
+.previewBody { min-height: 18rem; padding: 1.5rem; border: 1px solid var(--border); border-radius: .85rem; background: var(--card-surface); }
+
+@media (max-width: 48rem) {
+  .toolbar { flex-wrap: nowrap; overflow-x: auto; }
+  .toolGroup { flex: 0 0 auto; }
+  .colorPopover { position: fixed; top: 6rem; right: 1rem; left: 1rem; width: auto; }
+}
+
+@media (max-width: 40rem) {
+  .documentFields { grid-template-columns: 1fr; padding: .8rem; }
+  .content { min-height: 20rem; padding: 1rem; }
+  .content :global(.tiptap) { min-height: 18rem; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .actions button { width: 100%; min-width: 0; }
+  .previewDialog { width: calc(100vw - 1rem); max-height: 92vh; }
+  .previewHeader { padding: 1rem; }
+  .previewBody { padding: 1rem; }
+}

@@ -178,6 +178,8 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
     (key) => menuItems.find((item) => item.key === key) ?? menuItems[0],
   );
   const selectedIndex = selectedKey ? menuOrder.indexOf(selectedKey) : -1;
+  const isCommunityRoute = pathname === "/community" || pathname.startsWith("/community/");
+  const editingEnabled = isEditing && !isCommunityRoute;
 
   const drawer = (
     <div className={`${styles.layer} ${isOpen ? styles.layerOpen : ""}`}>
@@ -214,7 +216,7 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
         </header>
 
         <nav aria-label="모바일 전체 카테고리">
-          <div className={`${styles.menuGrid} ${isEditing ? styles.editing : ""}`}>
+          <div className={`${styles.menuGrid} ${editingEnabled ? styles.editing : ""}`}>
             {orderedItems.map((item) => {
               const itemContent = (
                 <>
@@ -223,7 +225,7 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
                 </>
               );
 
-              if (isEditing) {
+              if (editingEnabled) {
                 return (
                   <button
                     key={item.key}
@@ -253,7 +255,7 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
           </div>
         </nav>
 
-        {isEditing ? (
+        {editingEnabled ? (
           <div className={styles.editPanel}>
             <p role="status">
               {selectedKey
@@ -301,16 +303,18 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
           </div>
         ) : null}
 
-        <button
-          className={styles.editButton}
-          type="button"
-          onClick={() => {
-            setIsEditing((current) => !current);
-            setSelectedKey(null);
-          }}
-        >
-          {isEditing ? "편집 완료" : "메뉴 편집"}
-        </button>
+        {!isCommunityRoute ? (
+          <button
+            className={styles.editButton}
+            type="button"
+            onClick={() => {
+              setIsEditing((current) => !current);
+              setSelectedKey(null);
+            }}
+          >
+            {isEditing ? "편집 완료" : "메뉴 편집"}
+          </button>
+        ) : null}
       </section>
     </div>
   );

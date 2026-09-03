@@ -26,6 +26,16 @@ test("rejects unsafe links", () => {
   assert.throws(() => lib.normalizeCommunityDocument(body));
 });
 
+test("accepts only colors from the expanded community palette", () => {
+  const allowed = paragraph("청록색");
+  allowed.content[0].content[0].marks = [{ type: "textStyle", attrs: { color: "#14b8a6" } }];
+  assert.equal(lib.normalizeCommunityDocument(allowed).content[0].content[0].marks[0].attrs.color, "#14b8a6");
+
+  const arbitrary = paragraph("임의 색상");
+  arbitrary.content[0].content[0].marks = [{ type: "textStyle", attrs: { color: "#123456" } }];
+  assert.throws(() => lib.normalizeCommunityDocument(arbitrary));
+});
+
 test("accepts only verified Cloudinary video nodes", () => {
   const src = "https://res.cloudinary.com/demo/video/upload/v1/dokkaebi/posts/videos/staging/123e4567-e89b-12d3-a456-426614174000.mp4";
   const body = { type: "doc", content: [{ type: "video", attrs: { src } }] };

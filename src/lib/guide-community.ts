@@ -1,7 +1,9 @@
 export const COMMUNITY_PAGE_SIZE = 20;
 export const COMMUNITY_CATEGORIES = ["GUIDE", "TIP"] as const;
 export const COMMUNITY_COLORS = [
-  "#c3c1d5", "#ff8f9c", "#ffb86b", "#f3da72", "#75d69c", "#78aef5", "#b99af4",
+  "#111111", "#6b7280", "#c3c1d5", "#ef4444", "#ff8f9c", "#f97316", "#ffb86b",
+  "#eab308", "#f3da72", "#22c55e", "#75d69c", "#14b8a6", "#3b82f6", "#78aef5",
+  "#1e3a8a", "#8b5cf6", "#b99af4", "#ec4899",
 ] as const;
 export const COMMUNITY_FONT_SIZES = ["14px", "16px", "20px", "24px"] as const;
 export const COMMUNITY_VISIBLE_WHERE = { deletedAt: null } as const;

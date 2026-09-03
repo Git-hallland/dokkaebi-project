@@ -32,6 +32,38 @@
   font-size: 0.66rem;
 }
 
+.standardRail {
+  display: grid;
+  grid-template-columns: var(--desktop-ad-rail-width);
+  grid-template-rows: 15.625rem 37.5rem;
+  position: sticky;
+  top: calc(var(--header-height) + 1px);
+  align-self: start;
+  gap: 1.25rem;
+  width: var(--desktop-ad-rail-width);
+  height: max-content;
+}
+
+.standardRail .slot {
+  flex: none;
+  width: var(--desktop-ad-rail-width);
+  min-height: 0;
+}
+
+.standardRail .size300x250 {
+  height: 15.625rem;
+}
+
+.standardRail .size300x600 {
+  height: 37.5rem;
+}
+
+@media (max-width: 75rem) {
+  .standardRail {
+    display: none;
+  }
+}
+
 @media (max-width: 62rem) {
   .rail {
     display: none;
