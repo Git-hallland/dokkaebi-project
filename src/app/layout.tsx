@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { isFrontendOnly } from "@/lib/runtime-mode";
+import { getSiteSettings } from "@/lib/site-settings-data";
 import "./globals.css";
 import styles from "./layout.module.css";
 
@@ -20,8 +21,9 @@ type RootLayoutProps = Readonly<{
   children: ReactNode;
 }>;
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
   const frontendOnly = isFrontendOnly();
+  const siteSettings = await getSiteSettings();
   return (
     <html lang="ko">
       <body>
@@ -35,10 +37,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <main id="main-content" className={styles.content}>
             {children}
           </main>
-          <DesktopAdRail />
+          {siteSettings.rightAdEnabled ? <DesktopAdRail /> : null}
         </div>
-        <SiteFooter />
-        <FloatingAdSlot />
+        <SiteFooter adEnabled={siteSettings.footerAdEnabled} stickyAdEnabled={siteSettings.footerStickyAdEnabled} />
+        {siteSettings.footerStickyAdEnabled ? <FloatingAdSlot /> : null}
         <MobileBottomNav frontendOnly={frontendOnly} />
       </body>
     </html>

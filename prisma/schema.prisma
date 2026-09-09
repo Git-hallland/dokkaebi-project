@@ -130,6 +130,15 @@ model Verification {
   @@map("verification")
 }
 
+model SiteSetting {
+  id                    String   @id @default("site")
+  guideWriteEnabled     Boolean  @default(false)
+  rightAdEnabled        Boolean  @default(false)
+  footerAdEnabled       Boolean  @default(false)
+  footerStickyAdEnabled Boolean  @default(false)
+  updatedAt             DateTime @updatedAt
+}
+
 model Content {
   id              String        @id @default(cuid())
   type            String

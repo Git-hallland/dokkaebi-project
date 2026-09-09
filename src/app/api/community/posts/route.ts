@@ -2,10 +2,16 @@ import type { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { CommunityInputError, normalizeCommunityPostInput } from "@/lib/guide-community";
 import { prisma } from "@/lib/prisma";
+import { getSiteSettings } from "@/lib/site-settings-data";
+import { canCreateGuide } from "@/lib/site-settings";
 
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) return Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 });
+  const siteSettings = await getSiteSettings();
+  if (!canCreateGuide(session.user.role, siteSettings.guideWriteEnabled)) {
+    return Response.json({ code: "GUIDE_WRITING_DISABLED", message: "공략 작성은 정식 오픈 후 이용할 수 있습니다." }, { status: 403 });
+  }
   try {
     const input = normalizeCommunityPostInput(await request.json(), process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim());
     const post = await prisma.guidePost.create({

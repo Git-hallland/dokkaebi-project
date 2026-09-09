@@ -11,7 +11,8 @@
     "postinstall": "prisma generate",
     "test:auth": "node --test src/lib/kakao-profile.test.mjs src/lib/profile-input.test.mjs src/lib/profile-image.test.mjs src/lib/youtube-videos.test.mjs src/lib/runtime-mode.test.mjs src/lib/frontend-preview.test.mjs",
     "test:community": "node --test src/lib/guide-community.test.mjs src/lib/community-interactions.test.mjs src/lib/community-comments.test.mjs src/lib/community-reports.test.mjs src/lib/community-video.test.mjs",
-    "test:cms": "node --test src/lib/admin-content.test.mjs src/lib/admin-content-data.test.mjs src/lib/cms-content-format.test.mjs src/lib/cms-board-connections.test.mjs src/lib/cms-event-status.test.mjs src/lib/cms-entity.test.mjs"
+    "test:cms": "node --test src/lib/admin-content.test.mjs src/lib/admin-content-data.test.mjs src/lib/cms-content-format.test.mjs src/lib/cms-board-connections.test.mjs src/lib/cms-event-status.test.mjs src/lib/cms-entity.test.mjs",
+    "test:settings": "node --test src/lib/site-settings.test.mjs"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "1.7.2",

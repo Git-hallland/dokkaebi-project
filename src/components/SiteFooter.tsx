@@ -2,14 +2,16 @@ import Link from "next/link";
 
 import styles from "./SiteFooter.module.css";
 
-export function SiteFooter() {
+export function SiteFooter({ adEnabled, stickyAdEnabled }: Readonly<{ adEnabled: boolean; stickyAdEnabled: boolean }>) {
   return (
-    <footer className={styles.footer}>
+    <footer className={`${styles.footer} ${stickyAdEnabled ? "" : styles.withoutStickyAd}`}>
       <div className={styles.inner}>
-        <aside className={styles.adSlot} aria-label="하단 배너 광고 영역">
-          <span>광고 배너 영역</span>
-          <p>광고 플랫폼을 검토한 뒤 이 위치에 배너가 표시될 수 있습니다.</p>
-        </aside>
+        {adEnabled ? (
+          <aside className={styles.adSlot} aria-label="하단 배너 광고 영역">
+            <span>광고 배너 영역</span>
+            <p>광고 플랫폼을 검토한 뒤 이 위치에 배너가 표시될 수 있습니다.</p>
+          </aside>
+        ) : null}
 
         <div className={styles.information}>
           <strong>도깨비의 세계 WIKI</strong>
