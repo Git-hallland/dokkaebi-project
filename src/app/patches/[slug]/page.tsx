@@ -1,0 +1,1 @@
+import { EditorialContentPage } from "@/components/EditorialContentPage"; import { getBoardCategory } from "@/lib/board-categories"; export const dynamic="force-dynamic"; export default async function Page({params}:{params:Promise<{slug:string}>}){return <EditorialContentPage category={getBoardCategory("patches")} type="patches" slug={(await params).slug}/>}

@@ -14,6 +14,11 @@ enum ContentStatus {
   ARCHIVED
 }
 
+enum EventStatus {
+  ONGOING
+  ENDED
+}
+
 enum UserRole {
   USER
   EDITOR
@@ -68,8 +73,8 @@ model User {
   guideReadingProgress       GuideReadingProgress[]
   guideNotificationsReceived GuideNotification[]    @relation("GuideNotificationRecipient")
   guideNotificationActions   GuideNotification[]    @relation("GuideNotificationActor")
-  guideReportsSubmitted      GuideReport[]           @relation("GuideReportReporter")
-  guideReportsResolved       GuideReport[]           @relation("GuideReportResolver")
+  guideReportsSubmitted      GuideReport[]          @relation("GuideReportReporter")
+  guideReportsResolved       GuideReport[]          @relation("GuideReportResolver")
 
   @@unique([email])
   @@map("user")
@@ -126,28 +131,52 @@ model Verification {
 }
 
 model Content {
-  id          String        @id @default(cuid())
-  type        String
-  title       String
-  slug        String?       @unique
-  summary     String?
-  body        String?
-  status      ContentStatus @default(DRAFT)
-  checkedAt   DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  publishedAt DateTime?
-  authorId    String?
+  id              String        @id @default(cuid())
+  type            String
+  title           String
+  slug            String?       @unique
+  summary         String?
+  body            String?
+  coverImageUrl   String?
+  iconImageUrl    String?
+  entityCategory  String?
+  detailStatus    String?
+  entityMetadata  Json?
+  entitySortOrder Int?
+  eventStatus     EventStatus?
+  status          ContentStatus @default(DRAFT)
+  checkedAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  publishedAt     DateTime?
+  authorId        String?
 
-  author    User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  claims    Claim[]
-  sources   ContentSource[]
-  revisions ContentRevision[]
-  reports   Report[]
+  author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  claims      Claim[]
+  sources     ContentSource[]
+  revisions   ContentRevision[]
+  reports     Report[]
+  skillLevels SkillLevel[]
 
   @@index([status])
   @@index([checkedAt])
   @@index([authorId])
+}
+
+model SkillLevel {
+  id          String   @id @default(cuid())
+  contentId   String
+  order       Int
+  label       String
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@unique([contentId, order])
+  @@index([contentId, order])
 }
 
 model Claim {
@@ -170,7 +199,7 @@ model Claim {
 
 model Source {
   id          String    @id @default(cuid())
-  url         String    @unique
+  url         String?   @unique
   publisher   String
   title       String
   publishedAt DateTime?

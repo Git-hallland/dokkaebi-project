@@ -104,9 +104,102 @@
 }
 
 .list {
+  display: grid;
+  gap: 0.7rem;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.list a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--surface-glass);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.list a:hover,
+.list a:focus-visible {
+  border-color: var(--border-strong);
+}
+
+.list span {
+  min-width: 0;
+}
+
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.titleRow strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventBadge {
+  flex: 0 0 auto;
+  padding: 0.18rem 0.48rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.eventOngoing {
+  color: #ffd49b;
+  background: rgb(202 112 32 / 18%);
+  border-color: rgb(234 139 54 / 42%);
+}
+
+.eventEnded {
+  color: #adb1bc;
+  background: rgb(132 137 151 / 12%);
+  border-color: rgb(132 137 151 / 28%);
+}
+
+.list strong,
+.list p {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list p,
+.list time {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.list time {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.thumbnail {
+  flex: 0 0 auto;
+  width: 8rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border-radius: 0.4rem;
+  background: var(--surface-inset);
 }
 
 .emptyState {
@@ -135,5 +228,26 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 0.3rem;
+  }
+
+  .list a {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .thumbnail {
+    width: 5.5rem;
+    height: 3.1rem;
+  }
+
+  .list time {
+    grid-column: 2;
+    margin-left: 0;
+  }
+
+  .noThumbnail .content,
+  .noThumbnail time {
+    grid-column: 1 / -1;
   }
 }

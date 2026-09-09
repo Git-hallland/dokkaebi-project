@@ -1,0 +1,1 @@
+import { EntityDetailPage } from "@/components/EntityDetailPage"; import { getBoardCategory } from "@/lib/board-categories"; export const dynamic="force-dynamic"; export default async function Page({params}:{params:Promise<{slug:string}>}){return <EntityDetailPage category={getBoardCategory("skills")} type="skills" slug={(await params).slug}/>}

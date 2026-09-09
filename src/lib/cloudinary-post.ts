@@ -3,10 +3,12 @@ import "server-only";
 import { randomUUID, timingSafeEqual } from "node:crypto";
 import { v2 as cloudinary } from "cloudinary";
 import { PROFILE_IMAGE_MAX_BYTES } from "@/lib/profile-image";
+import { CMS_IMAGE_MAX_BYTES } from "@/lib/cms-content-format";
 import { requirePostVideoPreset, validatePostVideoUploadMetadata } from "@/lib/community-video";
 
 const POST_IMAGE_FOLDER = "dokkaebi/posts/staging";
 const POST_VIDEO_FOLDER = "dokkaebi/posts/videos/staging";
+const CMS_IMAGE_FOLDER = "dokkaebi/cms/staging";
 const ALLOWED_FORMATS = new Set(["png", "jpg", "jpeg", "webp"]);
 const ALLOWED_FORMATS_PARAMETER = "png,jpg,jpeg,webp";
 const ALLOWED_VIDEO_FORMATS_PARAMETER = "mp4,webm,mov";
@@ -39,13 +41,13 @@ function safeEqual(left: string, right: string) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-export function createPostImageUploadSignature() {
+function createImageUploadSignature(folder: string) {
   const { apiKey, apiSecret, cloudName, uploadPreset } = imageConfig();
   const timestamp = Math.floor(Date.now() / 1_000);
   const publicId = randomUUID();
   const parameters = {
     allowed_formats: ALLOWED_FORMATS_PARAMETER,
-    folder: POST_IMAGE_FOLDER,
+    folder,
     overwrite: false,
     public_id: publicId,
     timestamp,
@@ -55,7 +57,7 @@ export function createPostImageUploadSignature() {
     allowedFormats: ALLOWED_FORMATS_PARAMETER,
     apiKey,
     cloudName,
-    folder: POST_IMAGE_FOLDER,
+    folder,
     overwrite: "false",
     publicId,
     signature: cloudinary.utils.api_sign_request(parameters, apiSecret),
@@ -65,7 +67,15 @@ export function createPostImageUploadSignature() {
   };
 }
 
-export function verifyPostImageUpload(value: unknown) {
+export function createPostImageUploadSignature() {
+  return createImageUploadSignature(POST_IMAGE_FOLDER);
+}
+
+export function createCmsImageUploadSignature() {
+  return createImageUploadSignature(CMS_IMAGE_FOLDER);
+}
+
+function verifyImageUpload(value: unknown, folder: string, maxBytes: number) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("업로드 결과가 올바르지 않습니다.");
   const upload = value as Record<string, unknown>;
   const { apiSecret, cloudName } = imageConfig();
@@ -87,7 +97,7 @@ export function verifyPostImageUpload(value: unknown) {
   const width = upload.width as number;
   const expectedSignature = cloudinary.utils.api_sign_request({ public_id: publicId, version }, apiSecret);
   if (!safeEqual(signature, expectedSignature)) throw new Error("Cloudinary 응답 서명을 확인할 수 없습니다.");
-  if (resourceType !== "image" || !ALLOWED_FORMATS.has(format.toLowerCase()) || bytes < 1 || bytes > PROFILE_IMAGE_MAX_BYTES || width < 1 || height < 1 || !publicId.startsWith(`${POST_IMAGE_FOLDER}/`)) {
+  if (resourceType !== "image" || !ALLOWED_FORMATS.has(format.toLowerCase()) || bytes < 1 || bytes > maxBytes || width < 1 || height < 1 || !publicId.startsWith(`${folder}/`)) {
     throw new Error("허용되지 않은 게시물 이미지입니다.");
   }
   const url = new URL(secureUrl);
@@ -96,6 +106,14 @@ export function verifyPostImageUpload(value: unknown) {
     throw new Error("우리 Cloudinary 계정의 이미지 URL만 사용할 수 있습니다.");
   }
   return { secureUrl: url.toString() };
+}
+
+export function verifyPostImageUpload(value: unknown) {
+  return verifyImageUpload(value, POST_IMAGE_FOLDER, PROFILE_IMAGE_MAX_BYTES);
+}
+
+export function verifyCmsImageUpload(value: unknown) {
+  return verifyImageUpload(value, CMS_IMAGE_FOLDER, CMS_IMAGE_MAX_BYTES);
 }
 
 export function createPostVideoUploadSignature() {

@@ -12,7 +12,7 @@ function IconPaths({ title }: Readonly<{ title: string }>) {
           <path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5Z" />
         </>
       );
-    case "클래스 / 스킬":
+    case "도술":
       return (
         <>
           <path d="m14.5 4.5 5-1-1 5L9 18l-3 1 1-3Z" />
