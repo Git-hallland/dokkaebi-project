@@ -78,6 +78,7 @@ function createAuth() {
   },
   account: {
     encryptOAuthTokens: true,
+    storeStateStrategy: "cookie",
     accountLinking: {
       disableImplicitLinking: true,
     },
