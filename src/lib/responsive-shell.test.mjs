@@ -72,6 +72,15 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(searchCss, /calc\(100vw - 2rem\)/u);
   assert.match(carousel, /aria-label="이전 인기 영상"/u);
   assert.match(carousel, /aria-label="다음 인기 영상"/u);
+  assert.match(carousel, /AUTO_SLIDE_INTERVAL_MS = 5_000/u);
+  assert.match(carousel, /INTERACTION_PAUSE_MS = 7_000/u);
+  assert.match(carousel, /document\.visibilityState/u);
+  assert.match(carousel, /prefers-reduced-motion: reduce/u);
+  assert.match(carousel, /ResizeObserver/u);
   assert.match(homeCss, /scroll-snap-type: inline mandatory/u);
   assert.match(homeCss, /overflow-x: auto/u);
+  assert.match(homeCss, /scrollbar-width:\s*none/u);
+  assert.match(homeCss, /\.videoRail::-webkit-scrollbar\s*\{[\s\S]*display:\s*none/u);
+  assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*position:\s*absolute/u);
+  assert.match(homeCss, /\.carouselActions button\s*\{[\s\S]*top:\s*50%/u);
 });
