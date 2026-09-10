@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { notificationDedupeKey, shouldNotify } from "@/lib/community-comments";
 import { CommunityInteractionError, assertLikeAllowed, didCreateOrRemoveRelation } from "@/lib/community-interactions";
 import { prisma } from "@/lib/prisma";
+import { revalidateCommunityContent } from "@/lib/public-content-cache";
 
 type Context = { params: Promise<{ id: string }> };
 async function sessionUser(request: Request) { return (await auth.api.getSession({ headers: request.headers }))?.user.id ?? null; }
@@ -24,7 +25,7 @@ export async function POST(request: Request, { params }: Context) {
       const current = await tx.guidePost.findUniqueOrThrow({ where: { id }, select: { likeCount: true } });
       return { active: true, likeCount: current.likeCount };
     });
-    revalidatePath("/"); revalidatePath("/community"); return Response.json(result);
+    revalidateCommunityContent(); revalidatePath("/"); revalidatePath("/community"); return Response.json(result);
   } catch (error) { if (error instanceof CommunityInteractionError) return errorResponse(error); console.error("Community like failed."); return Response.json({ code: "LIKE_FAILED", message: "좋아요를 변경할 수 없습니다." }, { status: 500 }); }
 }
 
@@ -43,6 +44,6 @@ export async function DELETE(request: Request, { params }: Context) {
       const current = await tx.guidePost.findUniqueOrThrow({ where: { id }, select: { likeCount: true } });
       return { active: false, likeCount: Math.max(0, current.likeCount) };
     });
-    revalidatePath("/"); revalidatePath("/community"); return Response.json(result);
+    revalidateCommunityContent(); revalidatePath("/"); revalidatePath("/community"); return Response.json(result);
   } catch (error) { if (error instanceof CommunityInteractionError) return errorResponse(error); console.error("Community unlike failed."); return Response.json({ code: "LIKE_FAILED", message: "좋아요를 변경할 수 없습니다." }, { status: 500 }); }
 }

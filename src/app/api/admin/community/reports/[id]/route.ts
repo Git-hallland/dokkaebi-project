@@ -6,6 +6,7 @@ import {
   normalizeGuideReportResolution,
 } from "@/lib/community-reports";
 import { prisma } from "@/lib/prisma";
+import { revalidateCommunityContent } from "@/lib/public-content-cache";
 
 type Context = { params: Promise<{ id: string }> };
 class ReportNotFoundError extends Error {}
@@ -57,6 +58,7 @@ export async function PATCH(request: Request, { params }: Context) {
       });
       return { id, postId };
     });
+    revalidateCommunityContent();
     revalidatePath("/admin");
     revalidatePath(`/admin/reports/${result.id}`);
     if (result.postId) revalidatePath(`/community/${result.postId}`);

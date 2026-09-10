@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
 
 import type { BoardCategory } from "@/lib/board-categories";
 import type { CmsBoardType } from "@/lib/admin-content";
@@ -13,6 +14,7 @@ type BoardPageProps = Readonly<{
 }>;
 
 export async function BoardPage({ category }: BoardPageProps) {
+  await connection();
   const toolsTitleId = `${category.key}-tools-title`;
   const listTitleId = `${category.key}-list-title`;
   const emptyStatusId = `${category.key}-empty-status`;

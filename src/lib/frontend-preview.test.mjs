@@ -8,7 +8,6 @@ async function source(path) {
 
 test("DB-backed pages branch before loading auth or Prisma", async () => {
   const routes = [
-    "../app/community/page.tsx",
     "../app/community/[id]/page.tsx",
     "../app/community/[id]/edit/page.tsx",
     "../app/community/write/page.tsx",
@@ -28,9 +27,16 @@ test("DB-backed pages branch before loading auth or Prisma", async () => {
   }
 });
 
-test("home replaces its GuidePost query with preview data", async () => {
-  const contents = await source("../app/page.tsx");
-  assert.match(contents, /frontendOnly \? Promise\.resolve\(\[\]\) : prisma\.guidePost\.findMany/u);
+test("home and community cached data stay preview-safe", async () => {
+  const [home, communityData, editorial] = await Promise.all([
+    source("../app/page.tsx"),
+    source("./community-data.ts"),
+    source("./editorial-content.ts"),
+  ]);
+  assert.match(home, /getPopularGuidePosts\(\)/u);
+  assert.match(home, /getRecentPublishedEntities\(\)/u);
+  assert.match(communityData, /isFrontendOnly\(\) \? Promise\.resolve\(\[\]\)/u);
+  assert.match(editorial, /isFrontendOnly\(\) \? Promise\.resolve\(\[\]\)/u);
 });
 
 test("preview clients do not mount live auth or notification hooks", async () => {

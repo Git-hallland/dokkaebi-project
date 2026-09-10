@@ -1,0 +1,43 @@
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 9rem;
+  padding: 1.25rem;
+  color: var(--text-muted);
+  background: var(--surface-glass);
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+}
+
+.loading strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-strong);
+}
+
+.loading p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.indicator {
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--primary-hover);
+  border-radius: 50%;
+  animation: spin 650ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator {
+    animation: none;
+  }
+}

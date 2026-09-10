@@ -4,6 +4,7 @@ import { AdminContentInputError, isCmsAdmin, normalizeCmsContentInput } from "@/
 import { updateCmsContent } from "@/lib/admin-content-data";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateEditorialContent } from "@/lib/public-content-cache";
 
 function isUniqueConstraintError(error: unknown) {
   return Boolean(error && typeof error === "object" && "code" in error && error.code === "P2002");
@@ -22,6 +23,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       name: session.user.name,
     });
     if (!content) return NextResponse.json({ message: "콘텐츠를 찾을 수 없습니다." }, { status: 404 });
+    revalidateEditorialContent();
     return NextResponse.json({ id: content.id });
   } catch (error) {
     if (error instanceof AdminContentInputError) {

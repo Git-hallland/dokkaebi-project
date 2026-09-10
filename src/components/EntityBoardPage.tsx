@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import type { BoardCategory } from "@/lib/board-categories";
 import type { CmsBoardType } from "@/lib/admin-content";
 import { getPublishedBoardContents } from "@/lib/editorial-content";
@@ -7,6 +8,7 @@ import { EntityCardGrid } from "@/components/EntityCardGrid";
 import styles from "./EntityBoardPage.module.css";
 
 export async function EntityBoardPage({ category }: Readonly<{ category: BoardCategory }>) {
+  await connection();
   const type = category.key as CmsBoardType;
   const contents = await getPublishedBoardContents(type);
   const suggested: readonly string[] = type === "skills"

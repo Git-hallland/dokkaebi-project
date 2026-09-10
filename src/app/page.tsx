@@ -1,27 +1,31 @@
 import Image from "next/image";
+import Link from "next/link";
+import { connection } from "next/server";
 
-import { CategoryCard } from "@/components/CategoryCard";
 import { SiteSearch } from "@/components/SiteSearch";
-import { boardCategories } from "@/lib/board-categories";
-import { COMMUNITY_VISIBLE_WHERE } from "@/lib/guide-community";
-import { prisma } from "@/lib/prisma";
+import { getPopularGuidePosts } from "@/lib/community-data";
+import { getRecentPublishedEntities } from "@/lib/editorial-content";
 import { isFrontendOnly } from "@/lib/runtime-mode";
 import { getPopularYouTubeVideos } from "@/lib/youtube-videos";
 
+import { HomePopularTabs } from "./HomePopularTabs";
+
 import styles from "./page.module.css";
 
-export const dynamic = "force-dynamic";
-
-const guideCategoryLabels = {
-  GUIDE: "공략",
-  TIP: "팁",
+const entityTypeLabels = {
+  skills: "도술",
+  items: "아이템",
+  monsters: "몬스터",
+  regions: "지역 / NPC",
 } as const;
 
 export default async function Home() {
+  await connection();
   const frontendOnly = isFrontendOnly();
-  const [popularVideos, popularGuidePosts] = await Promise.all([
+  const [popularVideos, popularGuidePosts, recentEntities] = await Promise.all([
     getPopularYouTubeVideos(),
-    frontendOnly ? Promise.resolve([]) : prisma.guidePost.findMany({ where: COMMUNITY_VISIBLE_WHERE, orderBy: [{ likeCount: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 3, select: { id: true, title: true, category: true, likeCount: true, author: { select: { name: true } } } }),
+    getPopularGuidePosts(),
+    getRecentPublishedEntities(),
   ]);
 
   return (
@@ -40,104 +44,51 @@ export default async function Home() {
         </div>
       </section>
 
-      <section
-        id="main-categories"
-        className={styles.section}
-        aria-labelledby="category-title"
-      >
-        <div className={styles.sectionHeading}>
-          <div>
-            <p className={styles.sectionLabel}>탐색</p>
-            <h2 id="category-title">주요 정보 영역</h2>
-          </div>
-          <p>현재 확인된 정보부터 순차적으로 공개합니다.</p>
-        </div>
-        <div className={styles.categoryGrid}>
-          {boardCategories.map((category) => (
-            <CategoryCard
-              key={category.title}
-              title={category.title}
-              description={category.homeDescription}
-              href={category.href}
-            />
-          ))}
-        </div>
-      </section>
+      <HomePopularTabs
+        frontendOnly={frontendOnly}
+        popularGuidePosts={popularGuidePosts}
+        popularVideos={popularVideos}
+      />
 
-      <section className={`${styles.panel} ${styles.popularPanel}`} aria-labelledby="popular-title">
+      <section className={`${styles.panel} ${styles.recentPanel}`} aria-labelledby="recent-title">
         <div className={styles.panelHeading}>
           <div>
-            <p className={styles.sectionLabel}>BEST 3</p>
-            <h2 id="popular-title">공략게시판 인기글</h2>
+            <p className={styles.sectionLabel}>새로 정리된 정보</p>
+            <h2 id="recent-title">최근 업데이트</h2>
           </div>
-          <p>좋아요가 많은 공략과 팁을 소개합니다.</p>
+          <p>관리자가 최근 추가하거나 수정한 도감 항목입니다.</p>
         </div>
-        {popularGuidePosts.length > 0 ? (
-          <ol className={styles.popularList}>
-            {popularGuidePosts.slice(0, 3).map((post, index) => (
-              <li key={post.id}>
-                <span className={styles.rank}>{index + 1}</span>
-                <div className={styles.postSummary}>
-                  <span>{guideCategoryLabels[post.category]}</span>
-                  <strong><a href={`/community/${post.id}`}>{post.title}</a></strong>
-                  <small>{post.author?.name ?? "탈퇴한 사용자"}</small>
-                </div>
-                <span className={styles.likeCount} aria-label={`좋아요 ${post.likeCount}개`}>
-                  ♥ {post.likeCount}
-                </span>
-              </li>
-            ))}
-          </ol>
-        ) : frontendOnly ? (
-          <div className={styles.emptyState} role="status">
-            <strong>프론트엔드 미리보기 환경입니다.</strong>
-            <p>인기 공략 데이터는 로컬 개발 환경에서 확인할 수 있습니다.</p>
-          </div>
-        ) : (
-          <div className={styles.emptyState} role="status">
-            <strong>아직 등록된 인기 공략이 없습니다.</strong>
-            <p>공략게시판이 열리고 이용자 글이 등록되면 인기 순으로 이곳에 표시됩니다.</p>
-          </div>
-        )}
-      </section>
-
-      <section className={`${styles.panel} ${styles.videoPanel}`} aria-labelledby="video-title">
-        <div className={styles.panelHeading}>
-          <div>
-            <p className={styles.sectionLabel}>YouTube</p>
-            <h2 id="video-title">도깨비의세계 인기 영상</h2>
-          </div>
-          <p>YouTube 조회수 기준 검색 결과입니다.</p>
-        </div>
-        {popularVideos.length > 0 ? (
-          <ul className={styles.videoGrid}>
-            {popularVideos.map((video) => (
-              <li key={video.videoId}>
-                <a
-                  href={`https://www.youtube.com/watch?v=${encodeURIComponent(video.videoId)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className={styles.thumbnail}>
-                    <Image
-                      src={video.thumbnailUrl}
-                      alt=""
-                      width={480}
-                      height={270}
-                      sizes="(max-width: 44rem) 100vw, 22rem"
-                    />
-                    <span aria-hidden="true">▶</span>
-                  </span>
-                  <strong>{video.title}</strong>
-                  <small>{video.channelTitle}</small>
-                </a>
-              </li>
-            ))}
+        {recentEntities.length > 0 ? (
+          <ul className={styles.recentGrid}>
+            {recentEntities.map((content) => {
+              const type = content.type as keyof typeof entityTypeLabels;
+              const imageUrl = content.iconImageUrl ?? content.coverImageUrl;
+              return (
+                <li key={content.id}>
+                  <Link href={`/${type}/${encodeURIComponent(content.slug ?? "")}`}>
+                    {imageUrl ? (
+                      <Image src={imageUrl} alt="" width={88} height={88} unoptimized />
+                    ) : (
+                      <span className={styles.recentPlaceholder} aria-hidden="true">
+                        {content.title.trim().slice(0, 1) || "?"}
+                      </span>
+                    )}
+                    <span className={styles.recentCopy}>
+                      <small>{entityTypeLabels[type]}</small>
+                      <strong>{content.title}</strong>
+                      <time dateTime={content.updatedAt.toISOString()}>
+                        {content.updatedAt.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}
+                      </time>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <div className={styles.emptyState} role="status">
-            <strong>현재 인기 영상을 불러올 수 없습니다.</strong>
-            <p>서버 설정 또는 YouTube 응답을 확인한 뒤 자동으로 다시 시도합니다.</p>
+            <strong>최근 공개된 도감 항목이 없습니다.</strong>
+            <p>검수를 마친 정보가 공개되면 이곳에서 바로 확인할 수 있습니다.</p>
           </div>
         )}
       </section>
