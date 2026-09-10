@@ -5,40 +5,13 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
-import { boardCategories, type BoardCategoryKey } from "@/lib/board-categories";
+import { boardCategories } from "@/lib/board-categories";
 
 import { CategoryIcon } from "./CategoryIcon";
 import styles from "./MobileMenuDrawer.module.css";
 
-const MENU_ORDER_KEY = "dokkaebiMobileMenuOrder";
-
-type MenuKey = BoardCategoryKey;
-
 const menuItems = boardCategories;
 const prefetchedRoutes = new Set(["/community", "/skills", "/items"]);
-
-type MoveDirection = "left" | "right" | "up" | "down";
-
-const defaultOrder: MenuKey[] = menuItems.map((item) => item.key);
-
-function isValidOrder(value: unknown): value is MenuKey[] {
-  if (!Array.isArray(value) || value.length !== defaultOrder.length) {
-    return false;
-  }
-
-  const uniqueValues = new Set(value);
-  return (
-    uniqueValues.size === defaultOrder.length &&
-    value.every((key) => defaultOrder.includes(key as MenuKey))
-  );
-}
-
-function getMoveTarget(index: number, direction: MoveDirection) {
-  if (direction === "left") return index % 3 === 0 ? -1 : index - 1;
-  if (direction === "right") return index % 3 === 2 ? -1 : index + 1;
-  if (direction === "up") return index - 3;
-  return index + 3;
-}
 
 type MobileMenuDrawerProps = Readonly<{
   triggerClassName: string;
@@ -52,32 +25,12 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
     () => false,
   );
   const [isOpen, setIsOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [selectedKey, setSelectedKey] = useState<MenuKey | null>(null);
-  const [menuOrder, setMenuOrder] = useState<MenuKey[]>(defaultOrder);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    const loadTimer = window.setTimeout(() => {
-      try {
-        const storedOrder = JSON.parse(window.localStorage.getItem(MENU_ORDER_KEY) ?? "null");
-        if (isValidOrder(storedOrder)) {
-          setMenuOrder(storedOrder);
-        }
-      } catch {
-        setMenuOrder(defaultOrder);
-      }
-    }, 0);
-
-    return () => window.clearTimeout(loadTimer);
-  }, []);
-
   const closeDrawer = useCallback(() => {
     setIsOpen(false);
-    setIsEditing(false);
-    setSelectedKey(null);
   }, []);
 
   useEffect(() => {
@@ -152,36 +105,6 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
     return () => mobileQuery.removeEventListener("change", handleBreakpointChange);
   }, [closeDrawer]);
 
-  const moveSelectedItem = (direction: MoveDirection) => {
-    if (!selectedKey) return;
-
-    setMenuOrder((currentOrder) => {
-      const currentIndex = currentOrder.indexOf(selectedKey);
-      const targetIndex = getMoveTarget(currentIndex, direction);
-
-      if (targetIndex < 0 || targetIndex >= currentOrder.length) return currentOrder;
-
-      const nextOrder = [...currentOrder];
-      [nextOrder[currentIndex], nextOrder[targetIndex]] = [
-        nextOrder[targetIndex],
-        nextOrder[currentIndex],
-      ];
-      try {
-        window.localStorage.setItem(MENU_ORDER_KEY, JSON.stringify(nextOrder));
-      } catch {
-        // Keep the reordered menu in memory when storage is unavailable.
-      }
-      return nextOrder;
-    });
-  };
-
-  const orderedItems = menuOrder.map(
-    (key) => menuItems.find((item) => item.key === key) ?? menuItems[0],
-  );
-  const selectedIndex = selectedKey ? menuOrder.indexOf(selectedKey) : -1;
-  const isCommunityRoute = pathname === "/community" || pathname.startsWith("/community/");
-  const editingEnabled = isEditing && !isCommunityRoute;
-
   const drawer = (
     <div className={`${styles.layer} ${isOpen ? styles.layerOpen : ""}`}>
       <button
@@ -217,28 +140,14 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
         </header>
 
         <nav aria-label="모바일 전체 카테고리">
-          <div className={`${styles.menuGrid} ${editingEnabled ? styles.editing : ""}`}>
-            {orderedItems.map((item) => {
+          <div className={styles.menuGrid}>
+            {menuItems.map((item) => {
               const itemContent = (
                 <>
                   <CategoryIcon className={styles.menuIcon} title={item.title} />
                   <span>{item.title}</span>
                 </>
               );
-
-              if (editingEnabled) {
-                return (
-                  <button
-                    key={item.key}
-                    className={`${styles.menuItem} ${selectedKey === item.key ? styles.selected : ""}`}
-                    type="button"
-                    aria-pressed={selectedKey === item.key}
-                    onClick={() => setSelectedKey(item.key)}
-                  >
-                    {itemContent}
-                  </button>
-                );
-              }
 
               const isCurrent = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
@@ -256,67 +165,6 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
             })}
           </div>
         </nav>
-
-        {editingEnabled ? (
-          <div className={styles.editPanel}>
-            <p role="status">
-              {selectedKey
-                ? `${menuItems.find((item) => item.key === selectedKey)?.title} 선택됨`
-                : "이동할 메뉴를 먼저 선택하세요."}
-            </p>
-            <div className={styles.moveControls} aria-label="메뉴 순서 이동">
-              <button
-                type="button"
-                aria-label="선택한 메뉴 왼쪽으로 이동"
-                disabled={selectedIndex < 0 || selectedIndex % 3 === 0}
-                onClick={() => moveSelectedItem("left")}
-              >
-                ←
-              </button>
-              <button
-                type="button"
-                aria-label="선택한 메뉴 위로 이동"
-                disabled={selectedIndex < 3}
-                onClick={() => moveSelectedItem("up")}
-              >
-                ↑
-              </button>
-              <button
-                type="button"
-                aria-label="선택한 메뉴 아래로 이동"
-                disabled={selectedIndex < 0 || selectedIndex + 3 >= menuOrder.length}
-                onClick={() => moveSelectedItem("down")}
-              >
-                ↓
-              </button>
-              <button
-                type="button"
-                aria-label="선택한 메뉴 오른쪽으로 이동"
-                disabled={
-                  selectedIndex < 0 ||
-                  selectedIndex % 3 === 2 ||
-                  selectedIndex + 1 >= menuOrder.length
-                }
-                onClick={() => moveSelectedItem("right")}
-              >
-                →
-              </button>
-            </div>
-          </div>
-        ) : null}
-
-        {!isCommunityRoute ? (
-          <button
-            className={styles.editButton}
-            type="button"
-            onClick={() => {
-              setIsEditing((current) => !current);
-              setSelectedKey(null);
-            }}
-          >
-            {isEditing ? "편집 완료" : "메뉴 편집"}
-          </button>
-        ) : null}
       </section>
     </div>
   );

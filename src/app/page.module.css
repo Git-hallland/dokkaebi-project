@@ -442,6 +442,7 @@
 @media (max-width: 75rem) {
   .hero {
     min-height: 20rem;
+    margin-inline: 0;
   }
 
   .popularList,
