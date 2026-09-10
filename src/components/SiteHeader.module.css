@@ -21,18 +21,22 @@
 
 .inner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns:
+    var(--site-sidebar-width)
+    minmax(0, var(--site-content-width))
+    var(--site-ad-rail-width);
   align-items: center;
-  gap: 1.5rem;
-  width: min(100%, 90rem);
+  column-gap: var(--site-column-gap);
+  width: min(100%, var(--site-wide-width));
   min-height: var(--header-height);
   margin: 0 auto;
-  padding: 0.25rem 2rem;
+  padding: 0.25rem var(--site-page-gutter);
 }
 
 .brand {
   display: inline-flex;
   grid-column: 2;
+  grid-row: 1;
   align-items: center;
   justify-self: center;
   width: fit-content;
@@ -48,7 +52,8 @@
 }
 
 .desktopTools {
-  grid-column: 3;
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   align-items: center;
   gap: 0.65rem;
@@ -61,6 +66,21 @@
 
 .mobileAction {
   display: none;
+}
+
+@media (min-width: 62.01rem) and (max-width: 75rem) {
+  .inner {
+    grid-template-columns: var(--site-sidebar-width) minmax(0, var(--site-content-width));
+    width: min(100%, var(--site-standard-width));
+  }
+
+  .wordmark {
+    width: 14rem;
+  }
+
+  .desktopSearch {
+    width: 10rem;
+  }
 }
 
 @media (max-width: 62rem) {

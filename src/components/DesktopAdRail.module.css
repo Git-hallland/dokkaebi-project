@@ -34,19 +34,19 @@
 
 .standardRail {
   display: grid;
-  grid-template-columns: var(--desktop-ad-rail-width);
+  grid-template-columns: var(--site-ad-rail-width);
   grid-template-rows: 15.625rem 37.5rem;
   position: sticky;
   top: calc(var(--header-height) + 1px);
   align-self: start;
   gap: 1.25rem;
-  width: var(--desktop-ad-rail-width);
+  width: var(--site-ad-rail-width);
   height: max-content;
 }
 
 .standardRail .slot {
   flex: none;
-  width: var(--desktop-ad-rail-width);
+  width: var(--site-ad-rail-width);
   min-height: 0;
 }
 
@@ -59,7 +59,7 @@
 }
 
 @media (max-width: 75rem) {
-  .standardRail {
+  .rail {
     display: none;
   }
 }

@@ -1,4 +1,4 @@
-import { revalidateTag, unstable_cache } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { isFrontendOnly } from "@/lib/runtime-mode";
@@ -19,8 +19,8 @@ const readSiteSettings = unstable_cache(
     });
     return settings ?? DEFAULT_SITE_SETTINGS;
   },
-  ["site-settings-v1"],
-  { revalidate: false, tags: [SITE_SETTINGS_CACHE_TAG] },
+  ["site-settings-v2"],
+  { revalidate: 300, tags: [SITE_SETTINGS_CACHE_TAG] },
 );
 
 export function getSiteSettings() {
@@ -29,4 +29,5 @@ export function getSiteSettings() {
 
 export function revalidateSiteSettings() {
   revalidateTag(SITE_SETTINGS_CACHE_TAG, { expire: 0 });
+  revalidatePath("/", "layout");
 }

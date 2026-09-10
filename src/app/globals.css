@@ -31,6 +31,19 @@
   --hero-text: #f8f7fc;
   --hero-accent: #c0b5f5;
   --header-height: 4.75rem;
+  --site-sidebar-width: 15rem;
+  --site-content-width: 66rem;
+  --site-ad-rail-width: 18.75rem;
+  --site-column-gap: 1.5rem;
+  --site-page-gutter: 1rem;
+  --site-standard-width: calc(
+    var(--site-sidebar-width) + var(--site-content-width) + var(--site-column-gap) +
+      (var(--site-page-gutter) * 2)
+  );
+  --site-wide-width: calc(
+    var(--site-sidebar-width) + var(--site-content-width) + var(--site-ad-rail-width) +
+      (var(--site-column-gap) * 2) + (var(--site-page-gutter) * 2)
+  );
   --font-display: "Noto Serif KR", "Nanum Myeongjo", Batang, serif;
   color-scheme: dark;
   font-family:
