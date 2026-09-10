@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 import type { SiteSettings } from "@/lib/site-settings";
 import styles from "./SiteSettingsForm.module.css";
@@ -13,6 +14,7 @@ const options = [
 ] as const;
 
 export function SiteSettingsForm({ initialSettings }: Readonly<{ initialSettings: SiteSettings }>) {
+  const router = useRouter();
   const [settings, setSettings] = useState(initialSettings);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ kind: "error" | "success"; message: string } | null>(null);
@@ -31,6 +33,7 @@ export function SiteSettingsForm({ initialSettings }: Readonly<{ initialSettings
       if (!response.ok) throw new Error(result.message ?? "설정을 저장하지 못했습니다.");
       setSettings(result);
       setFeedback({ kind: "success", message: "사이트 운영 설정을 저장했습니다." });
+      router.refresh();
     } catch (error) {
       setFeedback({ kind: "error", message: error instanceof Error ? error.message : "설정을 저장하지 못했습니다." });
     } finally {

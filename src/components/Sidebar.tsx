@@ -15,7 +15,7 @@ export function Sidebar() {
   return (
     <aside className={styles.sidebar}>
       <nav aria-label="위키 카테고리">
-        <p className={styles.title}>정보 탐색</p>
+        <p className={styles.title}>MENU</p>
         <ul className={styles.navigation}>
           <li>
             <Link
