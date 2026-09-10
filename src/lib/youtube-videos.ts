@@ -42,6 +42,7 @@ export type PopularYouTubeVideo = Readonly<{
 type YouTubeVideoItem = Readonly<{
   id?: unknown;
   snippet?: {
+    categoryId?: unknown;
     channelId?: unknown;
     channelTitle?: unknown;
     description?: unknown;
@@ -116,6 +117,7 @@ export function parseYouTubeVideoItems(input: unknown): PopularYouTubeVideo[] {
 
       const item = candidate as YouTubeVideoItem;
       const videoId = item.id;
+      const categoryId = item.snippet?.categoryId;
       const channelId = item.snippet?.channelId;
       const title = item.snippet?.title;
       const channelTitle = item.snippet?.channelTitle;
@@ -127,6 +129,7 @@ export function parseYouTubeVideoItems(input: unknown): PopularYouTubeVideo[] {
 
       if (
         typeof videoId !== "string" ||
+        categoryId !== "20" ||
         typeof channelId !== "string" ||
         typeof title !== "string" ||
         typeof channelTitle !== "string" ||
@@ -224,7 +227,7 @@ async function loadYouTubeVideoDetails(apiKey: string, ids: readonly string[]) {
   if (ids.length === 0) return [];
 
   const videoParams = new URLSearchParams({
-    fields: "items(id,snippet/title,snippet/description,snippet/channelId,snippet/channelTitle,snippet/publishedAt,snippet/thumbnails/medium/url,snippet/thumbnails/high/url,statistics/viewCount)",
+    fields: "items(id,snippet/title,snippet/description,snippet/categoryId,snippet/channelId,snippet/channelTitle,snippet/publishedAt,snippet/thumbnails/medium/url,snippet/thumbnails/high/url,statistics/viewCount)",
     id: ids.join(","),
     key: apiKey,
     part: "snippet,statistics",

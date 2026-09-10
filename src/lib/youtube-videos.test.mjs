@@ -12,7 +12,7 @@ import {
 
 const item = (id, views, title = "도깨비의세계 영상", channelId = `creator-${id}`) => ({
   id,
-  snippet: { channelId, channelTitle: "게임 크리에이터", description: "도깨비의 세계 MMORPG 소개", publishedAt: "2026-09-01T00:00:00Z", thumbnails: { high: { url: `https://i.ytimg.com/vi/${id}/hqdefault.jpg` } }, title },
+  snippet: { categoryId: "20", channelId, channelTitle: "게임 크리에이터", description: "도깨비의 세계 MMORPG 소개", publishedAt: "2026-09-01T00:00:00Z", thumbnails: { high: { url: `https://i.ytimg.com/vi/${id}/hqdefault.jpg` } }, title },
   statistics: { viewCount: String(views) },
 });
 
@@ -33,8 +33,10 @@ test("rejects unrelated, malformed, and untrusted video data", () => {
   const official = item("official", 10_000, "도깨비의세계 공식 영상", [...OFFICIAL_YOUTUBE_CHANNEL_IDS][0]);
   const sameWordsButNotGame = item("music", 8_000, "도깨비의세계 Original");
   sameWordsButNotGame.snippet.description = "버추얼 음악 모음";
+  const nonGamingCategory = item("celebrity", 7_000, "도깨비의세계 모델 이야기");
+  nonGamingCategory.snippet.categoryId = "24";
   assert.deepEqual(parseYouTubeVideoItems(null), []);
-  assert.deepEqual(parseYouTubeVideoItems([unrelated, untrusted, official, sameWordsButNotGame, {}]), []);
+  assert.deepEqual(parseYouTubeVideoItems([unrelated, untrusted, official, sameWordsButNotGame, nonGamingCategory, {}]), []);
 });
 
 test("limits each creator channel to two videos", () => {
