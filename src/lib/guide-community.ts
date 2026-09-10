@@ -214,17 +214,24 @@ export function communityOrderBy(sort: CommunitySort) {
     : [{ createdAt: "desc" as const }, { id: "desc" as const }];
 }
 
-export function isNewCommunityPost(createdAt: Date, now = new Date()) {
-  const age = now.getTime() - createdAt.getTime();
+type CommunityDateValue = Date | string;
+
+function communityDate(value: CommunityDateValue) {
+  return value instanceof Date ? value : new Date(value);
+}
+
+export function isNewCommunityPost(createdAt: CommunityDateValue, now = new Date()) {
+  const age = now.getTime() - communityDate(createdAt).getTime();
   return age >= 0 && age < 24 * 60 * 60 * 1_000;
 }
 
-export function formatCommunityPostTime(createdAt: Date, now = new Date()) {
-  const age = Math.max(0, now.getTime() - createdAt.getTime());
+export function formatCommunityPostTime(createdAt: CommunityDateValue, now = new Date()) {
+  const normalizedCreatedAt = communityDate(createdAt);
+  const age = Math.max(0, now.getTime() - normalizedCreatedAt.getTime());
   if (age < 60_000) return "방금 전";
   if (age < 60 * 60_000) return `${Math.floor(age / 60_000)}분 전`;
   if (age < 24 * 60 * 60_000) return `${Math.floor(age / (60 * 60_000))}시간 전`;
-  const parts = new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(createdAt);
+  const parts = new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(normalizedCreatedAt);
   const value = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? "";
   return `${value("year")}.${value("month")}.${value("day")}`;
 }
