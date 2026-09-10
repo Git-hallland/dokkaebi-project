@@ -20,8 +20,9 @@
 }
 
 .quickLinks { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
-.quickLinks a { padding: .9rem 1rem; color: var(--text-strong); background: var(--surface-inset); border: 1px solid var(--border); border-radius: .7rem; text-align: center; text-decoration: none; font-weight: 800; }
+.quickLinks a, .quickLinks span { padding: .9rem 1rem; color: var(--text-strong); background: var(--surface-inset); border: 1px solid var(--border); border-radius: .7rem; text-align: center; text-decoration: none; font-weight: 800; }
 .quickLinks a:hover { border-color: var(--primary-hover); background: var(--primary-soft); }
+.quickLinks span { color:var(--text-muted); cursor:not-allowed; }
 
 .signInCard {
   max-width: 34rem;

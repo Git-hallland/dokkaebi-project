@@ -4,6 +4,10 @@
   background: var(--footer-surface);
 }
 
+.withoutStickyAd {
+  padding-bottom: 2.5rem;
+}
+
 .inner {
   display: grid;
   gap: 1.5rem;
@@ -74,5 +78,9 @@
 @media (max-width: 62rem) {
   .footer {
     padding-bottom: calc(10.5rem + env(safe-area-inset-bottom));
+  }
+
+  .withoutStickyAd {
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
   }
 }

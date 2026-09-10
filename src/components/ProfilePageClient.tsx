@@ -170,11 +170,13 @@ function ConnectedProviders({ userId }: Readonly<{ userId: string }>) {
 
 type ProfilePageClientProps = Readonly<{
   authoredContents?: readonly AuthoredContent[];
+  guideWriteEnabled?: boolean;
   hasOAuthError?: boolean;
 }>;
 
 export function ProfilePageClient({
   authoredContents = [],
+  guideWriteEnabled = false,
   hasOAuthError = false,
 }: ProfilePageClientProps) {
   const router = useRouter();
@@ -461,7 +463,7 @@ export function ProfilePageClient({
       <section className={styles.quickLinks} aria-label="내 커뮤니티">
         <Link href="/notifications">알림 보기</Link>
         <Link href="/favorites">즐겨찾기한 공략 보기</Link>
-        <Link href="/community/write">새 공략 작성하기</Link>
+        {guideWriteEnabled || session.user.role === "ADMIN" ? <Link href="/community/write">새 공략 작성하기</Link> : <span aria-disabled="true">새 공략 작성은 정식 오픈 후 이용할 수 있습니다.</span>}
       </section>
 
       <section className={`${styles.card} ${styles.authoredContent}`} aria-labelledby="my-content-title">

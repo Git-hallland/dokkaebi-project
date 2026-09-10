@@ -52,6 +52,7 @@ export function DesktopAdRail() {
     <aside
       className={`${styles.rail} ${isStandardAdRoute ? styles.standardRail : ""}`}
       aria-label="우측 광고"
+      data-ad-rail="true"
       data-standard-ads={isStandardAdRoute ? "true" : undefined}
     >
       <AdSlot position={1} size={isStandardAdRoute ? "300x250" : "fluid"} />
