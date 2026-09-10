@@ -1,7 +1,7 @@
 const YOUTUBE_SEARCH_ENDPOINT = "https://www.googleapis.com/youtube/v3/search";
 const YOUTUBE_VIDEOS_ENDPOINT = "https://www.googleapis.com/youtube/v3/videos";
 export const YOUTUBE_REVALIDATE_SECONDS = 60 * 60 * 12;
-export const YOUTUBE_SEARCH_QUERY = '"도깨비의세계" MMORPG';
+export const YOUTUBE_SEARCH_QUERY = "도깨비의 세계 게임";
 
 export type PopularYouTubeVideo = Readonly<{
   channelTitle: string;
@@ -129,7 +129,10 @@ export async function getPopularYouTubeVideos(): Promise<PopularYouTubeVideo[]> 
       next: { revalidate: YOUTUBE_REVALIDATE_SECONDS },
       signal: AbortSignal.timeout(4_000),
     });
-    if (!searchResponse.ok) return [];
+    if (!searchResponse.ok) {
+      console.warn("YouTube search unavailable", { status: searchResponse.status });
+      return [];
+    }
 
     const searchPayload = (await searchResponse.json()) as { items?: Array<{ id?: { videoId?: unknown } }> };
     const ids = (searchPayload.items ?? [])
@@ -148,7 +151,10 @@ export async function getPopularYouTubeVideos(): Promise<PopularYouTubeVideo[]> 
       next: { revalidate: YOUTUBE_REVALIDATE_SECONDS },
       signal: AbortSignal.timeout(4_000),
     });
-    if (!videoResponse.ok) return [];
+    if (!videoResponse.ok) {
+      console.warn("YouTube video details unavailable", { status: videoResponse.status });
+      return [];
+    }
 
     const payload = (await videoResponse.json()) as { items?: unknown };
     return parseYouTubeVideoItems(payload.items);
