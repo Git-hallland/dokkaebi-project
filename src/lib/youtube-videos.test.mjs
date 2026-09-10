@@ -38,10 +38,15 @@ test("uses a 12 hour cache policy and fails without breaking the caller", async 
   assert.equal(YOUTUBE_REVALIDATE_SECONDS, 43_200);
   const previousKey = process.env.YOUTUBE_API_KEY;
   const previousFetch = globalThis.fetch;
-  process.env.YOUTUBE_API_KEY = "test-key";
-  globalThis.fetch = async () => { throw new Error("network down"); };
+  let requestedUrl = "";
+  process.env.YOUTUBE_API_KEY = '\"test-key\"';
+  globalThis.fetch = async (input) => {
+    requestedUrl = String(input);
+    throw new Error("network down");
+  };
   try {
     assert.deepEqual(await getPopularYouTubeVideos(), []);
+    assert.match(requestedUrl, /key=test-key(?:&|$)/u);
   } finally {
     if (previousKey === undefined) delete process.env.YOUTUBE_API_KEY;
     else process.env.YOUTUBE_API_KEY = previousKey;

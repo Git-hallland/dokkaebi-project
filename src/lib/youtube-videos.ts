@@ -39,6 +39,16 @@ async function getYouTubeErrorReason(response: Response) {
   }
 }
 
+function normalizeYouTubeApiKey(value: string | undefined) {
+  const trimmed = value?.trim() ?? "";
+  const quoted = trimmed.match(/^(["'])(.*)\1$/u);
+  return (quoted?.[2] ?? trimmed).trim();
+}
+
+function hasGoogleApiKeyShape(value: string) {
+  return /^AIza[A-Za-z0-9_-]{35}$/u.test(value);
+}
+
 function getTrustedThumbnailUrl(item: YouTubeVideoItem) {
   const candidate = item.snippet?.thumbnails?.high?.url ?? item.snippet?.thumbnails?.medium?.url;
 
@@ -122,7 +132,7 @@ export function formatYouTubeViewCount(value: number) {
 }
 
 export async function getPopularYouTubeVideos(): Promise<PopularYouTubeVideo[]> {
-  const apiKey = process.env.YOUTUBE_API_KEY?.trim();
+  const apiKey = normalizeYouTubeApiKey(process.env.YOUTUBE_API_KEY);
   if (!apiKey) return [];
 
   try {
@@ -143,6 +153,7 @@ export async function getPopularYouTubeVideos(): Promise<PopularYouTubeVideo[]> 
     });
     if (!searchResponse.ok) {
       console.warn("YouTube search unavailable", {
+        keyFormatValid: hasGoogleApiKeyShape(apiKey),
         reason: await getYouTubeErrorReason(searchResponse),
         status: searchResponse.status,
       });
