@@ -53,6 +53,19 @@ const publishedContentSelect = {
   },
 } as const;
 
+function serializePublishedContentListItem<T extends {
+  createdAt: Date;
+  publishedAt: Date | null;
+  updatedAt: Date;
+}>(content: T) {
+  return {
+    ...content,
+    createdAt: content.createdAt.toISOString(),
+    publishedAt: content.publishedAt?.toISOString() ?? null,
+    updatedAt: content.updatedAt.toISOString(),
+  };
+}
+
 const readPublishedBoardContents = unstable_cache(async (type: CmsBoardType) => {
   const contents = await prisma.content.findMany({
     where: { status: "PUBLISHED", type, slug: { not: null } },
@@ -61,33 +74,49 @@ const readPublishedBoardContents = unstable_cache(async (type: CmsBoardType) => 
       : [{ publishedAt: "desc" }, { updatedAt: "desc" }, { id: "desc" }],
     select: publishedContentListSelect,
   });
-  return type === "events" ? sortEventContents(contents) : contents;
-}, ["published-board-contents-v2"], {
+  const sortedContents = type === "events" ? sortEventContents(contents) : contents;
+  return sortedContents.map(serializePublishedContentListItem);
+}, ["published-board-contents-v3"], {
   revalidate: false,
   tags: [EDITORIAL_CONTENT_CACHE_TAG],
 });
 
 const readPublishedBoardContent = unstable_cache(
-  async (type: CmsBoardType, slug: string) => prisma.content.findFirst({
-    where: { slug, status: "PUBLISHED", type },
-    select: publishedContentSelect,
-  }),
-  ["published-board-content-v2"],
+  async (type: CmsBoardType, slug: string) => {
+    const content = await prisma.content.findFirst({
+      where: { slug, status: "PUBLISHED", type },
+      select: publishedContentSelect,
+    });
+    if (!content) return null;
+    return {
+      ...content,
+      checkedAt: content.checkedAt?.toISOString() ?? null,
+      publishedAt: content.publishedAt?.toISOString() ?? null,
+      updatedAt: content.updatedAt.toISOString(),
+      sources: content.sources.map(({ source }) => ({
+        source: { ...source, checkedAt: source.checkedAt.toISOString() },
+      })),
+    };
+  },
+  ["published-board-content-v3"],
   { revalidate: false, tags: [EDITORIAL_CONTENT_CACHE_TAG] },
 );
 
 const readRecentPublishedEntities = unstable_cache(
-  async () => prisma.content.findMany({
-    where: {
-      status: "PUBLISHED",
-      type: { in: ["skills", "items", "monsters", "regions"] },
-      slug: { not: null },
-    },
-    orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }, { id: "desc" }],
-    take: 8,
-    select: publishedContentListSelect,
-  }),
-  ["recent-published-entities-v1"],
+  async () => {
+    const contents = await prisma.content.findMany({
+      where: {
+        status: "PUBLISHED",
+        type: { in: ["skills", "items", "monsters", "regions"] },
+        slug: { not: null },
+      },
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }, { id: "desc" }],
+      take: 8,
+      select: publishedContentListSelect,
+    });
+    return contents.map(serializePublishedContentListItem);
+  },
+  ["recent-published-entities-v2"],
   { revalidate: false, tags: [EDITORIAL_CONTENT_CACHE_TAG] },
 );
 

@@ -76,8 +76,8 @@ export default async function Home() {
                     <span className={styles.recentCopy}>
                       <small>{entityTypeLabels[type]}</small>
                       <strong>{content.title}</strong>
-                      <time dateTime={content.updatedAt.toISOString()}>
-                        {content.updatedAt.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}
+                      <time dateTime={content.updatedAt}>
+                        {new Date(content.updatedAt).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}
                       </time>
                     </span>
                   </Link>

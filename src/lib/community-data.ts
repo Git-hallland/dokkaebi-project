@@ -11,22 +11,25 @@ import { COMMUNITY_CONTENT_CACHE_TAG } from "@/lib/public-content-cache";
 import { isFrontendOnly } from "@/lib/runtime-mode";
 
 const readCommunityPosts = unstable_cache(
-  async (sort: CommunitySort, cursor?: string) => prisma.guidePost.findMany({
-    where: COMMUNITY_VISIBLE_WHERE,
-    orderBy: communityOrderBy(sort),
-    take: COMMUNITY_PAGE_SIZE + 1,
-    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-    select: {
-      id: true,
-      title: true,
-      category: true,
-      createdAt: true,
-      viewCount: true,
-      likeCount: true,
-      author: { select: { name: true } },
-    },
-  }),
-  ["community-list-v1"],
+  async (sort: CommunitySort, cursor?: string) => {
+    const posts = await prisma.guidePost.findMany({
+      where: COMMUNITY_VISIBLE_WHERE,
+      orderBy: communityOrderBy(sort),
+      take: COMMUNITY_PAGE_SIZE + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        createdAt: true,
+        viewCount: true,
+        likeCount: true,
+        author: { select: { name: true } },
+      },
+    });
+    return posts.map((post) => ({ ...post, createdAt: post.createdAt.toISOString() }));
+  },
+  ["community-list-v2"],
   { revalidate: 30, tags: [COMMUNITY_CONTENT_CACHE_TAG] },
 );
 

@@ -57,3 +57,32 @@ test("community list does not block public content on a server session lookup", 
   assert.doesNotMatch(community, /headers\(|auth\.api\.getSession/u);
   assert.match(community, /CommunityWriteAction/u);
 });
+
+test("cached public dates are serialized before crossing the cache boundary", async () => {
+  const [editorial, communityData, home, board, community, entityDetail, editorialDetail] = await Promise.all([
+    source("./editorial-content.ts"),
+    source("./community-data.ts"),
+    source("../app/page.tsx"),
+    source("../components/BoardPage/BoardPage.tsx"),
+    source("../app/community/page.tsx"),
+    source("../components/EntityDetailPage.tsx"),
+    source("../components/EditorialContentPage.tsx"),
+  ]);
+
+  assert.match(editorial, /createdAt: content\.createdAt\.toISOString\(\)/u);
+  assert.match(editorial, /publishedAt: content\.publishedAt\?\.toISOString\(\) \?\? null/u);
+  assert.match(editorial, /updatedAt: content\.updatedAt\.toISOString\(\)/u);
+  assert.match(editorial, /checkedAt: content\.checkedAt\?\.toISOString\(\) \?\? null/u);
+  assert.match(editorial, /checkedAt: source\.checkedAt\.toISOString\(\)/u);
+  assert.match(communityData, /createdAt: post\.createdAt\.toISOString\(\)/u);
+  assert.match(editorial, /published-board-contents-v3/u);
+  assert.match(editorial, /published-board-content-v3/u);
+  assert.match(editorial, /recent-published-entities-v2/u);
+  assert.match(communityData, /community-list-v2/u);
+
+  assert.doesNotMatch(home, /content\.updatedAt\.toISOString\(\)/u);
+  assert.doesNotMatch(board, /content\.updatedAt\.toISOString\(\)/u);
+  assert.doesNotMatch(community, /post\.createdAt\.toISOString\(\)/u);
+  assert.doesNotMatch(entityDetail, /(?:content\.(?:updatedAt|checkedAt)|source\.checkedAt)\.toLocaleDateString/u);
+  assert.doesNotMatch(editorialDetail, /(?:content\.(?:updatedAt|checkedAt)|source\.checkedAt)\.toLocaleDateString/u);
+});
