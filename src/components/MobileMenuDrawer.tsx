@@ -15,6 +15,7 @@ const MENU_ORDER_KEY = "dokkaebiMobileMenuOrder";
 type MenuKey = BoardCategoryKey;
 
 const menuItems = boardCategories;
+const prefetchedRoutes = new Set(["/community", "/skills", "/items"]);
 
 type MoveDirection = "left" | "right" | "up" | "down";
 
@@ -245,6 +246,7 @@ export function MobileMenuDrawer({ triggerClassName }: MobileMenuDrawerProps) {
                   key={item.key}
                   className={`${styles.menuItem} ${isCurrent ? styles.current : ""}`}
                   href={item.href}
+                  prefetch={prefetchedRoutes.has(item.href)}
                   aria-current={isCurrent ? "page" : undefined}
                   onClick={closeDrawer}
                 >

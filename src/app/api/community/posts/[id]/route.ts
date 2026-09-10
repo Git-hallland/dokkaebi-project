@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { CommunityInputError, assertCommunityAuthor, normalizeCommunityPostInput } from "@/lib/guide-community";
 import { prisma } from "@/lib/prisma";
+import { revalidateCommunityContent } from "@/lib/public-content-cache";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -27,6 +28,7 @@ export async function PATCH(request: Request, { params }: Context) {
   try {
     const input = normalizeCommunityPostInput(await request.json(), process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim());
     await prisma.guidePost.update({ where: { id }, data: { category: input.category, title: input.title, body: input.body as Prisma.InputJsonValue } });
+    revalidateCommunityContent();
     return Response.json({ id });
   } catch (error) {
     if (error instanceof CommunityInputError || error instanceof SyntaxError) return Response.json({ code: "INVALID_POST", message: error.message }, { status: 400 });
@@ -40,5 +42,6 @@ export async function DELETE(request: Request, { params }: Context) {
   const access = await authorizedPost(request, id);
   if (access.response) return access.response;
   const result = await prisma.guidePost.updateMany({ where: { id, deletedAt: null }, data: { deletedAt: new Date() } });
+  if (result.count === 1) revalidateCommunityContent();
   return result.count === 1 ? Response.json({ id }) : Response.json({ code: "NOT_FOUND", message: "게시물을 찾을 수 없습니다." }, { status: 404 });
 }

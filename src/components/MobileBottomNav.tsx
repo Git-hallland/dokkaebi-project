@@ -41,6 +41,7 @@ function MobileBottomNavContent({ pathname, profileLabel, profileIcon }: Readonl
           <Link
             className={`${styles.item} ${isHome ? styles.current : ""}`}
             href="/"
+            prefetch
             aria-current={isHome ? "page" : undefined}
           >
             <ItemContent label="홈" icon="home" />
@@ -50,6 +51,7 @@ function MobileBottomNavContent({ pathname, profileLabel, profileIcon }: Readonl
           <Link
             className={`${styles.item} ${isGuides ? styles.current : ""}`}
             href="/community"
+            prefetch
             aria-current={isGuides ? "page" : undefined}
           >
             <ItemContent label="공략게시판" icon="board" />
@@ -59,6 +61,7 @@ function MobileBottomNavContent({ pathname, profileLabel, profileIcon }: Readonl
           <Link
             className={`${styles.item} ${isFavorites ? styles.current : ""}`}
             href="/favorites"
+            prefetch={false}
             aria-current={isFavorites ? "page" : undefined}
           >
             <ItemContent label="즐겨찾기" icon="bookmark" />
@@ -68,6 +71,7 @@ function MobileBottomNavContent({ pathname, profileLabel, profileIcon }: Readonl
           <Link
             className={`${styles.item} ${isProfile ? styles.current : ""}`}
             href="/profile"
+            prefetch={false}
             aria-current={isProfile ? "page" : undefined}
           >
             <ItemContent

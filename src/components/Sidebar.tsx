@@ -7,6 +7,8 @@ import { boardCategories } from "@/lib/board-categories";
 
 import styles from "./Sidebar.module.css";
 
+const prefetchedRoutes = new Set(["/community", "/skills", "/items"]);
+
 export function Sidebar() {
   const pathname = usePathname();
 
@@ -18,6 +20,7 @@ export function Sidebar() {
           <li>
             <Link
               href="/"
+              prefetch
               className={pathname === "/" ? styles.current : undefined}
               aria-current={pathname === "/" ? "page" : undefined}
             >
@@ -31,6 +34,7 @@ export function Sidebar() {
               <li key={item.key}>
                 <Link
                   href={item.href}
+                  prefetch={prefetchedRoutes.has(item.href)}
                   className={isCurrent ? styles.current : undefined}
                   aria-current={isCurrent ? "page" : undefined}
                 >

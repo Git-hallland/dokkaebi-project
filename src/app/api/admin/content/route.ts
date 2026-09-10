@@ -4,6 +4,7 @@ import { AdminContentInputError, isCmsAdmin, normalizeCmsContentInput } from "@/
 import { createCmsContent } from "@/lib/admin-content-data";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateEditorialContent } from "@/lib/public-content-cache";
 
 function isUniqueConstraintError(error: unknown) {
   return Boolean(error && typeof error === "object" && "code" in error && error.code === "P2002");
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
       id: session.user.id,
       name: session.user.name,
     });
+    revalidateEditorialContent();
     return NextResponse.json({ id: content.id }, { status: 201 });
   } catch (error) {
     if (error instanceof AdminContentInputError) {

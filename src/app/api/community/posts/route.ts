@@ -4,6 +4,7 @@ import { CommunityInputError, normalizeCommunityPostInput } from "@/lib/guide-co
 import { prisma } from "@/lib/prisma";
 import { getSiteSettings } from "@/lib/site-settings-data";
 import { canCreateGuide } from "@/lib/site-settings";
+import { revalidateCommunityContent } from "@/lib/public-content-cache";
 
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers });
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
       data: { authorId: session.user.id, category: input.category, title: input.title, body: input.body as Prisma.InputJsonValue },
       select: { id: true },
     });
+    revalidateCommunityContent();
     return Response.json(post, { status: 201 });
   } catch (error) {
     if (error instanceof CommunityInputError || error instanceof SyntaxError) {
