@@ -1,9 +1,18 @@
 const YOUTUBE_SEARCH_ENDPOINT = "https://www.googleapis.com/youtube/v3/search";
 const YOUTUBE_VIDEOS_ENDPOINT = "https://www.googleapis.com/youtube/v3/videos";
-export const YOUTUBE_REVALIDATE_SECONDS = 60 * 60 * 12;
+export const YOUTUBE_REVALIDATE_SECONDS = 60 * 60 * 2;
 export const YOUTUBE_SEARCH_QUERY = "도깨비의 세계 게임";
+export const YOUTUBE_RECENT_DAYS = 14;
+export const YOUTUBE_EXPANDED_DAYS = 90;
+export const YOUTUBE_RESULT_LIMIT = 10;
+export const YOUTUBE_MAX_PER_CHANNEL = 2;
+
+// Verified from the canonical URL on the official channel page on 2026-09-10:
+// https://www.youtube.com/@dokkaebi.saegye/about
+export const OFFICIAL_YOUTUBE_CHANNEL_IDS = new Set(["UCo6HhzSfiIO_4BKGQ4_BY0g"]);
 
 export type PopularYouTubeVideo = Readonly<{
+  channelId: string;
   channelTitle: string;
   publishedAt: string;
   thumbnailUrl: string;
@@ -15,6 +24,7 @@ export type PopularYouTubeVideo = Readonly<{
 type YouTubeVideoItem = Readonly<{
   id?: unknown;
   snippet?: {
+    channelId?: unknown;
     channelTitle?: unknown;
     description?: unknown;
     publishedAt?: unknown;
@@ -88,6 +98,7 @@ export function parseYouTubeVideoItems(input: unknown): PopularYouTubeVideo[] {
 
       const item = candidate as YouTubeVideoItem;
       const videoId = item.id;
+      const channelId = item.snippet?.channelId;
       const title = item.snippet?.title;
       const channelTitle = item.snippet?.channelTitle;
       const publishedAt = item.snippet?.publishedAt;
@@ -98,15 +109,18 @@ export function parseYouTubeVideoItems(input: unknown): PopularYouTubeVideo[] {
 
       if (
         typeof videoId !== "string" ||
+        typeof channelId !== "string" ||
         typeof title !== "string" ||
         typeof channelTitle !== "string" ||
         typeof publishedAt !== "string" ||
         !thumbnailUrl ||
         !Number.isSafeInteger(parsedViewCount) ||
+        OFFICIAL_YOUTUBE_CHANNEL_IDS.has(channelId) ||
         !isRelevant(item)
       ) return [];
 
       return [{
+        channelId,
         channelTitle: decodeYouTubeText(channelTitle),
         publishedAt,
         thumbnailUrl,
@@ -115,8 +129,25 @@ export function parseYouTubeVideoItems(input: unknown): PopularYouTubeVideo[] {
         viewCount: parsedViewCount,
       }];
     })
-    .sort((a, b) => b.viewCount - a.viewCount)
-    .slice(0, 8);
+    .sort((a, b) => b.viewCount - a.viewCount || b.publishedAt.localeCompare(a.publishedAt));
+}
+
+export function selectDiverseYouTubeVideos(
+  videos: readonly PopularYouTubeVideo[],
+  limit = YOUTUBE_RESULT_LIMIT,
+) {
+  const perChannel = new Map<string, number>();
+  const selected: PopularYouTubeVideo[] = [];
+
+  for (const video of videos) {
+    if (selected.length >= limit) break;
+    const count = perChannel.get(video.channelId) ?? 0;
+    if (count >= YOUTUBE_MAX_PER_CHANNEL) continue;
+    perChannel.set(video.channelId, count + 1);
+    selected.push(video);
+  }
+
+  return selected;
 }
 
 export function formatYouTubeViewCount(value: number) {
@@ -131,62 +162,95 @@ export function formatYouTubeViewCount(value: number) {
   return `${value.toLocaleString("ko-KR")}회`;
 }
 
+function getPublishedAfter(days: number) {
+  const bucketMilliseconds = YOUTUBE_REVALIDATE_SECONDS * 1_000;
+  const currentBucket = Math.floor(Date.now() / bucketMilliseconds) * bucketMilliseconds;
+  return new Date(currentBucket - days * 24 * 60 * 60 * 1_000).toISOString();
+}
+
+async function searchYouTubeVideoIds(apiKey: string, days: number): Promise<string[] | null> {
+  const searchParams = new URLSearchParams({
+    fields: "items(id/videoId)",
+    key: apiKey,
+    maxResults: "25",
+    order: "viewCount",
+    part: "snippet",
+    publishedAfter: getPublishedAfter(days),
+    q: YOUTUBE_SEARCH_QUERY,
+    regionCode: "KR",
+    relevanceLanguage: "ko",
+    type: "video",
+  });
+  const response = await fetch(`${YOUTUBE_SEARCH_ENDPOINT}?${searchParams}`, {
+    next: { revalidate: YOUTUBE_REVALIDATE_SECONDS },
+    signal: AbortSignal.timeout(4_000),
+  });
+
+  if (!response.ok) {
+    console.warn("YouTube search unavailable", {
+      keyFormatValid: hasGoogleApiKeyShape(apiKey),
+      reason: await getYouTubeErrorReason(response),
+      status: response.status,
+    });
+    return null;
+  }
+
+  const payload = (await response.json()) as { items?: Array<{ id?: { videoId?: unknown } }> };
+  return (payload.items ?? [])
+    .map((item) => item.id?.videoId)
+    .filter((id): id is string => typeof id === "string")
+    .slice(0, 25);
+}
+
+async function loadYouTubeVideoDetails(apiKey: string, ids: readonly string[]) {
+  if (ids.length === 0) return [];
+
+  const videoParams = new URLSearchParams({
+    fields: "items(id,snippet/title,snippet/description,snippet/channelId,snippet/channelTitle,snippet/publishedAt,snippet/thumbnails/medium/url,snippet/thumbnails/high/url,statistics/viewCount)",
+    id: ids.join(","),
+    key: apiKey,
+    part: "snippet,statistics",
+  });
+  const response = await fetch(`${YOUTUBE_VIDEOS_ENDPOINT}?${videoParams}`, {
+    next: { revalidate: YOUTUBE_REVALIDATE_SECONDS },
+    signal: AbortSignal.timeout(4_000),
+  });
+
+  if (!response.ok) {
+    console.warn("YouTube video details unavailable", {
+      reason: await getYouTubeErrorReason(response),
+      status: response.status,
+    });
+    return null;
+  }
+
+  const payload = (await response.json()) as { items?: unknown };
+  return parseYouTubeVideoItems(payload.items);
+}
+
 export async function getPopularYouTubeVideos(): Promise<PopularYouTubeVideo[]> {
   const apiKey = normalizeYouTubeApiKey(process.env.YOUTUBE_API_KEY);
   if (!apiKey) return [];
 
   try {
-    const searchParams = new URLSearchParams({
-      fields: "items(id/videoId)",
-      key: apiKey,
-      maxResults: "12",
-      order: "viewCount",
-      part: "snippet",
-      q: YOUTUBE_SEARCH_QUERY,
-      regionCode: "KR",
-      relevanceLanguage: "ko",
-      type: "video",
-    });
-    const searchResponse = await fetch(`${YOUTUBE_SEARCH_ENDPOINT}?${searchParams}`, {
-      next: { revalidate: YOUTUBE_REVALIDATE_SECONDS },
-      signal: AbortSignal.timeout(4_000),
-    });
-    if (!searchResponse.ok) {
-      console.warn("YouTube search unavailable", {
-        keyFormatValid: hasGoogleApiKeyShape(apiKey),
-        reason: await getYouTubeErrorReason(searchResponse),
-        status: searchResponse.status,
-      });
-      return [];
-    }
+    const recentIds = await searchYouTubeVideoIds(apiKey, YOUTUBE_RECENT_DAYS);
+    if (recentIds === null) return [];
 
-    const searchPayload = (await searchResponse.json()) as { items?: Array<{ id?: { videoId?: unknown } }> };
-    const ids = (searchPayload.items ?? [])
-      .map((item) => item.id?.videoId)
-      .filter((id): id is string => typeof id === "string")
-      .slice(0, 12);
-    if (ids.length === 0) return [];
+    const recentVideos = await loadYouTubeVideoDetails(apiKey, recentIds);
+    if (recentVideos === null) return [];
 
-    const videoParams = new URLSearchParams({
-      fields: "items(id,snippet/title,snippet/description,snippet/channelTitle,snippet/publishedAt,snippet/thumbnails/medium/url,snippet/thumbnails/high/url,statistics/viewCount)",
-      id: ids.join(","),
-      key: apiKey,
-      part: "snippet,statistics",
-    });
-    const videoResponse = await fetch(`${YOUTUBE_VIDEOS_ENDPOINT}?${videoParams}`, {
-      next: { revalidate: YOUTUBE_REVALIDATE_SECONDS },
-      signal: AbortSignal.timeout(4_000),
-    });
-    if (!videoResponse.ok) {
-      console.warn("YouTube video details unavailable", {
-        reason: await getYouTubeErrorReason(videoResponse),
-        status: videoResponse.status,
-      });
-      return [];
-    }
+    const recentSelection = selectDiverseYouTubeVideos(recentVideos);
+    if (recentSelection.length >= 8) return recentSelection;
 
-    const payload = (await videoResponse.json()) as { items?: unknown };
-    return parseYouTubeVideoItems(payload.items);
+    const expandedIds = await searchYouTubeVideoIds(apiKey, YOUTUBE_EXPANDED_DAYS);
+    if (expandedIds === null) return recentSelection;
+
+    const recentIdSet = new Set(recentIds);
+    const newExpandedIds = expandedIds.filter((id) => !recentIdSet.has(id));
+    const expandedVideos = await loadYouTubeVideoDetails(apiKey, newExpandedIds);
+    if (expandedVideos === null) return recentSelection;
+
+    return selectDiverseYouTubeVideos([...recentVideos, ...expandedVideos]);
   } catch (error) {
     console.warn("YouTube popular videos unavailable", {
       name: error instanceof Error ? error.name : "UnknownError",

@@ -306,7 +306,7 @@
 }
 
 .videoRail li {
-  flex: 0 0 calc((100% - 2.55rem) / 4);
+  flex: 0 0 calc((100% - 1.7rem) / 3);
   min-width: 0;
   scroll-snap-align: start;
 }
