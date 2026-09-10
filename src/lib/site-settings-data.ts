@@ -2,7 +2,12 @@ import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { isFrontendOnly } from "@/lib/runtime-mode";
-import { DEFAULT_SITE_SETTINGS, SITE_SETTING_ID, type SiteSettings } from "@/lib/site-settings";
+import {
+  DEFAULT_SITE_SETTINGS,
+  readSiteSettingsOrDefault,
+  SITE_SETTING_ID,
+  type SiteSettings,
+} from "@/lib/site-settings";
 
 export const SITE_SETTINGS_CACHE_TAG = "site-settings";
 
@@ -19,12 +24,15 @@ const readSiteSettings = unstable_cache(
     });
     return settings ?? DEFAULT_SITE_SETTINGS;
   },
-  ["site-settings-v2"],
+  ["site-settings-v3"],
   { revalidate: 300, tags: [SITE_SETTINGS_CACHE_TAG] },
 );
 
 export function getSiteSettings() {
-  return isFrontendOnly() ? Promise.resolve(DEFAULT_SITE_SETTINGS) : readSiteSettings();
+  if (isFrontendOnly()) return Promise.resolve(DEFAULT_SITE_SETTINGS);
+
+  // Keep the fallback outside unstable_cache so a transient outage is never cached.
+  return readSiteSettingsOrDefault(readSiteSettings);
 }
 
 export function revalidateSiteSettings() {
