@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { useState } from "react";
 
 import type { PopularGuidePostSummary } from "@/lib/guide-community";
-import type { PopularYouTubeVideo } from "@/lib/youtube-videos";
 
 import styles from "./page.module.css";
 
@@ -19,11 +18,11 @@ type TabKey = "guides" | "videos";
 export function HomePopularTabs({
   frontendOnly,
   popularGuidePosts,
-  popularVideos,
+  videoPanel,
 }: Readonly<{
   frontendOnly: boolean;
   popularGuidePosts: readonly PopularGuidePostSummary[];
-  popularVideos: readonly PopularYouTubeVideo[];
+  videoPanel: ReactNode;
 }>) {
   const [activeTab, setActiveTab] = useState<TabKey>("guides");
 
@@ -87,37 +86,7 @@ export function HomePopularTabs({
         </div>
       ) : (
         <div id="popular-videos-panel" role="tabpanel" aria-labelledby="popular-videos-tab">
-          {popularVideos.length > 0 ? (
-            <ul className={styles.videoGrid}>
-              {popularVideos.map((video) => (
-                <li key={video.videoId}>
-                  <a
-                    href={`https://www.youtube.com/watch?v=${encodeURIComponent(video.videoId)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className={styles.thumbnail}>
-                      <Image
-                        src={video.thumbnailUrl}
-                        alt=""
-                        width={480}
-                        height={270}
-                        sizes="(max-width: 44rem) 100vw, 22rem"
-                      />
-                      <span aria-hidden="true">▶</span>
-                    </span>
-                    <strong>{video.title}</strong>
-                    <small>{video.channelTitle}</small>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className={styles.emptyState} role="status">
-              <strong>현재 인기 영상을 불러올 수 없습니다.</strong>
-              <p>기존 YouTube 연동에서 영상이 확인되면 이곳에 표시됩니다.</p>
-            </div>
-          )}
+          {videoPanel}
         </div>
       )}
     </section>

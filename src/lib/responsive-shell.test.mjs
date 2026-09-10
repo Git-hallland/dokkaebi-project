@@ -58,3 +58,20 @@ test("foldable widths retain the mobile shell until the shared desktop breakpoin
   assert.match(globalsCss, /html\s*\{[\s\S]*min-width:\s*0/u);
   assert.match(homeCss, /@media\s*\(max-width:\s*75rem\)[\s\S]*\.hero\s*\{[\s\S]*margin-inline:\s*0/u);
 });
+
+test("search suggestions and video carousel stay responsive and keyboard accessible", async () => {
+  const [search, searchCss, carousel] = await Promise.all([
+    readFile(new URL("../components/SiteSearch.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/SiteSearch.module.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/YouTubeVideoCarousel.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(search, /role="combobox"/u);
+  assert.match(search, /event\.key === "Escape"/u);
+  assert.match(search, /event\.key === "ArrowDown"/u);
+  assert.match(search, /\}, 250\)/u);
+  assert.match(searchCss, /calc\(100vw - 2rem\)/u);
+  assert.match(carousel, /aria-label="이전 인기 영상"/u);
+  assert.match(carousel, /aria-label="다음 인기 영상"/u);
+  assert.match(homeCss, /scroll-snap-type: inline mandatory/u);
+  assert.match(homeCss, /overflow-x: auto/u);
+});

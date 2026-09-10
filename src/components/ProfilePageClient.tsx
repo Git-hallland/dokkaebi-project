@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
 import { validateProfileImageFile } from "@/lib/profile-image";
-import { normalizeProfileName } from "@/lib/profile-input";
+import { validateNickname } from "@/lib/profile-input";
 
 import { SocialSignInButtons } from "./SocialSignInButtons";
 import { UserAvatar } from "./UserAvatar";
@@ -189,6 +189,22 @@ export function ProfilePageClient({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [nicknameStatus, setNicknameStatus] = useState<
+    Readonly<{ available: boolean; message: string }> | null
+  >(null);
+  const localNicknameStatus = useMemo(() => {
+    if (!isEditing || !session) return null;
+    try {
+      validateNickname(draftName, { allowStaffTerms: session.user.role === "ADMIN" });
+      return null;
+    } catch (error) {
+      return {
+        available: false,
+        message: error instanceof Error ? error.message : "닉네임을 확인해 주세요.",
+      };
+    }
+  }, [draftName, isEditing, session]);
+  const displayedNicknameStatus = localNicknameStatus ?? nicknameStatus;
 
   useEffect(() => {
     return () => {
@@ -197,6 +213,35 @@ export function ProfilePageClient({
       }
     };
   }, [previewImage]);
+
+  useEffect(() => {
+    if (!isEditing || !session || localNicknameStatus) return;
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      void fetch(`/api/profile/nickname/availability?name=${encodeURIComponent(draftName)}`, {
+        cache: "no-store",
+        signal: controller.signal,
+      })
+        .then(async (response) => {
+          const payload = (await response.json()) as { available?: boolean; message?: string };
+          setNicknameStatus({
+            available: response.ok && payload.available === true,
+            message: payload.message ?? "현재 닉네임을 확인할 수 없습니다.",
+          });
+        })
+        .catch((error: unknown) => {
+          if (!(error instanceof DOMException && error.name === "AbortError")) {
+            setNicknameStatus({ available: false, message: "현재 확인할 수 없습니다. 잠시 후 다시 시도해 주세요." });
+          }
+        });
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [draftName, isEditing, localNicknameStatus, session]);
 
   async function signOut() {
     setIsSigningOut(true);
@@ -261,7 +306,9 @@ export function ProfilePageClient({
     let name: string;
 
     try {
-      name = normalizeProfileName(draftName);
+      name = validateNickname(draftName, {
+        allowStaffTerms: session?.user.role === "ADMIN",
+      }).name;
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : "프로필 입력값을 확인해 주세요.");
       return;
@@ -274,10 +321,14 @@ export function ProfilePageClient({
       if (selectedImage) {
         await uploadProfileImage(selectedImage, name);
       } else {
-        const result = await authClient.updateUser({ name });
+        const response = await fetch("/api/profile/nickname", {
+          body: JSON.stringify({ name }),
+          headers: { "content-type": "application/json" },
+          method: "POST",
+        });
 
-        if (result.error) {
-          setSaveError("프로필을 저장하지 못했습니다. 입력값을 확인한 뒤 다시 시도해 주세요.");
+        if (!response.ok) {
+          setSaveError(await readResponseMessage(response, "프로필을 저장하지 못했습니다."));
           return;
         }
       }
@@ -362,14 +413,25 @@ export function ProfilePageClient({
               <input
                 type="text"
                 value={draftName}
-                onChange={(event) => setDraftName(event.target.value)}
+                onChange={(event) => {
+                  setDraftName(event.target.value);
+                  setNicknameStatus(null);
+                }}
                 autoComplete="nickname"
-                aria-describedby="profile-name-help"
-                maxLength={8}
+                aria-describedby="profile-name-help profile-name-status"
+                aria-invalid={displayedNicknameStatus ? !displayedNicknameStatus.available : undefined}
+                maxLength={12}
                 minLength={2}
                 disabled={isSaving}
               />
-              <small id="profile-name-help">앞뒤 공백을 제외한 2~8글자로 입력해 주세요.</small>
+              <small id="profile-name-help">2~12자의 한글, 영문, 숫자만 사용할 수 있습니다.</small>
+              <small
+                id="profile-name-status"
+                className={displayedNicknameStatus?.available ? styles.validationSuccess : styles.validationError}
+                aria-live="polite"
+              >
+                {displayedNicknameStatus?.message ?? "입력을 멈추면 중복 여부를 확인합니다."}
+              </small>
             </label>
 
             <div className={styles.field}>
@@ -402,7 +464,10 @@ export function ProfilePageClient({
             ) : null}
 
             <div className={styles.formActions}>
-              <button type="submit" disabled={isSaving}>
+              <button
+                type="submit"
+                disabled={isSaving || displayedNicknameStatus?.available !== true}
+              >
                 {isSaving ? "저장 중…" : "저장"}
               </button>
               <button

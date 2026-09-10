@@ -1,0 +1,80 @@
+.page {
+  width: min(100%, 64rem);
+  min-width: 0;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: var(--surface-glass);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.eyebrow,
+.count {
+  color: var(--primary-hover);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.page h1 {
+  margin-bottom: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  padding: 1.25rem;
+  color: var(--text-muted);
+  background: var(--surface-inset);
+  border-left: 2px solid var(--border-strong);
+}
+
+.results {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.results a {
+  display: grid;
+  gap: 0.45rem;
+  min-height: 6rem;
+  padding: 1rem;
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+}
+
+.results a:hover,
+.results a:focus-visible {
+  border-color: var(--border-strong);
+}
+
+.results strong {
+  overflow-wrap: anywhere;
+  color: var(--text-strong);
+}
+
+.results p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.badge {
+  width: fit-content;
+  padding: 0.2rem 0.5rem;
+  color: var(--primary-hover);
+  background: var(--primary-soft);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+@media (max-width: 40rem) {
+  .page { padding: 1.1rem; }
+}

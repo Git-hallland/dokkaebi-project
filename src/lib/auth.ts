@@ -8,7 +8,7 @@ import {
   PROFILE_IMAGE_PROOF_HEADER,
   verifyProfileImageUpdateProof,
 } from "@/lib/cloudinary-profile";
-import { normalizeProfileName } from "@/lib/profile-input";
+import { isNicknameAvailable, NicknameConflictError } from "@/lib/nickname-data";
 import { isFrontendOnly } from "@/lib/runtime-mode";
 
 function requireServerEnv(name: string) {
@@ -40,6 +40,12 @@ function createAuth() {
         defaultValue: "USER",
         input: false,
       },
+      nicknameKey: {
+        type: "string",
+        required: false,
+        input: false,
+        returned: false,
+      },
     },
   },
   databaseHooks: {
@@ -60,10 +66,36 @@ function createAuth() {
               }
             }
 
+            let nicknameData: { name: string; nicknameKey: string } | undefined;
+
+            if (user.name !== undefined) {
+              const sessionUser = context?.context.session?.user;
+
+              if (sessionUser) {
+                const nickname = await isNicknameAvailable(prisma, user.name, {
+                  id: sessionUser.id,
+                  role: sessionUser.role,
+                });
+
+                if (!nickname.available) {
+                  throw new NicknameConflictError();
+                }
+
+                nicknameData = { name: nickname.name, nicknameKey: nickname.key };
+              } else {
+                // OAuth profile synchronization must not reject provider display names.
+                nicknameData = { name: user.name, nicknameKey: "" };
+              }
+            }
+
             return {
               data: {
                 ...user,
-                ...(user.name !== undefined ? { name: normalizeProfileName(user.name) } : {}),
+                ...(nicknameData
+                  ? nicknameData.nicknameKey
+                    ? nicknameData
+                    : { name: nicknameData.name }
+                  : {}),
               },
             };
           } catch (error) {
