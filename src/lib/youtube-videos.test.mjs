@@ -31,8 +31,10 @@ test("rejects unrelated, malformed, and untrusted video data", () => {
   const untrusted = item("bad", 900);
   untrusted.snippet.thumbnails.high.url = "https://example.com/bad.jpg";
   const official = item("official", 10_000, "도깨비의세계 공식 영상", [...OFFICIAL_YOUTUBE_CHANNEL_IDS][0]);
+  const sameWordsButNotGame = item("music", 8_000, "도깨비의세계 Original");
+  sameWordsButNotGame.snippet.description = "버추얼 음악 모음";
   assert.deepEqual(parseYouTubeVideoItems(null), []);
-  assert.deepEqual(parseYouTubeVideoItems([unrelated, untrusted, official, {}]), []);
+  assert.deepEqual(parseYouTubeVideoItems([unrelated, untrusted, official, sameWordsButNotGame, {}]), []);
 });
 
 test("limits each creator channel to two videos", () => {

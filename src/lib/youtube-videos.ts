@@ -10,6 +10,24 @@ export const YOUTUBE_MAX_PER_CHANNEL = 2;
 // Verified from the canonical URL on the official channel page on 2026-09-10:
 // https://www.youtube.com/@dokkaebi.saegye/about
 export const OFFICIAL_YOUTUBE_CHANNEL_IDS = new Set(["UCo6HhzSfiIO_4BKGQ4_BY0g"]);
+const YOUTUBE_GAME_CONTEXT_TERMS = [
+  "게임",
+  "mmorpg",
+  "신작",
+  "출시",
+  "오픈",
+  "쇼케이스",
+  "플레이",
+  "공략",
+  "리뷰",
+  "전투",
+  "스킬",
+  "도술",
+  "직업",
+  "kakaogames",
+  "supercat",
+  "슈퍼캣",
+];
 
 export type PopularYouTubeVideo = Readonly<{
   channelId: string;
@@ -77,7 +95,7 @@ function isRelevant(item: YouTubeVideoItem) {
     .normalize("NFKC")
     .replace(/\s+/gu, "")
     .toLocaleLowerCase("ko-KR");
-  return haystack.includes("도깨비의세계");
+  return haystack.includes("도깨비의세계") && YOUTUBE_GAME_CONTEXT_TERMS.some((term) => haystack.includes(term));
 }
 
 function decodeYouTubeText(value: string) {
