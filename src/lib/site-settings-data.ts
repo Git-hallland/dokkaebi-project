@@ -24,7 +24,7 @@ const readSiteSettings = unstable_cache(
     });
     return settings ?? DEFAULT_SITE_SETTINGS;
   },
-  ["site-settings-v3"],
+  ["site-settings-v2"],
   { revalidate: 300, tags: [SITE_SETTINGS_CACHE_TAG] },
 );
 
