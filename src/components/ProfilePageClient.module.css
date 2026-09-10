@@ -182,6 +182,14 @@
   font-weight: 400;
 }
 
+.validationSuccess {
+  color: #91e7b3 !important;
+}
+
+.validationError {
+  color: #ffb4b4 !important;
+}
+
 .fileButton {
   display: inline-flex;
   align-items: center;

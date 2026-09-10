@@ -1,14 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { connection } from "next/server";
 
 import { SiteSearch } from "@/components/SiteSearch";
 import { getPopularGuidePosts } from "@/lib/community-data";
 import { getRecentPublishedEntities } from "@/lib/editorial-content";
 import { isFrontendOnly } from "@/lib/runtime-mode";
-import { getPopularYouTubeVideos } from "@/lib/youtube-videos";
 
 import { HomePopularTabs } from "./HomePopularTabs";
+import { HomePopularVideos } from "./HomePopularVideos";
 
 import styles from "./page.module.css";
 
@@ -22,8 +23,7 @@ const entityTypeLabels = {
 export default async function Home() {
   await connection();
   const frontendOnly = isFrontendOnly();
-  const [popularVideos, popularGuidePosts, recentEntities] = await Promise.all([
-    getPopularYouTubeVideos(),
+  const [popularGuidePosts, recentEntities] = await Promise.all([
     getPopularGuidePosts(),
     getRecentPublishedEntities(),
   ]);
@@ -47,7 +47,11 @@ export default async function Home() {
       <HomePopularTabs
         frontendOnly={frontendOnly}
         popularGuidePosts={popularGuidePosts}
-        popularVideos={popularVideos}
+        videoPanel={
+          <Suspense fallback={<div className={styles.emptyState} role="status">인기 영상을 불러오는 중입니다.</div>}>
+            <HomePopularVideos />
+          </Suspense>
+        }
       />
 
       <section className={`${styles.panel} ${styles.recentPanel}`} aria-labelledby="recent-title">

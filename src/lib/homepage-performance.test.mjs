@@ -5,15 +5,19 @@ import { readFile } from "node:fs/promises";
 const source = (path) => readFile(new URL(path, import.meta.url), "utf8");
 
 test("homepage prioritizes instant popular tabs and recent editorial content", async () => {
-  const [home, tabs, editorial] = await Promise.all([
+  const [home, tabs, videos, editorial] = await Promise.all([
     source("../app/page.tsx"),
     source("../app/HomePopularTabs.tsx"),
+    source("../app/HomePopularVideos.tsx"),
     source("./editorial-content.ts"),
   ]);
 
   assert.doesNotMatch(home, /CategoryCard|main-categories/u);
   assert.doesNotMatch(home, /force-dynamic/u);
   assert.match(home, /<HomePopularTabs[\s\S]*recent-title/u);
+  assert.match(home, /<Suspense[\s\S]*<HomePopularVideos/u);
+  assert.doesNotMatch(home, /getPopularYouTubeVideos\(\)/u);
+  assert.match(videos, /getPopularYouTubeVideos\(\)/u);
   assert.match(tabs, /useState<TabKey>\("guides"\)/u);
   assert.match(tabs, /role="tablist"/u);
   assert.match(tabs, /<Link href=\{`\/community/u);

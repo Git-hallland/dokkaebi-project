@@ -55,6 +55,7 @@ enum GuideReportStatus {
 model User {
   id                         String                 @id
   name                       String
+  nicknameKey                String?                @unique
   email                      String
   emailVerified              Boolean                @default(false)
   image                      String?

@@ -216,7 +216,7 @@
 }
 
 .popularList,
-.videoGrid {
+.videoRail {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -272,13 +272,46 @@
   font-weight: 800;
 }
 
-.videoGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.85rem;
+.videoCarousel {
+  position: relative;
+  min-width: 0;
 }
 
-.videoGrid a {
+.carouselActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin-bottom: 0.65rem;
+}
+
+.carouselActions button {
+  width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  color: var(--text-strong);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  font-size: 1.45rem;
+}
+
+.videoRail {
+  display: flex;
+  gap: 0.85rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: inline mandatory;
+  scrollbar-width: thin;
+}
+
+.videoRail li {
+  flex: 0 0 calc((100% - 1.7rem) / 3);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.videoRail a {
   display: grid;
   gap: 0.45rem;
   min-width: 0;
@@ -317,12 +350,12 @@
   transform: translate(-50%, -50%);
 }
 
-.videoGrid a:hover img,
-.videoGrid a:focus-visible img {
+.videoRail a:hover img,
+.videoRail a:focus-visible img {
   transform: scale(1.035);
 }
 
-.videoGrid strong {
+.videoRail strong {
   display: -webkit-box;
   overflow: hidden;
   color: var(--text-strong);
@@ -331,11 +364,12 @@
   -webkit-line-clamp: 2;
 }
 
-.videoGrid small {
+.videoMeta {
   overflow: hidden;
   color: var(--text-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 0.76rem;
 }
 
 .recentPanel {
@@ -446,13 +480,20 @@
   }
 
   .popularList,
-  .videoGrid,
   .recentGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .videoRail li {
+    flex-basis: calc((100% - 1.7rem) / 3);
   }
 }
 
 @media (max-width: 62rem) {
+  .videoRail li {
+    flex-basis: calc((100% - 0.85rem) / 2);
+  }
+
   .mobileSearch {
     display: block;
     position: absolute;
@@ -529,8 +570,12 @@
   }
 
   .popularList,
-  .videoGrid {
+  .recentGrid {
     grid-template-columns: 1fr;
+  }
+
+  .videoRail li {
+    flex-basis: min(82vw, 19rem);
   }
 
   .panelHeading,
