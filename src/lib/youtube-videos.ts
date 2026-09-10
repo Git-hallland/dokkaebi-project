@@ -27,6 +27,18 @@ type YouTubeVideoItem = Readonly<{
   statistics?: { viewCount?: unknown };
 }>;
 
+async function getYouTubeErrorReason(response: Response) {
+  try {
+    const payload = await response.json() as {
+      error?: { errors?: Array<{ reason?: unknown }> };
+    };
+    const reason = payload.error?.errors?.[0]?.reason;
+    return typeof reason === "string" ? reason : "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
 function getTrustedThumbnailUrl(item: YouTubeVideoItem) {
   const candidate = item.snippet?.thumbnails?.high?.url ?? item.snippet?.thumbnails?.medium?.url;
 
@@ -115,7 +127,7 @@ export async function getPopularYouTubeVideos(): Promise<PopularYouTubeVideo[]> 
 
   try {
     const searchParams = new URLSearchParams({
-      fields: "items/id/videoId",
+      fields: "items(id/videoId)",
       key: apiKey,
       maxResults: "12",
       order: "viewCount",
@@ -130,7 +142,10 @@ export async function getPopularYouTubeVideos(): Promise<PopularYouTubeVideo[]> 
       signal: AbortSignal.timeout(4_000),
     });
     if (!searchResponse.ok) {
-      console.warn("YouTube search unavailable", { status: searchResponse.status });
+      console.warn("YouTube search unavailable", {
+        reason: await getYouTubeErrorReason(searchResponse),
+        status: searchResponse.status,
+      });
       return [];
     }
 
@@ -152,7 +167,10 @@ export async function getPopularYouTubeVideos(): Promise<PopularYouTubeVideo[]> 
       signal: AbortSignal.timeout(4_000),
     });
     if (!videoResponse.ok) {
-      console.warn("YouTube video details unavailable", { status: videoResponse.status });
+      console.warn("YouTube video details unavailable", {
+        reason: await getYouTubeErrorReason(videoResponse),
+        status: videoResponse.status,
+      });
       return [];
     }
 
