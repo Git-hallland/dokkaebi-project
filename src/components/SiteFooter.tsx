@@ -23,6 +23,33 @@ export function SiteFooter({ adEnabled, stickyAdEnabled }: Readonly<{ adEnabled:
             ‘도깨비의세계’ 명칭, 상표 및 게임 관련 자료의 권리는 카카오게임즈·슈퍼캣 등
             각 권리자에게 있습니다.
           </p>
+          <div className={styles.externalLinks} aria-label="커뮤니티와 후원 바로가기">
+            <a
+              className={styles.externalLink}
+              href="https://open.kakao.com/o/gESeLyBi"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="도깨비의세계 오픈카톡방 새 탭에서 열기"
+            >
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                <path d="M4 5.5h16v11H9l-5 3v-14Z" />
+                <path d="M8 10h8M8 13h5" />
+              </svg>
+              <span>도깨비의세계 오픈카톡방</span>
+            </a>
+            <a
+              className={styles.externalLink}
+              href="https://toon.at/donate/hallland"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="관리자 후원하기 새 탭에서 열기"
+            >
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                <path d="M12 20.2 4.8 13A5 5 0 0 1 12 6.1 5 5 0 0 1 19.2 13L12 20.2Z" />
+              </svg>
+              <span>관리자 후원하기</span>
+            </a>
+          </div>
           <div className={styles.policyArea}>
             <Link href="/editorial-policy">위키 운영 원칙</Link>
           </div>

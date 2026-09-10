@@ -21,10 +21,7 @@
 
 .inner {
   display: grid;
-  grid-template-columns:
-    var(--site-sidebar-width)
-    minmax(0, var(--site-content-width))
-    var(--site-ad-rail-width);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   column-gap: var(--site-column-gap);
   width: min(100%, var(--site-wide-width));
@@ -52,15 +49,18 @@
 }
 
 .desktopTools {
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 1;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.65rem;
+  min-width: 0;
   justify-self: end;
 }
 
 .desktopSearch {
+  flex: 0 1 16.5rem;
   width: clamp(10rem, 18vw, 16.5rem);
 }
 
@@ -68,18 +68,29 @@
   display: none;
 }
 
-@media (min-width: 62.01rem) and (max-width: 75rem) {
-  .inner {
-    grid-template-columns: var(--site-sidebar-width) minmax(0, var(--site-content-width));
-    width: min(100%, var(--site-standard-width));
-  }
-
+@media (min-width: 62.01rem) and (max-width: 90rem) {
   .wordmark {
     width: 14rem;
   }
 
   .desktopSearch {
+    flex-basis: 10rem;
     width: 10rem;
+  }
+}
+
+@media (min-width: 62.01rem) and (max-width: 75rem) {
+  .inner {
+    width: min(100%, var(--site-standard-width));
+  }
+
+  .wordmark {
+    width: 12rem;
+  }
+
+  .desktopSearch {
+    flex-basis: 7.5rem;
+    width: 7.5rem;
   }
 }
 
