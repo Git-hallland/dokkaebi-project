@@ -37,6 +37,32 @@ test("ADMIN can write while the toggle is OFF and ordinary users cannot", () => 
   assert.equal(settings.canCreateGuide("USER", true), true);
 });
 
+test("a successful settings read returns the stored values", async () => {
+  assert.deepEqual(await settings.readSiteSettingsOrDefault(async () => allEnabled), allEnabled);
+});
+
+test("a failed settings read returns all-OFF defaults and logs only a safe code", async () => {
+  const reported = [];
+  const error = Object.assign(new Error("must not be logged"), { code: "P1001" });
+  const result = await settings.readSiteSettingsOrDefault(async () => { throw error; }, (code) => reported.push(code));
+
+  assert.deepEqual(result, settings.DEFAULT_SITE_SETTINGS);
+  assert.deepEqual(reported, ["P1001"]);
+});
+
+test("a transient fallback is not retained after the reader recovers", async () => {
+  let attempts = 0;
+  const reader = async () => {
+    attempts += 1;
+    if (attempts === 1) throw Object.assign(new Error("temporary outage"), { code: "P1001" });
+    return allEnabled;
+  };
+
+  assert.deepEqual(await settings.readSiteSettingsOrDefault(reader, () => {}), settings.DEFAULT_SITE_SETTINGS);
+  assert.deepEqual(await settings.readSiteSettingsOrDefault(reader, () => {}), allEnabled);
+  assert.equal(attempts, 2);
+});
+
 test("routes enforce settings authorization at UI, direct route, and API boundaries", async () => {
   const [api, writePage, writeAction, profile] = await Promise.all([
     readFile(new URL("../app/api/community/posts/route.ts", import.meta.url), "utf8"),
@@ -58,6 +84,7 @@ test("each ad toggle independently gates its own placeholder", async () => {
     readFile(new URL("../components/SiteFooter.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(layout, /rightAdEnabled \? <DesktopAdRail/u);
+  assert.match(layout, /export const dynamic = "force-dynamic"/u);
   assert.match(layout, /adEnabled=\{siteSettings\.footerAdEnabled\}/u);
   assert.match(layout, /footerStickyAdEnabled \? <FloatingAdSlot/u);
   assert.match(footer, /adEnabled \? \([\s\S]*하단 배너 광고 영역/u);
@@ -71,6 +98,8 @@ test("settings writes invalidate the shared cache and refresh the preserved layo
   assert.match(cache, /revalidateTag\(SITE_SETTINGS_CACHE_TAG, \{ expire: 0 \}\)/u);
   assert.match(cache, /revalidatePath\("\/", "layout"\)/u);
   assert.match(cache, /\{ revalidate: 300, tags: \[SITE_SETTINGS_CACHE_TAG\] \}/u);
+  assert.match(cache, /readSiteSettingsOrDefault\(readSiteSettings\)/u);
+  assert.ok(cache.indexOf("unstable_cache(") < cache.indexOf("readSiteSettingsOrDefault(readSiteSettings)"));
   assert.match(form, /router\.refresh\(\)/u);
 });
 

@@ -48,3 +48,25 @@ export function normalizeSiteSettingsInput(value: unknown): SiteSettings {
 export function canCreateGuide(role: string | null | undefined, guideWriteEnabled: boolean) {
   return role === "ADMIN" || guideWriteEnabled;
 }
+
+type SiteSettingsReader = () => Promise<SiteSettings>;
+
+function getSiteSettingsReadErrorCode(error: unknown) {
+  if (!error || typeof error !== "object" || !("code" in error)) return "UNKNOWN";
+  const code = (error as { code?: unknown }).code;
+  return typeof code === "string" && /^[A-Z0-9_]{1,32}$/u.test(code) ? code : "UNKNOWN";
+}
+
+export async function readSiteSettingsOrDefault(
+  reader: SiteSettingsReader,
+  reportError: (code: string) => void = (code) => {
+    console.error(`Site settings unavailable; using safe defaults. code=${code}`);
+  },
+) {
+  try {
+    return await reader();
+  } catch (error) {
+    reportError(getSiteSettingsReadErrorCode(error));
+    return DEFAULT_SITE_SETTINGS;
+  }
+}

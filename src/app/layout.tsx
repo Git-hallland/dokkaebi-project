@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "도깨비의세계 정보를 준비 중인 비공식 팬 위키입니다.",
 };
 
+export const dynamic = "force-dynamic";
+
 type RootLayoutProps = Readonly<{
   children: ReactNode;
 }>;
