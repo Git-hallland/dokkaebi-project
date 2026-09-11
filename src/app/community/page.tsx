@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FrontendPreviewNotice } from "@/components/FrontendPreviewNotice";
 import { getCommunityPosts } from "@/lib/community-data";
-import { COMMUNITY_PAGE_SIZE, formatCommunityPostTime, isNewCommunityPost, normalizeCommunitySort } from "@/lib/guide-community";
+import { COMMUNITY_PAGE_SIZE, formatCommunityPostTime, isNewCommunityPost, normalizeCommunityQuery, normalizeCommunitySort } from "@/lib/guide-community";
 import { isFrontendOnly } from "@/lib/runtime-mode";
 import { getSiteSettings } from "@/lib/site-settings-data";
 import { CommunityWriteAction } from "./CommunityWriteAction";
@@ -17,9 +17,10 @@ export default async function CommunityPage({ searchParams }: Props) {
   if (isFrontendOnly()) return <div className={styles.page}><header className={styles.header}><div><p>COMMUNITY</p><h1>공략게시판</h1><span>이용자가 직접 작성한 공략과 짧은 팁을 공유합니다.</span></div></header><FrontendPreviewNotice heading="게시판 미리보기" description="현재 프론트엔드 미리보기 환경입니다. 게시판 데이터와 글쓰기 기능은 로컬 개발 환경에서 확인할 수 있습니다." /></div>;
   const params = await searchParams;
   const sort = normalizeCommunitySort(params.sort);
+  const query = normalizeCommunityQuery(params.q);
   const cursor = typeof params.cursor === "string" ? params.cursor : undefined;
   const [posts, siteSettings] = await Promise.all([
-    getCommunityPosts(sort, cursor),
+    getCommunityPosts(sort, cursor, query),
     getSiteSettings(),
   ]);
   const next = posts.length > COMMUNITY_PAGE_SIZE ? posts[COMMUNITY_PAGE_SIZE - 1]?.id : null;
@@ -27,8 +28,11 @@ export default async function CommunityPage({ searchParams }: Props) {
   const now = new Date();
   return <div className={styles.page}>
     <header className={styles.header}><div><p>COMMUNITY</p><h1>공략게시판</h1><span>이용자가 직접 작성한 공략과 짧은 팁을 공유합니다.</span></div><CommunityWriteAction guideWriteEnabled={siteSettings.guideWriteEnabled} /></header>
-    <nav className={styles.filters} aria-label="게시물 정렬"><Link className={sort === "latest" ? styles.current : undefined} href="/community?sort=latest">최신순</Link><Link className={sort === "popular" ? styles.current : undefined} href="/community?sort=popular">인기순</Link></nav>
-    {visible.length ? <ol className={styles.list}>{visible.map((post) => <li key={post.id}><Link href={`/community/${post.id}`}><div className={styles.title}><span>{post.category === "GUIDE" ? "공략" : "팁"}</span><strong>{post.title}</strong>{isNewCommunityPost(post.createdAt, now) ? <b>NEW</b> : null}</div><div className={styles.meta}><span>{post.author?.name ?? "탈퇴한 사용자"}</span><time dateTime={post.createdAt}>{formatCommunityPostTime(post.createdAt)}</time><span>조회 {post.viewCount}</span><span>좋아요 {post.likeCount}</span></div></Link></li>)}</ol> : <div className={styles.empty}><strong>아직 등록된 글이 없습니다.</strong><p>첫 공략이나 팁을 공유해 주세요.</p></div>}
-    {next ? <Link className={styles.next} href={`/community?sort=${sort}&cursor=${encodeURIComponent(next)}`}>다음 글 보기</Link> : null}
+    <div className={styles.communityTools}>
+      <nav className={styles.filters} aria-label="게시물 정렬"><Link className={sort === "latest" ? styles.current : undefined} href={`/community?sort=latest${query ? `&q=${encodeURIComponent(query)}` : ""}`}>최신순</Link><Link className={sort === "popular" ? styles.current : undefined} href={`/community?sort=popular${query ? `&q=${encodeURIComponent(query)}` : ""}`}>인기순</Link></nav>
+      <form className={styles.boardSearch} action="/community" method="get" role="search"><input type="hidden" name="sort" value={sort} /><label htmlFor="community-search">공략게시판 검색</label><div><input id="community-search" name="q" defaultValue={query} maxLength={80} placeholder="제목 또는 작성자 닉네임" /><button type="submit">검색</button></div></form>
+    </div>
+    {visible.length ? <ol className={styles.list}>{visible.map((post) => <li key={post.id}><Link href={`/community/${post.id}`}><div className={styles.title}><span>{post.category === "GUIDE" ? "공략" : "팁"}</span><strong>{post.title}</strong>{isNewCommunityPost(post.createdAt, now) ? <b>NEW</b> : null}</div><div className={styles.meta}><span>{post.author?.name ?? "탈퇴한 사용자"}</span><time dateTime={post.createdAt}>{formatCommunityPostTime(post.createdAt)}</time><span>조회 {post.viewCount}</span><span>좋아요 {post.likeCount}</span></div></Link></li>)}</ol> : <div className={styles.empty}><strong>{query ? "검색 결과가 없습니다." : "아직 등록된 글이 없습니다."}</strong><p>{query ? "다른 제목이나 작성자 닉네임으로 검색해 보세요." : "첫 공략이나 팁을 공유해 주세요."}</p></div>}
+    {next ? <Link className={styles.next} href={`/community?sort=${sort}&cursor=${encodeURIComponent(next)}${query ? `&q=${encodeURIComponent(query)}` : ""}`}>다음 글 보기</Link> : null}
   </div>;
 }

@@ -11,6 +11,7 @@ import {
 
 test("report input accepts only the allowlisted reason and trims detail", () => {
   assert.deepEqual(normalizeGuideReportInput({ reason: "SPAM", description: "  반복 광고  " }), { reason: "SPAM", description: "반복 광고" });
+  assert.deepEqual(normalizeGuideReportInput({ reason: "INAPPROPRIATE" }), { reason: "INAPPROPRIATE", description: null });
   assert.throws(() => normalizeGuideReportInput({ reason: "PHISHING" }), CommunityReportError);
   assert.throws(() => normalizeGuideReportInput({ reason: "OTHER", description: "x".repeat(1001) }), CommunityReportError);
   assert.throws(() => normalizeGuideReportInput({ reason: "OTHER", description: "<b>설명</b>" }), CommunityReportError);

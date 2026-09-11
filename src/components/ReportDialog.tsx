@@ -6,6 +6,7 @@ import styles from "./ReportDialog.module.css";
 const reasons = [
   ["SPAM", "스팸/도배"],
   ["ABUSE", "욕설/괴롭힘"],
+  ["INAPPROPRIATE", "부적절한 콘텐츠"],
   ["MISINFORMATION", "잘못된 정보"],
   ["COPYRIGHT", "저작권 침해"],
   ["OTHER", "기타"],

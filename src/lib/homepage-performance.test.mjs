@@ -24,6 +24,8 @@ test("homepage prioritizes instant popular tabs and recent editorial content", a
   assert.match(editorial, /type: \{ in: \["skills", "items", "monsters", "regions"\] \}/u);
   assert.match(editorial, /orderBy: \[\{ updatedAt: "desc" \}, \{ createdAt: "desc" \}/u);
   assert.match(editorial, /take: 8/u);
+  assert.match(home, /src="\/brand\/dokkaebi-world-wiki-logo\.png"/u);
+  assert.doesNotMatch(home, /도깨비의세계의 공식 공개 정보를 빠르게/u);
 });
 
 test("public lists use tagged caches and CMS mutations invalidate them", async () => {

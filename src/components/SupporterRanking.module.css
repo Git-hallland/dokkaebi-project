@@ -1,0 +1,33 @@
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  min-height: 4rem;
+  padding: .7rem .9rem;
+  color: var(--text-muted);
+  text-align: left;
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  cursor: pointer;
+}
+.trigger:hover,.trigger:focus-visible { color: var(--text-strong); background: var(--surface-accent); border-color: var(--border-strong); }
+.trigger span:last-child { display: grid; gap: .15rem; }
+.trigger strong { color: inherit; font-size: .82rem; }
+.trigger small { font-size: .68rem; font-weight: 600; }
+.icon { display: grid; place-items: center; width: 2rem; height: 2rem; color: #f2c45e; background: color-mix(in srgb, #f2c45e 12%, transparent); border-radius: .55rem; }
+.dialog { width: min(calc(100% - 2rem), 38rem); max-height: min(80dvh, 44rem); padding: 0; color: var(--text); background: transparent; border: 0; overflow: visible; }
+.dialog::backdrop { background: rgb(4 6 20 / 76%); backdrop-filter: blur(4px); }
+.panel { max-height: 80dvh; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 1rem; box-shadow: 0 1.5rem 5rem rgb(0 0 0 / 45%); overflow: auto; }
+.panel header { display: flex; align-items: start; justify-content: space-between; gap: 1rem; }
+.panel header p,.panel h2,.intro,.empty { margin: 0; }
+.panel header p { color: var(--primary-hover); font-size: .68rem; font-weight: 800; letter-spacing: .12em; }
+.panel h2 { margin-top: .2rem; font-size: 1.35rem; }
+.panel header button { width: 2.25rem; height: 2.25rem; color: var(--text); background: var(--surface-inset); border: 1px solid var(--border); border-radius: .6rem; font-size: 1.4rem; cursor: pointer; }
+.intro { margin-top: .6rem; color: var(--text-muted); font-size: .82rem; }
+.list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .65rem; margin: 1.1rem 0 0; padding: 0; list-style: none; }
+.list li { display: flex; align-items: center; gap: .6rem; min-width: 0; padding: .7rem; background: var(--surface-inset); border: 1px solid var(--border); border-radius: .7rem; }
+.list strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank { flex: 0 0 1.35rem; color: var(--primary-hover); font-size: .72rem; font-weight: 800; text-align: center; }
+.empty { margin-top: 1rem; padding: 1.5rem; color: var(--text-muted); text-align: center; background: var(--surface-inset); border-radius: .7rem; }
+@media (max-width: 30rem) { .list { grid-template-columns: 1fr; } .panel { padding: 1rem; } }

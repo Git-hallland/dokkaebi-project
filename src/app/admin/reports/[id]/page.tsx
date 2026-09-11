@@ -10,7 +10,7 @@ import styles from "../../admin.module.css";
 
 export const metadata: Metadata = { title: "신고 상세 | DokkaebiProject", robots: { index: false, follow: false } };
 
-const reasonLabels = { SPAM:"스팸/도배",ABUSE:"욕설/괴롭힘",MISINFORMATION:"잘못된 정보",COPYRIGHT:"저작권 침해",OTHER:"기타" } as const;
+const reasonLabels = { SPAM:"스팸/도배",ABUSE:"욕설/괴롭힘",INAPPROPRIATE:"부적절한 콘텐츠",MISINFORMATION:"잘못된 정보",COPYRIGHT:"저작권 침해",OTHER:"기타" } as const;
 const statusLabels = { PENDING:"미처리",RESOLVED:"처리됨",DISMISSED:"기각됨" } as const;
 
 export default async function ReportDetailPage({ params }: { params: Promise<{ id: string }> }) {

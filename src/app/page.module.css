@@ -113,6 +113,14 @@
   white-space: nowrap;
 }
 
+.heroLogo {
+  display: block;
+  width: clamp(17rem, 38vw, 32rem);
+  max-width: 90vw;
+  height: auto;
+  object-fit: contain;
+}
+
 .eyebrow,
 .sectionLabel {
   margin-bottom: 0.55rem;
@@ -134,13 +142,6 @@
   color: var(--hero-accent);
 }
 
-.heroDescription {
-  max-width: 40rem;
-  margin-bottom: 0;
-  color: rgb(232 231 242 / 82%);
-  font-size: 0.9rem;
-  text-shadow: 0 1px 14px rgb(2 3 12 / 68%);
-}
 
 .panel {
   border-radius: 0.5rem;
@@ -534,10 +535,6 @@
     z-index: 2;
   }
 
-  .heroDescription {
-    display: none;
-  }
-
 }
 
 @media (max-width: 44rem) {
@@ -555,10 +552,7 @@
     padding: 2.5rem 1.15rem 5rem;
   }
 
-  .heroCopy h1 {
-    font-size: 2rem;
-    white-space: normal;
-  }
+  .heroLogo { width: min(82vw, 25rem); }
 
   .hero::before {
     background-position: 52% center;

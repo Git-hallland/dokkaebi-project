@@ -208,6 +208,12 @@ export function normalizeCommunitySort(value: unknown): CommunitySort {
   return value === "popular" ? "popular" : "latest";
 }
 
+export function normalizeCommunityQuery(value: unknown) {
+  if (typeof value !== "string") return "";
+  const query = value.trim();
+  return query.length <= 80 && !CONTROL_CHARACTERS.test(query) ? query : "";
+}
+
 export function communityOrderBy(sort: CommunitySort) {
   return sort === "popular"
     ? [{ likeCount: "desc" as const }, { createdAt: "desc" as const }, { id: "desc" as const }]
