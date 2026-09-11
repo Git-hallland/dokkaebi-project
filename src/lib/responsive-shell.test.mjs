@@ -15,6 +15,17 @@ const [headerCss, mobileMenu, footer, footerCss, layoutCss, sidebarCss, adRailCs
     readFile(new URL("../app/page.module.css", import.meta.url), "utf8"),
   ]);
 
+const [rootLayout, packageJson] = await Promise.all([
+  readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+  readFile(new URL("../../package.json", import.meta.url), "utf8"),
+]);
+
+test("Vercel Web Analytics is mounted once in the root layout", () => {
+  assert.match(packageJson, /"@vercel\/analytics":/u);
+  assert.match(rootLayout, /import \{ Analytics \} from "@vercel\/analytics\/next";/u);
+  assert.equal((rootLayout.match(/<Analytics\s*\/>/gu) ?? []).length, 1);
+});
+
 test("desktop header keeps the logo centered and utilities in the right column", () => {
   assert.match(
     headerCss,
