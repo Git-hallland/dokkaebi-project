@@ -104,20 +104,23 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(carousel, /ResizeObserver/u);
   assert.doesNotMatch(carousel, /hoveredRef/u);
   assert.match(homeCss, /\.videoCarousel\s*\{[\s\S]*overflow:\s*hidden/u);
-  assert.match(homeCss, /\.videoRailAnimating\s*\{[\s\S]*transform 900ms cubic-bezier\(0\.16, 1, 0\.3, 1\)/u);
+  assert.match(homeCss, /\.videoRailAnimating\s*\{[\s\S]*transform 1000ms cubic-bezier\(0\.25, 0\.46, 0\.45, 0\.94\)/u);
   assert.match(homeCss, /\.videoRail\s*\{[\s\S]*will-change:\s*transform/u);
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*position:\s*absolute/u);
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*top:\s*calc\(9\.375cqi/u);
   assert.match(homeCss, /\.popularPanel \[role="tabpanel"\][\s\S]*overflow:\s*hidden/u);
-  assert.match(homeCss, /flex-basis:\s*calc\(100% - 2\.25rem\)/u);
+  assert.match(homeCss, /--video-card-width:\s*calc\(100% - var\(--video-card-gap\) - var\(--video-card-peek\)\)/u);
   assert.match(carousel, /style=\{\{ transform: `translate3d/u);
   assert.match(carousel, /videos\.slice\(-cloneCount\)[\s\S]*videos\.slice\(0, cloneCount\)/u);
   assert.match(carousel, /setPointerCapture/u);
+  assert.match(carousel, /onFocus=\{pauseAutoplay\}/u);
   assert.match(carousel, /onTransitionEnd=\{handleTransitionEnd\}/u);
   assert.match(carousel, /normalizeTrackPosition/u);
   assert.match(carousel, /sourceIndex === activeSourceIndex \? styles\.activeVideo/u);
   assert.match(homeCss, /li:not\(\.activeVideo\)[\s\S]*\.videoMeta[\s\S]*opacity:\s*0/u);
-  assert.doesNotMatch(carousel, /scrollLeft|scrollTo|scrollSnapType|requestAnimationFrame/u);
+  assert.match(carousel, /const animateTo = useCallback/u);
+  assert.match(carousel, /requestAnimationFrame\(\(\) => \{[\s\S]*requestAnimationFrame/u);
+  assert.doesNotMatch(carousel, /scrollLeft|scrollTo|scrollSnapType/u);
 });
 
 test("home starts on videos and route loading waits before it becomes visible", async () => {

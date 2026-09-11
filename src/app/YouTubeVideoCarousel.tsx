@@ -40,12 +40,15 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
   const [step, setStep] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const isAnimatingRef = useRef(false);
   const [isReady, setIsReady] = useState(false);
   const reducedMotionRef = useRef(false);
   const resumeAtRef = useRef(0);
   const pointerStartXRef = useRef<number | null>(null);
   const pointerIdRef = useRef<number | null>(null);
   const suppressClickRef = useRef(false);
+  const motionPendingRef = useRef(false);
+  const animationFrameRef = useRef<number[]>([]);
   const scheduleAutoplayRef = useRef<(delay: number) => void>(() => undefined);
 
   const setTrackPosition = useCallback((index: number) => {
@@ -60,21 +63,45 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     return index;
   }, [cloneCount, videos.length]);
 
+  const clearMotionFrames = useCallback(() => {
+    for (const frame of animationFrameRef.current) cancelAnimationFrame(frame);
+    animationFrameRef.current = [];
+    motionPendingRef.current = false;
+  }, []);
+
+  const animateTo = useCallback((index: number) => {
+    clearMotionFrames();
+    motionPendingRef.current = true;
+    isAnimatingRef.current = true;
+    setIsAnimating(true);
+
+    const prepareFrame = requestAnimationFrame(() => {
+      const moveFrame = requestAnimationFrame(() => {
+        setDragOffset(0);
+        setTrackPosition(index);
+        animationFrameRef.current = [];
+        motionPendingRef.current = false;
+      });
+      animationFrameRef.current = [moveFrame];
+    });
+    animationFrameRef.current = [prepareFrame];
+  }, [clearMotionFrames, setTrackPosition]);
+
   const move = useCallback((direction: -1 | 1) => {
-    if (!isReady || videos.length < 2) return;
+    if (!isReady || isAnimatingRef.current || motionPendingRef.current || videos.length < 2) return;
 
     const nextIndex = trackIndexRef.current + direction;
-    setDragOffset(0);
-    setTrackPosition(nextIndex);
 
     if (reducedMotionRef.current) {
+      setDragOffset(0);
+      isAnimatingRef.current = false;
       setIsAnimating(false);
       setTrackPosition(normalizeTrackPosition(nextIndex));
       return;
     }
 
-    setIsAnimating(true);
-  }, [isReady, normalizeTrackPosition, setTrackPosition, videos.length]);
+    animateTo(nextIndex);
+  }, [animateTo, isReady, normalizeTrackPosition, setTrackPosition, videos.length]);
 
   const pauseAutoplay = useCallback(() => {
     resumeAtRef.current = Date.now() + INTERACTION_PAUSE_MS;
@@ -90,18 +117,20 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     if (event.propertyName !== "transform") return;
 
     const normalizedIndex = normalizeTrackPosition(trackIndexRef.current);
+    clearMotionFrames();
+    isAnimatingRef.current = false;
     setIsAnimating(false);
     if (normalizedIndex !== trackIndexRef.current) setTrackPosition(normalizedIndex);
-  }, [normalizeTrackPosition, setTrackPosition]);
+  }, [clearMotionFrames, normalizeTrackPosition, setTrackPosition]);
 
   const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!isReady || isAnimating || videos.length < 2 || event.button !== 0) return;
+    if (!isReady || isAnimatingRef.current || motionPendingRef.current || videos.length < 2 || event.button !== 0) return;
     pauseAutoplay();
     suppressClickRef.current = false;
     pointerStartXRef.current = event.clientX;
     pointerIdRef.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
-  }, [isAnimating, isReady, pauseAutoplay, videos.length]);
+  }, [isReady, pauseAutoplay, videos.length]);
 
   const handlePointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if (pointerStartXRef.current === null || pointerIdRef.current !== event.pointerId) return;
@@ -126,8 +155,8 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     }
 
     setDragOffset(0);
-    if (!reducedMotionRef.current && Math.abs(offset) > 0) setIsAnimating(true);
-  }, [move]);
+    if (!reducedMotionRef.current && Math.abs(offset) > 0) animateTo(trackIndexRef.current);
+  }, [animateTo, move]);
 
   useEffect(() => {
     const list = listRef.current;
@@ -138,7 +167,11 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
       const secondItem = list.children.item(1) as HTMLElement | null;
       if (!firstItem) return;
 
-      const nextStep = secondItem ? secondItem.offsetLeft - firstItem.offsetLeft : firstItem.offsetWidth;
+      const firstRect = firstItem.getBoundingClientRect();
+      const secondRect = secondItem?.getBoundingClientRect();
+      const nextStep = secondRect ? secondRect.left - firstRect.left : firstRect.width;
+      clearMotionFrames();
+      isAnimatingRef.current = false;
       setIsAnimating(false);
       setDragOffset(0);
       setStep(nextStep);
@@ -150,7 +183,9 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     const resizeObserver = new ResizeObserver(measure);
     resizeObserver.observe(list);
     return () => resizeObserver.disconnect();
-  }, [cloneCount, setTrackPosition, videos.length]);
+  }, [clearMotionFrames, cloneCount, setTrackPosition, videos.length]);
+
+  useEffect(() => clearMotionFrames, [clearMotionFrames]);
 
   useEffect(() => {
     if (videos.length < 2) return;
@@ -234,8 +269,8 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
       onPointerCancel={(event) => settlePointer(event, true)}
     >
       <div className={styles.carouselActions}>
-        <button type="button" onClick={() => handleUserMove(-1)} aria-label="이전 인기 영상">‹</button>
-        <button type="button" onClick={() => handleUserMove(1)} aria-label="다음 인기 영상">›</button>
+        <button type="button" onClick={() => handleUserMove(-1)} onFocus={pauseAutoplay} aria-label="이전 인기 영상">‹</button>
+        <button type="button" onClick={() => handleUserMove(1)} onFocus={pauseAutoplay} aria-label="다음 인기 영상">›</button>
       </div>
       <ul
         className={`${styles.videoRail} ${isReady ? styles.videoRailReady : ""} ${isAnimating ? styles.videoRailAnimating : ""}`}
@@ -257,6 +292,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
                 target="_blank"
                 rel="noopener noreferrer"
                 tabIndex={isClone ? -1 : undefined}
+                onFocus={pauseAutoplay}
               >
                 <span className={styles.thumbnail}>
                   <Image src={video.thumbnailUrl} alt="" width={480} height={270} sizes="(max-width: 44rem) 82vw, 20rem" />
