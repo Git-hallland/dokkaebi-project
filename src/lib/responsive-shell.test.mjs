@@ -115,6 +115,8 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(homeCss, /li:not\(\.activeVideo\)[\s\S]*\.videoMeta[\s\S]*opacity:\s*0/u);
   assert.match(carousel, /SLIDE_DURATION_MS = 900/u);
   assert.match(carousel, /1 - Math\.pow\(2, -10 \* progress\)/u);
+  assert.match(carousel, /list\.style\.scrollSnapType = "none"/u);
+  assert.match(carousel, /restoreScrollSnapRef\.current\(\)/u);
   assert.match(carousel, /requestAnimationFrame/u);
   assert.match(carousel, /if \(wrapped\)[\s\S]*behavior: "auto"/u);
 });
