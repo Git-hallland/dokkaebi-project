@@ -269,8 +269,8 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
       onPointerCancel={(event) => settlePointer(event, true)}
     >
       <div className={styles.carouselActions}>
-        <button type="button" onClick={() => handleUserMove(-1)} aria-label="이전 인기 영상">‹</button>
-        <button type="button" onClick={() => handleUserMove(1)} aria-label="다음 인기 영상">›</button>
+        <button type="button" onClick={() => handleUserMove(-1)} onFocus={pauseAutoplay} aria-label="이전 인기 영상">‹</button>
+        <button type="button" onClick={() => handleUserMove(1)} onFocus={pauseAutoplay} aria-label="다음 인기 영상">›</button>
       </div>
       <ul
         className={`${styles.videoRail} ${isReady ? styles.videoRailReady : ""} ${isAnimating ? styles.videoRailAnimating : ""}`}
@@ -292,6 +292,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
                 target="_blank"
                 rel="noopener noreferrer"
                 tabIndex={isClone ? -1 : undefined}
+                onFocus={pauseAutoplay}
               >
                 <span className={styles.thumbnail}>
                   <Image src={video.thumbnailUrl} alt="" width={480} height={270} sizes="(max-width: 44rem) 82vw, 20rem" />

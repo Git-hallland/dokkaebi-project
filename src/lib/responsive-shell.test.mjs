@@ -113,6 +113,7 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(carousel, /style=\{\{ transform: `translate3d/u);
   assert.match(carousel, /videos\.slice\(-cloneCount\)[\s\S]*videos\.slice\(0, cloneCount\)/u);
   assert.match(carousel, /setPointerCapture/u);
+  assert.match(carousel, /onFocus=\{pauseAutoplay\}/u);
   assert.match(carousel, /onTransitionEnd=\{handleTransitionEnd\}/u);
   assert.match(carousel, /normalizeTrackPosition/u);
   assert.match(carousel, /sourceIndex === activeSourceIndex \? styles\.activeVideo/u);
