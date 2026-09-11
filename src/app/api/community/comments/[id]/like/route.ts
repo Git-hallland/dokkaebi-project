@@ -3,11 +3,13 @@ import { auth } from "@/lib/auth";
 import { CommunityCommentError, assertCommentLikeAllowed, notificationDedupeKey, shouldNotify } from "@/lib/community-comments";
 import { didCreateOrRemoveRelation } from "@/lib/community-interactions";
 import { prisma } from "@/lib/prisma";
+import { getBlockingSanction, sanctionResponse } from "@/lib/user-sanctions";
 
 type Context = { params: Promise<{ id: string }> };
 async function user(request: Request) { return (await auth.api.getSession({ headers: request.headers }))?.user.id ?? null; }
 async function mutate(request: Request, id: string, active: boolean) {
   const userId = await user(request); if (!userId) return Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 });
+  const sanction = await getBlockingSanction(userId, "ACCOUNT"); if (sanction) return sanctionResponse(sanction);
   try {
     const result = await prisma.$transaction(async (tx) => {
       const found = await tx.guideComment.findUnique({ where: { id }, select: { postId: true } }); if (!found) throw new CommunityCommentError("댓글을 찾을 수 없습니다.");

@@ -49,12 +49,26 @@ function createAuth() {
     },
   },
   databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const now = new Date();
+          const ban = await prisma.userSanction.findFirst({ where: { userId: session.userId, type: "BAN", revokedAt: null, startsAt: { lte: now }, OR: [{ endsAt: null }, { endsAt: { gt: now } }] }, select: { id: true } });
+          if (ban) throw new APIError("FORBIDDEN", { code: "ACCOUNT_BANNED", message: "이 계정은 이용이 제한되었습니다." });
+        },
+      },
+    },
     user: {
       update: {
         before: async (user, context) => {
           try {
+            const sessionUserId = context?.context.session?.user.id;
+            if (sessionUserId) {
+              const now = new Date();
+              const ban = await prisma.userSanction.findFirst({ where: { userId: sessionUserId, type: "BAN", revokedAt: null, startsAt: { lte: now }, OR: [{ endsAt: null }, { endsAt: { gt: now } }] }, select: { id: true } });
+              if (ban) throw new Error("이 계정은 이용이 제한되었습니다.");
+            }
             if (user.image !== undefined) {
-              const sessionUserId = context?.context.session?.user.id;
               const proof = context?.headers?.get(PROFILE_IMAGE_PROOF_HEADER) ?? null;
 
               if (

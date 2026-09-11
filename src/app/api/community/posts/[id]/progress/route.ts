@@ -1,11 +1,13 @@
 import { auth } from "@/lib/auth";
 import { CommunityInteractionError, assertLivePost, normalizeReadingProgress } from "@/lib/community-interactions";
 import { prisma } from "@/lib/prisma";
+import { getBlockingSanction, sanctionResponse } from "@/lib/user-sanctions";
 
 type Context = { params: Promise<{ id: string }> };
 export async function POST(request: Request, { params }: Context) {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) return Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 });
+  const sanction = await getBlockingSanction(session.user.id, "ACCOUNT"); if (sanction) return sanctionResponse(sanction);
   try {
     const body: unknown = await request.json();
     if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).some((key) => key !== "progress")) throw new CommunityInteractionError("요청 형식이 올바르지 않습니다.");

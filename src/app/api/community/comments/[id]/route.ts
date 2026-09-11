@@ -2,12 +2,14 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { CommunityCommentError, assertCommentAuthor, normalizeCommentBody } from "@/lib/community-comments";
 import { prisma } from "@/lib/prisma";
+import { getBlockingSanction, sanctionResponse } from "@/lib/user-sanctions";
 
 type Context = { params: Promise<{ id: string }> };
 async function sessionId(request: Request) { return (await auth.api.getSession({ headers: request.headers }))?.user.id ?? null; }
 
 export async function PATCH(request: Request, { params }: Context) {
   const userId = await sessionId(request); if (!userId) return Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 });
+  const sanction = await getBlockingSanction(userId, "ACCOUNT"); if (sanction) return sanctionResponse(sanction);
   try {
     const input: unknown = await request.json(); if (!input || typeof input !== "object" || Array.isArray(input) || Object.keys(input).some((key) => key !== "body")) throw new CommunityCommentError("요청 형식이 올바르지 않습니다.");
     const body = normalizeCommentBody((input as { body?: unknown }).body); const { id } = await params;
@@ -23,6 +25,7 @@ export async function PATCH(request: Request, { params }: Context) {
 
 export async function DELETE(request: Request, { params }: Context) {
   const userId = await sessionId(request); if (!userId) return Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 });
+  const sanction = await getBlockingSanction(userId, "ACCOUNT"); if (sanction) return sanctionResponse(sanction);
   try {
     const { id } = await params;
     const postId = await prisma.$transaction(async (tx) => {

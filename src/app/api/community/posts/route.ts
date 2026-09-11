@@ -6,6 +6,7 @@ import { getSiteSettings } from "@/lib/site-settings-data";
 import { canCreateGuide } from "@/lib/site-settings";
 import { revalidateCommunityContent } from "@/lib/public-content-cache";
 import { CommunityRateLimitError, GUIDE_POST_DUPLICATE_WINDOW_MS, assertGuidePostRateLimit } from "@/lib/community-posting";
+import { getBlockingSanction, sanctionResponse } from "@/lib/user-sanctions";
 
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers });
@@ -14,6 +15,8 @@ export async function POST(request: Request) {
   if (!canCreateGuide(session.user.role, siteSettings.guideWriteEnabled)) {
     return Response.json({ code: "GUIDE_WRITING_DISABLED", message: "공략 작성은 정식 오픈 후 이용할 수 있습니다." }, { status: 403 });
   }
+  const sanction = await getBlockingSanction(session.user.id, "POST");
+  if (sanction) return sanctionResponse(sanction);
   try {
     const input = normalizeCommunityPostInput(await request.json(), process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim());
     const post = await prisma.$transaction(async (tx) => {

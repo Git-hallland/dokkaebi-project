@@ -4,6 +4,7 @@ import { CommunityInputError, assertCommunityAuthor, normalizeCommunityPostInput
 import { prisma } from "@/lib/prisma";
 import { deleteGuidePost } from "@/lib/guide-post-deletion";
 import { revalidateCommunityContent } from "@/lib/public-content-cache";
+import { getBlockingSanction, sanctionResponse } from "@/lib/user-sanctions";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -12,6 +13,8 @@ async function authorizedPost(request: Request, id: string) {
   if (!session) {
     return { response: Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 }) };
   }
+  const sanction = await getBlockingSanction(session.user.id, "ACCOUNT");
+  if (sanction) return { response: sanctionResponse(sanction) };
   const post = await prisma.guidePost.findFirst({ where: { id, deletedAt: null }, select: { authorId: true } });
   if (!post) return { response: Response.json({ code: "NOT_FOUND", message: "게시물을 찾을 수 없습니다." }, { status: 404 }) };
   try {

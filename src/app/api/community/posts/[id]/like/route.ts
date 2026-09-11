@@ -4,6 +4,7 @@ import { notificationDedupeKey, shouldNotify } from "@/lib/community-comments";
 import { CommunityInteractionError, assertLikeAllowed, didCreateOrRemoveRelation } from "@/lib/community-interactions";
 import { prisma } from "@/lib/prisma";
 import { revalidateCommunityContent } from "@/lib/public-content-cache";
+import { getBlockingSanction, sanctionResponse } from "@/lib/user-sanctions";
 
 type Context = { params: Promise<{ id: string }> };
 async function sessionUser(request: Request) { return (await auth.api.getSession({ headers: request.headers }))?.user.id ?? null; }
@@ -11,6 +12,7 @@ function errorResponse(error: unknown) { const message = error instanceof Error 
 
 export async function POST(request: Request, { params }: Context) {
   const userId = await sessionUser(request); if (!userId) return Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 });
+  const sanction = await getBlockingSanction(userId, "ACCOUNT"); if (sanction) return sanctionResponse(sanction);
   const { id } = await params;
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -31,6 +33,7 @@ export async function POST(request: Request, { params }: Context) {
 
 export async function DELETE(request: Request, { params }: Context) {
   const userId = await sessionUser(request); if (!userId) return Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 });
+  const sanction = await getBlockingSanction(userId, "ACCOUNT"); if (sanction) return sanctionResponse(sanction);
   const { id } = await params;
   try {
     const result = await prisma.$transaction(async (tx) => {

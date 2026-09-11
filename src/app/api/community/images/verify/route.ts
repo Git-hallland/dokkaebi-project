@@ -1,10 +1,13 @@
 import { auth } from "@/lib/auth";
 import { verifyPostImageUpload } from "@/lib/cloudinary-post";
+import { getBlockingSanction, sanctionResponse } from "@/lib/user-sanctions";
 
 export async function POST(request: Request) {
-  if (!await auth.api.getSession({ headers: request.headers })) {
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) {
     return Response.json({ code: "UNAUTHORIZED", message: "Unauthorized" }, { status: 401 });
   }
+  const sanction = await getBlockingSanction(session.user.id, "POST"); if (sanction) return sanctionResponse(sanction);
   try {
     const body: unknown = await request.json();
     if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).some((key) => key !== "upload")) throw new Error("요청 형식이 올바르지 않습니다.");

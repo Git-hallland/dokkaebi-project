@@ -41,6 +41,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         },
       })
     : [];
+  const accountBan = session ? await import("@/lib/user-sanctions").then(({ getBlockingSanction }) => getBlockingSanction(session.user.id, "ACCOUNT")) : null;
 
   return (
     <ProfilePageClient
@@ -51,6 +52,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       }))}
       hasOAuthError={Boolean(params.authError ?? params.error)}
       guideWriteEnabled={siteSettings.guideWriteEnabled}
+      accountBan={accountBan ? { reason: accountBan.reason, startsAt: accountBan.startsAt.toISOString() } : null}
     />
   );
 }
