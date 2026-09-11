@@ -8,7 +8,17 @@ const kst = (value: string) => new Intl.DateTimeFormat("ko-KR", { dateStyle: "me
 
 export function SanctionNoticeDialog({ notice, onClose }: Readonly<{ notice: SanctionNotice | null; onClose: () => void }>) {
   const buttonRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => { if (notice) buttonRef.current?.focus(); }, [notice]);
+  useEffect(() => {
+    if (!notice) return;
+    const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    buttonRef.current?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      focused?.focus();
+    };
+  }, [notice]);
   if (!notice) return null;
   return <div className={styles.backdrop} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className={styles.dialog} role="alertdialog" aria-modal="true" aria-labelledby="sanction-notice-title" onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}><h2 id="sanction-notice-title">{notice.message}</h2>{notice.startsAt ? <p className={styles.period}>기간: {kst(notice.startsAt)}{notice.endsAt ? `\n~ ${kst(notice.endsAt)}` : " ~ 무기한"}</p> : null}{notice.reason ? <p className={styles.reason}>사유: {notice.reason}</p> : null}<div className={styles.actions}><button ref={buttonRef} type="button" onClick={onClose}>확인</button></div></section></div>;
 }

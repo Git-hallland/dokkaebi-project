@@ -9,6 +9,7 @@ import { isFrontendOnly } from "@/lib/runtime-mode";
 import { getSiteSettings } from "@/lib/site-settings-data";
 import { canCreateGuide } from "@/lib/site-settings";
 import { getBlockingSanction } from "@/lib/user-sanctions";
+import { CommunityWriteBlocked } from "./CommunityWriteBlocked";
 import styles from "../community.module.css";
 
 export const metadata: Metadata = { title: "새 글 작성", robots: { index: false, follow: false } };
@@ -24,8 +25,7 @@ export default async function CommunityWritePage() {
   if (!canCreateGuide(session.user.role, siteSettings.guideWriteEnabled)) forbidden();
   const sanction = await getBlockingSanction(session.user.id, "POST");
   if (sanction) {
-    const format = (value: Date) => value.toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul" });
-    return <div className={styles.empty}><h1>{sanction.type === "BAN" ? "이 계정은 이용이 제한되었습니다." : "게시글을 작성할 수 없습니다."}</h1><p>기간: {format(sanction.startsAt)} ~ {sanction.endsAt ? format(sanction.endsAt) : "무기한"}</p>{sanction.reason ? <p>사유: {sanction.reason}</p> : null}<Link className={styles.write} href="/community">공략게시판으로 돌아가기</Link></div>;
+    return <CommunityWriteBlocked initialNotice={{ message: sanction.type === "BAN" ? "이 계정은 이용이 제한되었습니다." : "게시글을 작성할 수 없습니다.", reason: sanction.reason, startsAt: sanction.startsAt.toISOString(), endsAt: sanction.endsAt?.toISOString() ?? null }} />;
   }
   const key = createHash("sha256").update(session.user.id).digest("hex").slice(0, 16);
   return <div className={styles.page}><header><p>COMMUNITY</p><h1>새 글 작성</h1></header><CommunityPostEditor storageKey={`dokkaebi-community-draft-${key}`} /></div>;

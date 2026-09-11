@@ -279,6 +279,7 @@
 
 .videoCarousel {
   position: relative;
+  container-type: inline-size;
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -287,14 +288,17 @@
 
 .carouselActions {
   position: absolute;
-  inset: 0;
+  top: calc(9.375cqi - 0.16rem);
+  right: 0;
+  left: 0;
+  height: 0;
   z-index: 2;
   pointer-events: none;
 }
 
 .carouselActions button {
   position: absolute;
-  top: 50%;
+  top: 0;
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
@@ -531,6 +535,10 @@
 }
 
 @media (max-width: 62rem) {
+  .carouselActions {
+    top: calc(14.0625cqi - 0.12rem);
+  }
+
   .videoRail li {
     flex-basis: calc((100% - 0.85rem) / 2);
   }
@@ -609,7 +617,11 @@
   }
 
   .videoRail li {
-    flex-basis: calc(100% - 1.5rem);
+    flex-basis: calc(100% - 2.75rem);
+  }
+
+  .carouselActions {
+    top: calc(28.125cqi - 0.773rem);
   }
 
   .carouselActions button {
@@ -623,7 +635,7 @@
   }
 
   .carouselActions button:last-child {
-    right: 0.25rem;
+    right: 3rem;
   }
 
   .panelHeading,

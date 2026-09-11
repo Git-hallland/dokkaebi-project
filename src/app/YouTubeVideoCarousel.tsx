@@ -70,8 +70,15 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     if (!list || positions.length === 0) return;
 
     updateActiveSnap();
-    const nextIndex = (activeSnapRef.current + direction + positions.length) % positions.length;
+    const currentIndex = activeSnapRef.current;
+    const nextIndex = (currentIndex + direction + positions.length) % positions.length;
     activeSnapRef.current = nextIndex;
+    const wrapped = (direction === 1 && nextIndex < currentIndex) || (direction === -1 && nextIndex > currentIndex);
+    if (wrapped) {
+      if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current);
+      list.scrollTo({ behavior: "auto", left: positions[nextIndex] });
+      return;
+    }
     scrollToPosition(positions[nextIndex]);
   }, [getSnapPositions, scrollToPosition, updateActiveSnap]);
 
