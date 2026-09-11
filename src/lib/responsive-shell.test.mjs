@@ -109,13 +109,15 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*position:\s*absolute/u);
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*top:\s*calc\(9\.375cqi/u);
   assert.match(homeCss, /\.popularPanel \[role="tabpanel"\][\s\S]*overflow:\s*hidden/u);
-  assert.match(homeCss, /--video-card-width:\s*calc\(100% - var\(--video-card-gap\) - var\(--video-card-peek\)\)/u);
+  assert.match(homeCss, /@media \(max-width: 44rem\)[\s\S]*--video-card-width:\s*100%/u);
+  assert.doesNotMatch(homeCss, /--video-card-peek/u);
   assert.match(carousel, /style=\{\{ transform: `translate3d/u);
   assert.match(carousel, /videos\.slice\(-cloneCount\)[\s\S]*videos\.slice\(0, cloneCount\)/u);
   assert.match(carousel, /setPointerCapture/u);
   assert.match(carousel, /onFocus=\{pauseAutoplay\}/u);
   assert.match(carousel, /carouselRef\.current\?\.contains\(document\.activeElement\)/u);
   assert.match(carousel, /onTransitionEnd=\{handleTransitionEnd\}/u);
+  assert.match(carousel, /shouldResumeAutoplay[\s\S]*scheduleAutoplayRef\.current\(AUTO_SLIDE_INTERVAL_MS\)/u);
   assert.match(carousel, /normalizeTrackPosition/u);
   assert.match(carousel, /sourceIndex === activeSourceIndex \? styles\.activeVideo/u);
   assert.match(homeCss, /li:not\(\.activeVideo\)[\s\S]*\.videoMeta[\s\S]*opacity:\s*0/u);
