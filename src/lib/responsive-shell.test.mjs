@@ -103,22 +103,21 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.doesNotMatch(carousel, /reducedMotionRef\.current\) return/u);
   assert.match(carousel, /ResizeObserver/u);
   assert.doesNotMatch(carousel, /hoveredRef/u);
-  assert.match(homeCss, /scroll-snap-type: inline mandatory/u);
-  assert.match(homeCss, /overflow-x: auto/u);
-  assert.match(homeCss, /scrollbar-width:\s*none/u);
-  assert.match(homeCss, /\.videoRail::-webkit-scrollbar\s*\{[\s\S]*display:\s*none/u);
+  assert.match(homeCss, /\.videoCarousel\s*\{[\s\S]*overflow:\s*hidden/u);
+  assert.match(homeCss, /\.videoRailAnimating\s*\{[\s\S]*transform 900ms cubic-bezier\(0\.16, 1, 0\.3, 1\)/u);
+  assert.match(homeCss, /\.videoRail\s*\{[\s\S]*will-change:\s*transform/u);
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*position:\s*absolute/u);
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*top:\s*calc\(9\.375cqi/u);
   assert.match(homeCss, /\.popularPanel \[role="tabpanel"\][\s\S]*overflow:\s*hidden/u);
   assert.match(homeCss, /flex-basis:\s*calc\(100% - 2\.25rem\)/u);
-  assert.match(carousel, /index === activeSnapIndex \? styles\.activeVideo/u);
+  assert.match(carousel, /style=\{\{ transform: `translate3d/u);
+  assert.match(carousel, /videos\.slice\(-cloneCount\)[\s\S]*videos\.slice\(0, cloneCount\)/u);
+  assert.match(carousel, /setPointerCapture/u);
+  assert.match(carousel, /onTransitionEnd=\{handleTransitionEnd\}/u);
+  assert.match(carousel, /normalizeTrackPosition/u);
+  assert.match(carousel, /sourceIndex === activeSourceIndex \? styles\.activeVideo/u);
   assert.match(homeCss, /li:not\(\.activeVideo\)[\s\S]*\.videoMeta[\s\S]*opacity:\s*0/u);
-  assert.match(carousel, /SLIDE_DURATION_MS = 900/u);
-  assert.match(carousel, /1 - Math\.pow\(2, -10 \* progress\)/u);
-  assert.match(carousel, /list\.style\.scrollSnapType = "none"/u);
-  assert.match(carousel, /restoreScrollSnapRef\.current\(\)/u);
-  assert.match(carousel, /requestAnimationFrame/u);
-  assert.match(carousel, /if \(wrapped\)[\s\S]*behavior: "auto"/u);
+  assert.doesNotMatch(carousel, /scrollLeft|scrollTo|scrollSnapType|requestAnimationFrame/u);
 });
 
 test("home starts on videos and route loading waits before it becomes visible", async () => {

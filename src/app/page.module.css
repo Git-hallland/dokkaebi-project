@@ -284,6 +284,7 @@
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
+  touch-action: pan-y;
 }
 
 .carouselActions {
@@ -336,24 +337,23 @@
 .videoRail {
   display: flex;
   gap: 0.85rem;
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
-  scroll-behavior: auto;
-  scroll-snap-type: inline mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   width: 100%;
   max-width: 100%;
+  opacity: 0;
+  will-change: transform;
 }
 
-.videoRail::-webkit-scrollbar {
-  display: none;
+.videoRailReady {
+  opacity: 1;
+}
+
+.videoRailAnimating {
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .videoRail li {
   flex: 0 0 calc((100% - 1.7rem) / 3);
   min-width: 0;
-  scroll-snap-align: start;
 }
 
 .videoRail a {
@@ -620,8 +620,8 @@
     flex-basis: calc(100% - 2.25rem);
   }
 
-  .videoRail li:not(.activeVideo) strong,
-  .videoRail li:not(.activeVideo) .videoMeta {
+  .videoRail:not(.videoRailAnimating) li:not(.activeVideo) strong,
+  .videoRail:not(.videoRailAnimating) li:not(.activeVideo) .videoMeta {
     opacity: 0;
   }
 
@@ -660,8 +660,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .videoRail {
-    scroll-behavior: auto;
+  .videoRailAnimating {
+    transition: none;
   }
 
   .thumbnail img,
