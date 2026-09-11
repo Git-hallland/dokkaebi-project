@@ -12,6 +12,7 @@ import { CommunityRichText } from "@/components/CommunityRichText";
 import { COMMUNITY_COLORS, COMMUNITY_FONT_SIZES, EMPTY_COMMUNITY_DOCUMENT, normalizeCommunityLink, type CommunityDocument } from "@/lib/guide-community";
 import { POST_VIDEO_ACCEPT, validatePostVideoFile, videoUploadResponseError } from "@/lib/community-video";
 import { validateProfileImageFile } from "@/lib/profile-image";
+import { readSanctionNotice, SanctionNoticeDialog, type SanctionNotice } from "./SanctionNoticeDialog";
 import styles from "./CommunityPostEditor.module.css";
 
 const Video = TiptapNode.create({
@@ -64,6 +65,7 @@ export function CommunityPostEditor({ initialBody = EMPTY_COMMUNITY_DOCUMENT, in
   const [title, setTitle] = useState(initialTitle);
   const [category, setCategory] = useState(initialCategory);
   const [status, setStatus] = useState("");
+  const [sanctionNotice, setSanctionNotice] = useState<SanctionNotice | null>(null);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [colorOpen, setColorOpen] = useState(false);
@@ -136,11 +138,12 @@ export function CommunityPostEditor({ initialBody = EMPTY_COMMUNITY_DOCUMENT, in
     if (!editor || uploading) return;
     setBusy(true); setStatus("");
     const response = await fetch(postId ? `/api/community/posts/${postId}` : "/api/community/posts", { method: postId ? "PATCH" : "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ title, category, body: editor.getJSON() }) });
-    if (!response.ok) { setStatus(await message(response, "게시물을 저장하지 못했습니다.")); setBusy(false); return; }
+    if (!response.ok) { const notice = await readSanctionNotice(response); if (notice) setSanctionNotice(notice); else setStatus(await message(response, "게시물을 저장하지 못했습니다.")); setBusy(false); return; }
     const result = await response.json() as { id: string }; localStorage.removeItem(storageKey); router.push(`/community/${result.id}`); router.refresh();
   };
 
   return <div className={styles.editorShell}>
+    <SanctionNoticeDialog notice={sanctionNotice} onClose={() => setSanctionNotice(null)} />
     <div className={styles.documentFields}>
       <label className={styles.categoryField}><span>게시판</span><select value={category} onChange={(event) => setCategory(event.target.value as "GUIDE" | "TIP")}><option value="GUIDE">공략</option><option value="TIP">팁</option></select></label>
       <label className={styles.titleField}><span>제목</span><input value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} placeholder="공략의 핵심이 드러나는 제목을 입력해 주세요" /></label>

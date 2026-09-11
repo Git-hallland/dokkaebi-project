@@ -5,11 +5,11 @@ import { readFile } from "node:fs/promises";
 const [script, vercelConfig, migration] = await Promise.all([
   readFile(new URL("../../scripts/vercel-build.mjs", import.meta.url), "utf8"),
   readFile(new URL("../../vercel.json", import.meta.url), "utf8"),
-  readFile(new URL("../../prisma/migrations/20260911010000_add_supporters_and_report_reason/migration.sql", import.meta.url), "utf8"),
+  readFile(new URL("../../prisma/migrations/20260911090000_add_user_sanctions/migration.sql", import.meta.url), "utf8"),
 ]);
 
 test("Vercel migration gate targets only Prisma Postgres and the reviewed migration", () => {
-  assert.match(script, /20260911010000_add_supporters_and_report_reason/u);
+  assert.match(script, /20260911090000_add_user_sanctions/u);
   assert.match(script, /hostname\.endsWith\("\.prisma\.io"\)/u);
   assert.match(script, /hostname\.endsWith\("\.postgres\.database\.azure\.com"\)/u);
   assert.match(script, /\["prisma", "migrate", "deploy", "--config", "prisma\.deploy\.config\.ts"\]/u);

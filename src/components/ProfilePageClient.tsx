@@ -169,12 +169,14 @@ function ConnectedProviders({ userId }: Readonly<{ userId: string }>) {
 }
 
 type ProfilePageClientProps = Readonly<{
+  accountBan?: Readonly<{ reason: string | null; startsAt: string }> | null;
   authoredContents?: readonly AuthoredContent[];
   guideWriteEnabled?: boolean;
   hasOAuthError?: boolean;
 }>;
 
 export function ProfilePageClient({
+  accountBan = null,
   authoredContents = [],
   guideWriteEnabled = false,
   hasOAuthError = false,
@@ -381,6 +383,10 @@ export function ProfilePageClient({
         </p>
       </section>
     );
+  }
+
+  if (accountBan) {
+    return <section className={styles.card} aria-labelledby="account-ban-title"><p className={styles.eyebrow}>계정 제한</p><h1 id="account-ban-title">이 계정은 이용이 제한되었습니다.</h1><p className={styles.description}>적용 시각: {new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul" }).format(new Date(accountBan.startsAt))}</p>{accountBan.reason ? <p className={styles.error}>사유: {accountBan.reason}</p> : null}<p className={styles.notice}>공개 콘텐츠는 로그아웃 후 계속 열람할 수 있습니다. 이의가 있으면 운영자에게 문의해 주세요.</p><button type="button" disabled={isSigningOut} onClick={signOut}>{isSigningOut ? "로그아웃 중…" : "로그아웃"}</button></section>;
   }
 
   const roleLabel = roleLabels[session.user.role];

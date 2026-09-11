@@ -2,11 +2,14 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { CommunityCommentError, normalizeCommentBody, notificationDedupeKey, shouldNotify } from "@/lib/community-comments";
 import { prisma } from "@/lib/prisma";
+import { getBlockingSanction, sanctionResponse } from "@/lib/user-sanctions";
 
 type Context = { params: Promise<{ id: string }> };
 export async function POST(request: Request, { params }: Context) {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) return Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 });
+  const sanction = await getBlockingSanction(session.user.id, "COMMENT");
+  if (sanction) return sanctionResponse(sanction);
   try {
     const input: unknown = await request.json();
     if (!input || typeof input !== "object" || Array.isArray(input) || Object.keys(input).some((key) => !["body", "parentId"].includes(key))) throw new CommunityCommentError("요청 형식이 올바르지 않습니다.");

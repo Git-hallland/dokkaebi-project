@@ -7,6 +7,7 @@ import {
 } from "@/lib/cloudinary-profile";
 import { normalizeProfileName } from "@/lib/profile-input";
 import { prisma } from "@/lib/prisma";
+import { getBlockingSanction, sanctionResponse } from "@/lib/user-sanctions";
 
 function hasOnlyKeys(value: Record<string, unknown>, allowedKeys: readonly string[]) {
   const allowed = new Set(allowedKeys);
@@ -19,6 +20,8 @@ export async function POST(request: Request) {
   if (!session) {
     return Response.json({ code: "UNAUTHORIZED", message: "Unauthorized" }, { status: 401 });
   }
+  const sanction = await getBlockingSanction(session.user.id, "ACCOUNT");
+  if (sanction) return sanctionResponse(sanction);
 
   let uploadedImage: { publicId: string; secureUrl: string } | null = null;
   let profileSaved = false;

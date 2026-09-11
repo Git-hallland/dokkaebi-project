@@ -16,6 +16,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
   const activeSnapRef = useRef(0);
   const reducedMotionRef = useRef(false);
   const resumeAtRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
   const scheduleAutoplayRef = useRef<(delay: number) => void>(() => undefined);
 
   const getSnapPositions = useCallback(() => {
@@ -45,6 +46,24 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     );
   }, [getSnapPositions]);
 
+  const scrollToPosition = useCallback((left: number) => {
+    const list = listRef.current;
+    if (!list) return;
+    if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current);
+    if (reducedMotionRef.current) { list.scrollTo({ behavior: "auto", left }); return; }
+    const start = list.scrollLeft;
+    const distance = left - start;
+    const startedAt = performance.now();
+    const duration = 560;
+    const animate = (time: number) => {
+      const progress = Math.min(1, (time - startedAt) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      list.scrollTo({ behavior: "auto", left: start + distance * eased });
+      animationFrameRef.current = progress < 1 ? requestAnimationFrame(animate) : null;
+    };
+    animationFrameRef.current = requestAnimationFrame(animate);
+  }, []);
+
   const move = useCallback((direction: -1 | 1) => {
     const list = listRef.current;
     const positions = getSnapPositions();
@@ -53,11 +72,8 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     updateActiveSnap();
     const nextIndex = (activeSnapRef.current + direction + positions.length) % positions.length;
     activeSnapRef.current = nextIndex;
-    list.scrollTo({
-      behavior: reducedMotionRef.current ? "auto" : "smooth",
-      left: positions[nextIndex],
-    });
-  }, [getSnapPositions, updateActiveSnap]);
+    scrollToPosition(positions[nextIndex]);
+  }, [getSnapPositions, scrollToPosition, updateActiveSnap]);
 
   const pauseAutoplay = useCallback(() => {
     resumeAtRef.current = Date.now() + INTERACTION_PAUSE_MS;
@@ -124,6 +140,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
 
     return () => {
       clearTimer();
+      if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current);
       scheduleAutoplayRef.current = () => undefined;
       resizeObserver.disconnect();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -145,7 +162,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
           move(event.key === "ArrowLeft" ? -1 : 1);
         }
       }}
-      onPointerDown={pauseAutoplay}
+      onPointerDown={() => { if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current); pauseAutoplay(); }}
     >
       <div className={styles.carouselActions}>
         <button type="button" onClick={() => handleUserMove(-1)} aria-label="이전 인기 영상">‹</button>

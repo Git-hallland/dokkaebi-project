@@ -110,5 +110,19 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*position:\s*absolute/u);
   assert.match(homeCss, /\.carouselActions button\s*\{[\s\S]*top:\s*50%/u);
   assert.match(homeCss, /\.popularPanel \[role="tabpanel"\][\s\S]*overflow:\s*hidden/u);
-  assert.match(homeCss, /flex-basis:\s*min\(82%, 19rem\)/u);
+  assert.match(homeCss, /flex-basis:\s*calc\(100% - 1\.5rem\)/u);
+  assert.match(carousel, /const duration = 560/u);
+  assert.match(carousel, /requestAnimationFrame/u);
+});
+
+test("home starts on videos and route loading waits before it becomes visible", async () => {
+  const [tabs, loading] = await Promise.all([
+    readFile(new URL("../app/HomePopularTabs.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/DelayedLoadingFallback.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(tabs, /useState<TabKey>\("videos"\)/u);
+  assert.ok(tabs.indexOf("인기 영상") < tabs.indexOf("인기글"));
+  assert.match(loading, /LOADING_DELAY_MS = 250/u);
+  assert.match(loading, /clearTimeout/u);
+  assert.doesNotMatch(loading, /await new Promise/u);
 });

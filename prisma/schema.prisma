@@ -26,6 +26,12 @@ enum UserRole {
   ADMIN
 }
 
+enum UserSanctionType {
+  POST_SUSPENSION
+  COMMENT_SUSPENSION
+  BAN
+}
+
 enum GuidePostCategory {
   GUIDE
   TIP
@@ -78,9 +84,33 @@ model User {
   guideReportsSubmitted      GuideReport[]          @relation("GuideReportReporter")
   guideReportsResolved       GuideReport[]          @relation("GuideReportResolver")
   supporter                  Supporter?
+  sanctions                  UserSanction[]         @relation("SanctionedUser")
+  sanctionsCreated           UserSanction[]         @relation("SanctionCreator")
+  sanctionsRevoked           UserSanction[]         @relation("SanctionRevoker")
 
   @@unique([email])
   @@map("user")
+}
+
+model UserSanction {
+  id          String           @id @default(cuid())
+  userId      String
+  type        UserSanctionType
+  reason      String?
+  startsAt    DateTime         @default(now())
+  endsAt      DateTime?
+  revokedAt   DateTime?
+  createdById String
+  revokedById String?
+  createdAt   DateTime         @default(now())
+
+  user      User  @relation("SanctionedUser", fields: [userId], references: [id], onDelete: Cascade)
+  createdBy User  @relation("SanctionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  revokedBy User? @relation("SanctionRevoker", fields: [revokedById], references: [id], onDelete: SetNull)
+
+  @@index([userId, type, revokedAt, endsAt])
+  @@index([createdById, createdAt])
+  @@index([revokedById, revokedAt])
 }
 
 model Supporter {

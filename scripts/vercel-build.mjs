@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
-const TARGET_MIGRATION = "20260911010000_add_supporters_and_report_reason";
+const TARGET_MIGRATION = "20260911090000_add_user_sanctions";
 const migrationPath = new URL(`../prisma/migrations/${TARGET_MIGRATION}/migration.sql`, import.meta.url);
 const connectionString = process.env.APP_DATABASE_URL?.trim();
 

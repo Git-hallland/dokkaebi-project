@@ -1,3 +1,7 @@
+.delaySpace {
+  min-height: 9rem;
+}
+
 .loading {
   display: flex;
   align-items: center;

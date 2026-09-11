@@ -334,7 +334,7 @@
   gap: 0.85rem;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   scroll-snap-type: inline mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -609,7 +609,7 @@
   }
 
   .videoRail li {
-    flex-basis: min(82%, 19rem);
+    flex-basis: calc(100% - 1.5rem);
   }
 
   .carouselActions button {

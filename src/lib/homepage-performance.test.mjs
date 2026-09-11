@@ -19,7 +19,7 @@ test("homepage prioritizes instant popular tabs and cached community links", asy
   assert.match(home, /<Suspense[\s\S]*<HomePopularVideos/u);
   assert.doesNotMatch(home, /getPopularYouTubeVideos\(\)/u);
   assert.match(videos, /getPopularYouTubeVideos\(\)/u);
-  assert.match(tabs, /useState<TabKey>\("guides"\)/u);
+  assert.match(tabs, /useState<TabKey>\("videos"\)/u);
   assert.match(tabs, /role="tablist"/u);
   assert.match(tabs, /<Link href=\{`\/community/u);
   assert.match(communityCards, /도깨비의세계 오픈톡방/u);
