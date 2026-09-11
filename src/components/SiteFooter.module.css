@@ -58,55 +58,6 @@
   font-size: 0.75rem;
 }
 
-.featureCards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.6rem;
-  width: min(100%, 44rem);
-  margin-top: 0.55rem;
-}
-
-.featureCard {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  min-height: 4rem;
-  padding: 0.7rem 0.9rem;
-  color: var(--text-muted);
-  background: var(--surface-inset);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 750;
-  line-height: 1.3;
-  transition:
-    color 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease;
-}
-
-.featureCard:hover,
-.featureCard:focus-visible {
-  color: var(--text-strong);
-  background: var(--surface-accent);
-  border-color: var(--border-strong);
-}
-
-.featureCard svg {
-  flex: 0 0 auto;
-  width: 1.15rem;
-  height: 1.15rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.7;
-}
-.featureCard > span { display: grid; gap: .15rem; text-align: left; }
-.featureCard strong { color: inherit; font-size: .82rem; }
-.featureCard small { font-size: .68rem; font-weight: 600; }
-
 .policyArea,
 .information small {
   margin-top: 0.3rem;
@@ -131,16 +82,5 @@
 
   .withoutStickyAd {
     padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
-  }
-}
-
-@media (max-width: 30rem) {
-  .featureCards {
-    grid-template-columns: 1fr;
-    width: min(100%, 20rem);
-  }
-
-  .featureCard {
-    width: 100%;
   }
 }

@@ -151,3 +151,32 @@ export function verifyPostVideoUpload(value: unknown) {
   if (!safeEqual(signature, expectedSignature)) throw new Error("Cloudinary 응답 서명을 확인할 수 없습니다.");
   return { secureUrl };
 }
+
+export type ManagedPostAsset = Readonly<{ publicId: string; resourceType: "image" | "video"; url: string }>;
+
+export function parseManagedPostAsset(value: unknown): ManagedPostAsset | null {
+  if (typeof value !== "string") return null;
+  try {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
+    if (!cloudName) return null;
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.hostname !== "res.cloudinary.com" || url.search || url.hash || url.username || url.password) return null;
+    const prefix = `/${cloudName}/`;
+    if (!url.pathname.startsWith(prefix)) return null;
+    const match = /^\/(?:[^/]+)\/(image|video)\/upload\/v\d+\/(dokkaebi\/posts\/(?:staging|videos\/staging)\/[A-Za-z0-9_-]+)\.(?:png|jpe?g|webp|mp4|webm|mov)$/iu.exec(url.pathname);
+    if (!match) return null;
+    const resourceType = match[1] as "image" | "video";
+    const publicId = match[2];
+    if (resourceType === "image" && !publicId.startsWith(`${POST_IMAGE_FOLDER}/`)) return null;
+    if (resourceType === "video" && !publicId.startsWith(`${POST_VIDEO_FOLDER}/`)) return null;
+    return { publicId, resourceType, url: url.toString() };
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteManagedPostAsset(asset: ManagedPostAsset) {
+  const { apiKey, apiSecret, cloudName } = baseConfig();
+  cloudinary.config({ api_key: apiKey, api_secret: apiSecret, cloud_name: cloudName, secure: true });
+  await cloudinary.uploader.destroy(asset.publicId, { invalidate: true, resource_type: asset.resourceType });
+}

@@ -166,7 +166,11 @@
 
 .popularPanel {
   background: var(--surface-glass-muted);
+  min-width: 0;
+  overflow: hidden;
 }
+
+.popularPanel [role="tabpanel"] { min-width: 0; max-width: 100%; overflow: hidden; }
 
 .panelHeading {
   margin-bottom: 1rem;
@@ -275,7 +279,10 @@
 
 .videoCarousel {
   position: relative;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
+  overflow: hidden;
 }
 
 .carouselActions {
@@ -331,6 +338,8 @@
   scroll-snap-type: inline mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  width: 100%;
+  max-width: 100%;
 }
 
 .videoRail::-webkit-scrollbar {
@@ -600,7 +609,7 @@
   }
 
   .videoRail li {
-    flex-basis: min(82vw, 19rem);
+    flex-basis: min(82%, 19rem);
   }
 
   .carouselActions button {

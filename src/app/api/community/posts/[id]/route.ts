@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { CommunityInputError, assertCommunityAuthor, normalizeCommunityPostInput } from "@/lib/guide-community";
 import { prisma } from "@/lib/prisma";
+import { deleteGuidePost } from "@/lib/guide-post-deletion";
 import { revalidateCommunityContent } from "@/lib/public-content-cache";
 
 type Context = { params: Promise<{ id: string }> };
@@ -41,7 +42,12 @@ export async function DELETE(request: Request, { params }: Context) {
   const { id } = await params;
   const access = await authorizedPost(request, id);
   if (access.response) return access.response;
-  const result = await prisma.guidePost.updateMany({ where: { id, deletedAt: null }, data: { deletedAt: new Date() } });
-  if (result.count === 1) revalidateCommunityContent();
-  return result.count === 1 ? Response.json({ id }) : Response.json({ code: "NOT_FOUND", message: "게시물을 찾을 수 없습니다." }, { status: 404 });
+  try {
+    const deleted = await deleteGuidePost(id);
+    if (deleted) revalidateCommunityContent();
+    return deleted ? Response.json({ id }) : Response.json({ code: "NOT_FOUND", message: "게시물을 찾을 수 없습니다." }, { status: 404 });
+  } catch {
+    console.error("Community post deletion failed.");
+    return Response.json({ code: "DELETE_FAILED", message: "게시물을 삭제할 수 없습니다." }, { status: 500 });
+  }
 }

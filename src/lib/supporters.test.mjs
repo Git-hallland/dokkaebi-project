@@ -26,10 +26,10 @@ test("maps providers without exposing account details and detects unique races",
 });
 
 test("supporter migration and public query are additive and privacy-minimal", async () => {
-  const [migration, data, footer, modal] = await Promise.all([
+  const [migration, data, homeCards, modal] = await Promise.all([
     readFile(new URL("../../prisma/migrations/20260911010000_add_supporters_and_report_reason/migration.sql", import.meta.url), "utf8"),
     readFile(new URL("./supporter-data.ts", import.meta.url), "utf8"),
-    readFile(new URL("../components/SiteFooter.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/HomeCommunityCards.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/SupporterRanking.tsx", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(migration, /\b(?:DROP|TRUNCATE)\b|^\s*DELETE\s+FROM\b|ALTER\s+TABLE[\s\S]*?\bDROP\b/imu);
@@ -38,7 +38,7 @@ test("supporter migration and public query are additive and privacy-minimal", as
   assert.match(data, /name: true/u);
   assert.match(data, /image: true/u);
   assert.doesNotMatch(data, /email: true|providerId: true|role: true/u);
-  assert.match(footer, /<SupporterRanking supporters=\{supporters\}/u);
+  assert.match(homeCards, /<SupporterRanking supporters=\{supporters\}/u);
   assert.match(modal, /showModal\(\)/u);
   assert.match(modal, /event\.target === event\.currentTarget/u);
 });

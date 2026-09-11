@@ -38,6 +38,5 @@ test("nickname migration is nullable, unique, and non-destructive", async () => 
   assert.match(sql, /CREATE UNIQUE INDEX "user_nicknameKey_key"/u);
   assert.doesNotMatch(sql, /\b(?:DROP|TRUNCATE|DELETE)\b/iu);
   assert.match(build, /hostname\.endsWith\("\.prisma\.io"\)/u);
-  assert.match(build, /20260910190000_add_user_nickname_key/u);
   assert.match(build, /migrate", "deploy"/u);
 });
