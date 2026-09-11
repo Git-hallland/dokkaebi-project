@@ -49,6 +49,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
   const pointerIdRef = useRef<number | null>(null);
   const suppressClickRef = useRef(false);
   const motionPendingRef = useRef(false);
+  const autoplayTransitionRef = useRef(false);
   const animationFrameRef = useRef<number[]>([]);
   const scheduleAutoplayRef = useRef<(delay: number) => void>(() => undefined);
 
@@ -89,7 +90,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
   }, [clearMotionFrames, setTrackPosition]);
 
   const move = useCallback((direction: -1 | 1) => {
-    if (!isReady || isAnimatingRef.current || motionPendingRef.current || videos.length < 2) return;
+    if (!isReady || isAnimatingRef.current || motionPendingRef.current || videos.length < 2) return false;
 
     const nextIndex = trackIndexRef.current + direction;
 
@@ -98,10 +99,11 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
       isAnimatingRef.current = false;
       setIsAnimating(false);
       setTrackPosition(normalizeTrackPosition(nextIndex));
-      return;
+      return true;
     }
 
     animateTo(nextIndex);
+    return true;
   }, [animateTo, isReady, normalizeTrackPosition, setTrackPosition, videos.length]);
 
   const pauseAutoplay = useCallback(() => {
@@ -117,11 +119,14 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
   const handleTransitionEnd = useCallback((event: React.TransitionEvent<HTMLUListElement>) => {
     if (event.propertyName !== "transform") return;
 
+    const shouldResumeAutoplay = autoplayTransitionRef.current;
+    autoplayTransitionRef.current = false;
     const normalizedIndex = normalizeTrackPosition(trackIndexRef.current);
     clearMotionFrames();
     isAnimatingRef.current = false;
     setIsAnimating(false);
     if (normalizedIndex !== trackIndexRef.current) setTrackPosition(normalizedIndex);
+    if (shouldResumeAutoplay) scheduleAutoplayRef.current(AUTO_SLIDE_INTERVAL_MS);
   }, [clearMotionFrames, normalizeTrackPosition, setTrackPosition]);
 
   const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
@@ -217,8 +222,12 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
         return;
       }
 
-      move(1);
-      schedule(AUTO_SLIDE_INTERVAL_MS);
+      autoplayTransitionRef.current = true;
+      const moved = move(1);
+      if (!moved || reducedMotionRef.current) {
+        autoplayTransitionRef.current = false;
+        schedule(AUTO_SLIDE_INTERVAL_MS);
+      }
     }
 
     function handleVisibilityChange() {
