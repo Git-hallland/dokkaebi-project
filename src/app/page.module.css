@@ -617,7 +617,7 @@
   }
 
   .videoRail li {
-    flex-basis: calc(100% - 2.75rem);
+    flex-basis: calc(100% - 2.25rem);
   }
 
   .carouselActions {
@@ -635,7 +635,7 @@
   }
 
   .carouselActions button:last-child {
-    right: 3rem;
+    right: 2.25rem;
   }
 
   .panelHeading,
