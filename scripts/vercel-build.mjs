@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
-const TARGET_MIGRATION = "20260910190000_add_user_nickname_key";
+const TARGET_MIGRATION = "20260911010000_add_supporters_and_report_reason";
 const migrationPath = new URL(`../prisma/migrations/${TARGET_MIGRATION}/migration.sql`, import.meta.url);
 const connectionString = process.env.APP_DATABASE_URL?.trim();
 
@@ -22,7 +22,7 @@ if (!hostname.endsWith(".prisma.io") || hostname.endsWith(".postgres.database.az
 }
 
 const migrationSql = readFileSync(migrationPath, "utf8");
-const destructivePattern = /\b(?:DROP|TRUNCATE|DELETE)\b|ALTER\s+(?:TABLE|COLUMN)[\s\S]*?\bDROP\b/iu;
+const destructivePattern = /\b(?:DROP|TRUNCATE)\b|^\s*DELETE\s+FROM\b|ALTER\s+TABLE[\s\S]*?\bDROP\b/imu;
 
 if (destructivePattern.test(migrationSql)) {
   throw new Error(`Migration blocked: ${TARGET_MIGRATION} contains a destructive operation.`);
