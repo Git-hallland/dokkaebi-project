@@ -24,7 +24,7 @@ export function HomePopularTabs({
   popularGuidePosts: readonly PopularGuidePostSummary[];
   videoPanel: ReactNode;
 }>) {
-  const [activeTab, setActiveTab] = useState<TabKey>("guides");
+  const [activeTab, setActiveTab] = useState<TabKey>("videos");
 
   return (
     <section className={`${styles.panel} ${styles.popularPanel}`} aria-labelledby="popular-content-title">
@@ -35,16 +35,6 @@ export function HomePopularTabs({
         </div>
         <div className={styles.tabs} role="tablist" aria-label="인기 콘텐츠 종류">
           <button
-            id="popular-guides-tab"
-            type="button"
-            role="tab"
-            aria-controls="popular-guides-panel"
-            aria-selected={activeTab === "guides"}
-            onClick={() => setActiveTab("guides")}
-          >
-            인기글
-          </button>
-          <button
             id="popular-videos-tab"
             type="button"
             role="tab"
@@ -53,6 +43,16 @@ export function HomePopularTabs({
             onClick={() => setActiveTab("videos")}
           >
             인기 영상
+          </button>
+          <button
+            id="popular-guides-tab"
+            type="button"
+            role="tab"
+            aria-controls="popular-guides-panel"
+            aria-selected={activeTab === "guides"}
+            onClick={() => setActiveTab("guides")}
+          >
+            인기글
           </button>
         </div>
       </div>
