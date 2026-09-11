@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 
 import { DesktopAdRail } from "@/components/DesktopAdRail";
 import { FloatingAdSlot } from "@/components/FloatingAdSlot";
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <SiteFooter adEnabled={siteSettings.footerAdEnabled} stickyAdEnabled={siteSettings.footerStickyAdEnabled} />
         {siteSettings.footerStickyAdEnabled ? <FloatingAdSlot /> : null}
         <MobileBottomNav frontendOnly={frontendOnly} />
+        <Analytics />
       </body>
     </html>
   );
