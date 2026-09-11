@@ -278,6 +278,9 @@
 }
 
 .videoCarousel {
+  --video-card-gap: 0.85rem;
+  --video-card-width: calc((100% - (var(--video-card-gap) * 2)) / 3);
+
   position: relative;
   container-type: inline-size;
   width: 100%;
@@ -336,7 +339,7 @@
 
 .videoRail {
   display: flex;
-  gap: 0.85rem;
+  gap: var(--video-card-gap);
   width: 100%;
   max-width: 100%;
   opacity: 0;
@@ -348,11 +351,11 @@
 }
 
 .videoRailAnimating {
-  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .videoRail li {
-  flex: 0 0 calc((100% - 1.7rem) / 3);
+  flex: 0 0 var(--video-card-width);
   min-width: 0;
 }
 
@@ -529,18 +532,15 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .videoRail li {
-    flex-basis: calc((100% - 1.7rem) / 3);
-  }
 }
 
 @media (max-width: 62rem) {
-  .carouselActions {
-    top: calc(14.0625cqi - 0.12rem);
+  .videoCarousel {
+    --video-card-width: calc((100% - var(--video-card-gap)) / 2);
   }
 
-  .videoRail li {
-    flex-basis: calc((100% - 0.85rem) / 2);
+  .carouselActions {
+    top: calc(14.0625cqi - 0.12rem);
   }
 
   .mobileSearch {
@@ -616,8 +616,10 @@
     grid-template-columns: 1fr;
   }
 
-  .videoRail li {
-    flex-basis: calc(100% - 2.25rem);
+  .videoCarousel {
+    --video-card-gap: 0.75rem;
+    --video-card-peek: 1rem;
+    --video-card-width: calc(100% - var(--video-card-gap) - var(--video-card-peek));
   }
 
   .videoRail:not(.videoRailAnimating) li:not(.activeVideo) strong,
@@ -626,7 +628,7 @@
   }
 
   .carouselActions {
-    top: calc(28.125cqi - 0.773rem);
+    top: calc(28.125cqi - 0.492rem);
   }
 
   .carouselActions button {
@@ -640,7 +642,7 @@
   }
 
   .carouselActions button:last-child {
-    right: 2.25rem;
+    right: 1.25rem;
   }
 
   .panelHeading,
