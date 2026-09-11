@@ -108,11 +108,12 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(homeCss, /scrollbar-width:\s*none/u);
   assert.match(homeCss, /\.videoRail::-webkit-scrollbar\s*\{[\s\S]*display:\s*none/u);
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*position:\s*absolute/u);
-  assert.match(homeCss, /\.carouselActions button\s*\{[\s\S]*top:\s*50%/u);
+  assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*top:\s*calc\(9\.375cqi/u);
   assert.match(homeCss, /\.popularPanel \[role="tabpanel"\][\s\S]*overflow:\s*hidden/u);
-  assert.match(homeCss, /flex-basis:\s*calc\(100% - 1\.5rem\)/u);
+  assert.match(homeCss, /flex-basis:\s*calc\(100% - 2\.75rem\)/u);
   assert.match(carousel, /const duration = 560/u);
   assert.match(carousel, /requestAnimationFrame/u);
+  assert.match(carousel, /if \(wrapped\)[\s\S]*behavior: "auto"/u);
 });
 
 test("home starts on videos and route loading waits before it becomes visible", async () => {
