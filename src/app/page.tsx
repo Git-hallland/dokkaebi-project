@@ -33,10 +33,7 @@ export default async function Home() {
       <section className={styles.hero} aria-labelledby="home-title">
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>비공식 팬 위키</p>
-          <h1 id="home-title">도깨비의 세계 WIKI</h1>
-          <p className={styles.heroDescription}>
-            공식 발표와 확인 가능한 근거를 바탕으로 게임 정보를 정리합니다.
-          </p>
+          <h1 id="home-title"><Image className={styles.heroLogo} src="/brand/dokkaebi-world-wiki-logo.png" alt="도깨비의 세계 WIKI" width={2172} height={724} priority /></h1>
         </div>
 
         <div className={styles.mobileSearch}>

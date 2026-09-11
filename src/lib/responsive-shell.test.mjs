@@ -53,8 +53,23 @@ test("footer external links are accessible and open safely in a new tab", () => 
   assert.equal((footer.match(/target="_blank"/gu) ?? []).length, 2);
   assert.equal((footer.match(/rel="noopener noreferrer"/gu) ?? []).length, 2);
   assert.equal((footer.match(/aria-label="[^"]+새 탭에서 열기"/gu) ?? []).length, 2);
-  assert.match(footerCss, /min-height:\s*2\.75rem/u);
-  assert.match(footerCss, /flex-wrap:\s*wrap/u);
+  assert.match(footerCss, /grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/u);
+  assert.match(footerCss, /min-height:\s*4rem/u);
+  assert.match(footerCss, /@media \(max-width: 30rem\)[\s\S]*grid-template-columns:\s*1fr/u);
+  assert.match(footer, /<SupporterRanking supporters=\{supporters\}/u);
+});
+
+test("supporter ranking is an accessible responsive modal", async () => {
+  const [ranking, rankingCss] = await Promise.all([
+    readFile(new URL("../components/SupporterRanking.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/SupporterRanking.module.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(ranking, /<dialog/u);
+  assert.match(ranking, /showModal\(\)/u);
+  assert.match(ranking, /aria-labelledby="supporter-ranking-title"/u);
+  assert.match(ranking, /aria-label="후원자 랭킹 닫기"/u);
+  assert.match(rankingCss, /grid-template-columns:\s*repeat\(2,minmax\(0,1fr\)\)/u);
+  assert.match(rankingCss, /@media \(max-width: 30rem\)[\s\S]*grid-template-columns: 1fr/u);
 });
 
 test("foldable widths retain the mobile shell until the shared desktop breakpoint", () => {
@@ -83,7 +98,7 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(searchCss, /calc\(100vw - 2rem\)/u);
   assert.match(carousel, /aria-label="이전 인기 영상"/u);
   assert.match(carousel, /aria-label="다음 인기 영상"/u);
-  assert.match(carousel, /AUTO_SLIDE_INTERVAL_MS = 5_000/u);
+  assert.match(carousel, /AUTO_SLIDE_INTERVAL_MS = 3_000/u);
   assert.match(carousel, /INTERACTION_PAUSE_MS = 7_000/u);
   assert.match(carousel, /document\.visibilityState/u);
   assert.match(carousel, /prefers-reduced-motion: reduce/u);

@@ -8,7 +8,7 @@ import { formatYouTubeViewCount, type PopularYouTubeVideo } from "@/lib/youtube-
 import styles from "./page.module.css";
 
 const dateFormatter = new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium" });
-const AUTO_SLIDE_INTERVAL_MS = 5_000;
+const AUTO_SLIDE_INTERVAL_MS = 3_000;
 const INTERACTION_PAUSE_MS = 7_000;
 
 export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly PopularYouTubeVideo[] }>) {

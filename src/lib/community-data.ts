@@ -33,6 +33,31 @@ const readCommunityPosts = unstable_cache(
   { revalidate: 30, tags: [COMMUNITY_CONTENT_CACHE_TAG] },
 );
 
+async function searchCommunityPosts(sort: CommunitySort, query: string, cursor?: string) {
+  const posts = await prisma.guidePost.findMany({
+    where: {
+      ...COMMUNITY_VISIBLE_WHERE,
+      OR: [
+        { title: { contains: query, mode: "insensitive" } },
+        { author: { name: { contains: query, mode: "insensitive" } } },
+      ],
+    },
+    orderBy: communityOrderBy(sort),
+    take: COMMUNITY_PAGE_SIZE + 1,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+    select: {
+      id: true,
+      title: true,
+      category: true,
+      createdAt: true,
+      viewCount: true,
+      likeCount: true,
+      author: { select: { name: true } },
+    },
+  });
+  return posts.map((post) => ({ ...post, createdAt: post.createdAt.toISOString() }));
+}
+
 const readPopularGuidePosts = unstable_cache(
   async () => prisma.guidePost.findMany({
     where: COMMUNITY_VISIBLE_WHERE,
@@ -54,8 +79,9 @@ const readPopularGuidePosts = unstable_cache(
   { revalidate: 30, tags: [COMMUNITY_CONTENT_CACHE_TAG] },
 );
 
-export function getCommunityPosts(sort: CommunitySort, cursor?: string) {
-  return isFrontendOnly() ? Promise.resolve([]) : readCommunityPosts(sort, cursor);
+export function getCommunityPosts(sort: CommunitySort, cursor?: string, query = "") {
+  if (isFrontendOnly()) return Promise.resolve([]);
+  return query ? searchCommunityPosts(sort, query, cursor) : readCommunityPosts(sort, cursor);
 }
 
 export function getPopularGuidePosts() {

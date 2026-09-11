@@ -102,3 +102,10 @@ test("builds stable latest and popular order", () => {
   assert.deepEqual(lib.communityOrderBy("latest"), [{ createdAt: "desc" }, { id: "desc" }]);
   assert.deepEqual(lib.communityOrderBy("popular"), [{ likeCount: "desc" }, { createdAt: "desc" }, { id: "desc" }]);
 });
+
+test("normalizes community title and author search queries", () => {
+  assert.equal(lib.normalizeCommunityQuery("  보스 공략  "), "보스 공략");
+  assert.equal(lib.normalizeCommunityQuery(undefined), "");
+  assert.equal(lib.normalizeCommunityQuery("x".repeat(81)), "");
+  assert.equal(lib.normalizeCommunityQuery("검색\u0000"), "");
+});

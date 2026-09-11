@@ -78,6 +78,10 @@ body {
     background-color 180ms ease;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 h1,
 h2,
 h3,

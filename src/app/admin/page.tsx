@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { forbidden, redirect } from "next/navigation";
 
 import { FrontendPreviewNotice } from "@/components/FrontendPreviewNotice";
+import { AdminNavigation } from "@/components/AdminNavigation";
 import { SiteSettingsForm } from "@/components/SiteSettingsForm";
 import { isCmsAdmin } from "@/lib/admin-content";
 import { GUIDE_REPORT_PAGE_SIZE, communityDocumentPreview, hasCommunityCapability } from "@/lib/community-reports";
@@ -13,7 +14,7 @@ import styles from "./admin.module.css";
 
 export const metadata: Metadata = { title: "관리자 | DokkaebiProject", robots: { index: false, follow: false } };
 const statuses = { PENDING: "미처리", RESOLVED: "처리됨", DISMISSED: "기각됨" } as const;
-const reasons = { SPAM: "스팸/도배", ABUSE: "욕설/괴롭힘", MISINFORMATION: "잘못된 정보", COPYRIGHT: "저작권 침해", OTHER: "기타" } as const;
+const reasons = { SPAM: "스팸/도배", ABUSE: "욕설/괴롭힘", INAPPROPRIATE: "부적절한 콘텐츠", MISINFORMATION: "잘못된 정보", COPYRIGHT: "저작권 침해", OTHER: "기타" } as const;
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   if (isFrontendOnly()) {
@@ -52,10 +53,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   return (
     <div className={styles.page}>
-      <div className={styles.adminNav}>
-        <Link className={styles.active} href="/admin">신고 관리</Link>
-        {isCmsAdmin(session.user.role) ? <Link href="/admin/content">위키 콘텐츠 관리</Link> : null}
-      </div>
+      <AdminNavigation active="reports" isAdmin={isCmsAdmin(session.user.role)} />
 
       {siteSettings ? (
         <section className={styles.card} aria-labelledby="site-settings-title">
