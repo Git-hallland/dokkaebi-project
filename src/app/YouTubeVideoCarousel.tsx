@@ -25,6 +25,7 @@ function wrapIndex(index: number, length: number) {
 }
 
 export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly PopularYouTubeVideo[] }>) {
+  const carouselRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const cloneCount = Math.min(MAX_CLONE_COUNT, videos.length);
   const renderedVideos = useMemo(
@@ -211,6 +212,10 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
         return;
       }
       if (document.visibilityState === "hidden") return;
+      if (carouselRef.current?.contains(document.activeElement)) {
+        schedule(AUTO_SLIDE_INTERVAL_MS);
+        return;
+      }
 
       move(1);
       schedule(AUTO_SLIDE_INTERVAL_MS);
@@ -245,6 +250,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
 
   return (
     <div
+      ref={carouselRef}
       className={styles.videoCarousel}
       aria-label="도깨비의세계 인기 YouTube 영상"
       aria-roledescription="캐러셀"
