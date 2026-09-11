@@ -620,6 +620,11 @@
     flex-basis: calc(100% - 2.25rem);
   }
 
+  .videoRail li:not(.activeVideo) strong,
+  .videoRail li:not(.activeVideo) .videoMeta {
+    opacity: 0;
+  }
+
   .carouselActions {
     top: calc(28.125cqi - 0.773rem);
   }
