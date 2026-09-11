@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { formatYouTubeViewCount, type PopularYouTubeVideo } from "@/lib/youtube-videos";
 
@@ -10,10 +10,12 @@ import styles from "./page.module.css";
 const dateFormatter = new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium" });
 const AUTO_SLIDE_INTERVAL_MS = 3_000;
 const INTERACTION_PAUSE_MS = 7_000;
+const SLIDE_DURATION_MS = 900;
 
 export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly PopularYouTubeVideo[] }>) {
   const listRef = useRef<HTMLUListElement>(null);
   const activeSnapRef = useRef(0);
+  const [activeSnapIndex, setActiveSnapIndex] = useState(0);
   const reducedMotionRef = useRef(false);
   const resumeAtRef = useRef(0);
   const animationFrameRef = useRef<number | null>(null);
@@ -39,11 +41,13 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     const positions = getSnapPositions();
     if (!list || positions.length === 0) return;
 
-    activeSnapRef.current = positions.reduce(
+    const nextActiveSnap = positions.reduce(
       (closestIndex, position, index) =>
         Math.abs(position - list.scrollLeft) < Math.abs(positions[closestIndex] - list.scrollLeft) ? index : closestIndex,
       0,
     );
+    activeSnapRef.current = nextActiveSnap;
+    setActiveSnapIndex(nextActiveSnap);
   }, [getSnapPositions]);
 
   const scrollToPosition = useCallback((left: number) => {
@@ -54,10 +58,9 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     const start = list.scrollLeft;
     const distance = left - start;
     const startedAt = performance.now();
-    const duration = 560;
     const animate = (time: number) => {
-      const progress = Math.min(1, (time - startedAt) / duration);
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const progress = Math.min(1, (time - startedAt) / SLIDE_DURATION_MS);
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       list.scrollTo({ behavior: "auto", left: start + distance * eased });
       animationFrameRef.current = progress < 1 ? requestAnimationFrame(animate) : null;
     };
@@ -77,6 +80,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
     if (wrapped) {
       if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current);
       list.scrollTo({ behavior: "auto", left: positions[nextIndex] });
+      setActiveSnapIndex(nextIndex);
       return;
     }
     scrollToPosition(positions[nextIndex]);
@@ -141,6 +145,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
       const positions = getSnapPositions();
       if (positions.length === 0) return;
       activeSnapRef.current = Math.min(activeSnapRef.current, positions.length - 1);
+      setActiveSnapIndex(activeSnapRef.current);
       list.scrollTo({ behavior: "auto", left: positions[activeSnapRef.current] });
     });
     resizeObserver.observe(list);
@@ -176,8 +181,8 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
         <button type="button" onClick={() => handleUserMove(1)} aria-label="다음 인기 영상">›</button>
       </div>
       <ul className={styles.videoRail} ref={listRef} onScroll={updateActiveSnap}>
-        {videos.map((video) => (
-          <li key={video.videoId}>
+        {videos.map((video, index) => (
+          <li className={index === activeSnapIndex ? styles.activeVideo : undefined} key={video.videoId}>
             <a href={`https://www.youtube.com/watch?v=${encodeURIComponent(video.videoId)}`} target="_blank" rel="noopener noreferrer">
               <span className={styles.thumbnail}>
                 <Image src={video.thumbnailUrl} alt="" width={480} height={270} sizes="(max-width: 44rem) 82vw, 20rem" />

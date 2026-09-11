@@ -111,7 +111,10 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*top:\s*calc\(9\.375cqi/u);
   assert.match(homeCss, /\.popularPanel \[role="tabpanel"\][\s\S]*overflow:\s*hidden/u);
   assert.match(homeCss, /flex-basis:\s*calc\(100% - 2\.25rem\)/u);
-  assert.match(carousel, /const duration = 560/u);
+  assert.match(carousel, /index === activeSnapIndex \? styles\.activeVideo/u);
+  assert.match(homeCss, /li:not\(\.activeVideo\)[\s\S]*\.videoMeta[\s\S]*opacity:\s*0/u);
+  assert.match(carousel, /SLIDE_DURATION_MS = 900/u);
+  assert.match(carousel, /1 - Math\.pow\(2, -10 \* progress\)/u);
   assert.match(carousel, /requestAnimationFrame/u);
   assert.match(carousel, /if \(wrapped\)[\s\S]*behavior: "auto"/u);
 });
