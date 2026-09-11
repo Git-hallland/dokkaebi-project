@@ -6,11 +6,37 @@ import {
   normalizeGuideReportResolution,
 } from "@/lib/community-reports";
 import { prisma } from "@/lib/prisma";
+import { deleteGuidePost } from "@/lib/guide-post-deletion";
 import { revalidateCommunityContent } from "@/lib/public-content-cache";
 
 type Context = { params: Promise<{ id: string }> };
 class ReportNotFoundError extends Error {}
 class ReportConflictError extends Error {}
+
+export async function DELETE(request: Request, { params }: Context) {
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) return Response.json({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, { status: 401 });
+  if (session.user.role !== "ADMIN") return Response.json({ code: "FORBIDDEN", message: "게시글을 삭제할 권한이 없습니다." }, { status: 403 });
+
+  try {
+    const { id } = await params;
+    const report = await prisma.guideReport.findUnique({ where: { id }, select: { postId: true } });
+    if (!report) return Response.json({ code: "NOT_FOUND", message: "신고를 찾을 수 없습니다." }, { status: 404 });
+    if (!report.postId) return Response.json({ code: "NOT_A_POST_REPORT", message: "삭제할 게시글이 없습니다." }, { status: 409 });
+    const deleted = await deleteGuidePost(report.postId, session.user.id);
+    if (!deleted) return Response.json({ code: "NOT_FOUND", message: "게시글을 찾을 수 없습니다." }, { status: 404 });
+    revalidateCommunityContent();
+    revalidatePath("/admin");
+    revalidatePath(`/admin/reports/${id}`);
+    revalidatePath("/community");
+    revalidatePath("/");
+    revalidatePath("/favorites");
+    return Response.json({ id, deleted: true });
+  } catch {
+    console.error("Reported guide post deletion failed.");
+    return Response.json({ code: "DELETE_FAILED", message: "신고 대상 게시글을 삭제할 수 없습니다." }, { status: 500 });
+  }
+}
 
 export async function PATCH(request: Request, { params }: Context) {
   const session = await auth.api.getSession({ headers: request.headers });

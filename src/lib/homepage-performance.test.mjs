@@ -4,26 +4,27 @@ import { readFile } from "node:fs/promises";
 
 const source = (path) => readFile(new URL(path, import.meta.url), "utf8");
 
-test("homepage prioritizes instant popular tabs and recent editorial content", async () => {
-  const [home, tabs, videos, editorial] = await Promise.all([
+test("homepage prioritizes instant popular tabs and cached community links", async () => {
+  const [home, tabs, videos, communityCards] = await Promise.all([
     source("../app/page.tsx"),
     source("../app/HomePopularTabs.tsx"),
     source("../app/HomePopularVideos.tsx"),
-    source("./editorial-content.ts"),
+    source("../components/HomeCommunityCards.tsx"),
   ]);
 
   assert.doesNotMatch(home, /CategoryCard|main-categories/u);
   assert.doesNotMatch(home, /force-dynamic/u);
-  assert.match(home, /<HomePopularTabs[\s\S]*recent-title/u);
+  assert.match(home, /<HomePopularTabs[\s\S]*<HomeCommunityCards/u);
+  assert.doesNotMatch(home, /최근 업데이트|getRecentPublishedEntities/u);
   assert.match(home, /<Suspense[\s\S]*<HomePopularVideos/u);
   assert.doesNotMatch(home, /getPopularYouTubeVideos\(\)/u);
   assert.match(videos, /getPopularYouTubeVideos\(\)/u);
   assert.match(tabs, /useState<TabKey>\("guides"\)/u);
   assert.match(tabs, /role="tablist"/u);
   assert.match(tabs, /<Link href=\{`\/community/u);
-  assert.match(editorial, /type: \{ in: \["skills", "items", "monsters", "regions"\] \}/u);
-  assert.match(editorial, /orderBy: \[\{ updatedAt: "desc" \}, \{ createdAt: "desc" \}/u);
-  assert.match(editorial, /take: 8/u);
+  assert.match(communityCards, /도깨비의세계 오픈톡방/u);
+  assert.match(communityCards, /관리자에게 후원하기/u);
+  assert.match(communityCards, /<SupporterRanking/u);
   assert.match(home, /src="\/brand\/dokkaebi-world-wiki-logo\.png"/u);
   assert.doesNotMatch(home, /도깨비의세계의 공식 공개 정보를 빠르게/u);
 });

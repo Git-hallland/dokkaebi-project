@@ -20,6 +20,8 @@ export async function POST(request: Request) {
     return Response.json({ code: "UNAUTHORIZED", message: "Unauthorized" }, { status: 401 });
   }
 
+  let uploadedImage: { publicId: string; secureUrl: string } | null = null;
+  let profileSaved = false;
   try {
     const body: unknown = await request.json();
 
@@ -35,6 +37,7 @@ export async function POST(request: Request) {
 
     const name = normalizeProfileName(payload.name);
     const verifiedImage = verifyProfileImageUpload(payload.upload, session.user.id);
+    uploadedImage = verifiedImage;
     const currentUser = await prisma.user.findUnique({
       select: { image: true },
       where: { id: session.user.id },
@@ -50,6 +53,7 @@ export async function POST(request: Request) {
       headers: forwardedHeaders,
       returnHeaders: true,
     });
+    profileSaved = true;
 
     if (currentUser?.image !== verifiedImage.secureUrl) {
       try {
@@ -61,6 +65,13 @@ export async function POST(request: Request) {
 
     return Response.json(result.response, { headers: result.headers });
   } catch (error) {
+    if (uploadedImage && !profileSaved) {
+      try {
+        await deleteManagedProfileImage(uploadedImage.secureUrl, session.user.id);
+      } catch {
+        console.warn("Uncommitted profile image cleanup failed.");
+      }
+    }
     return Response.json(
       {
         code: "INVALID_PROFILE_IMAGE",

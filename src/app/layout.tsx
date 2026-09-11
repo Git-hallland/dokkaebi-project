@@ -10,7 +10,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { isFrontendOnly } from "@/lib/runtime-mode";
 import { getSiteSettings } from "@/lib/site-settings-data";
-import { getVisibleSupporters } from "@/lib/supporter-data";
 import "./globals.css";
 import styles from "./layout.module.css";
 
@@ -27,7 +26,7 @@ type RootLayoutProps = Readonly<{
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const frontendOnly = isFrontendOnly();
-  const [siteSettings, supporters] = await Promise.all([getSiteSettings(), getVisibleSupporters()]);
+  const siteSettings = await getSiteSettings();
   return (
     <html lang="ko">
       <body>
@@ -43,7 +42,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           </main>
           {siteSettings.rightAdEnabled ? <DesktopAdRail /> : null}
         </div>
-        <SiteFooter adEnabled={siteSettings.footerAdEnabled} stickyAdEnabled={siteSettings.footerStickyAdEnabled} supporters={supporters} />
+        <SiteFooter adEnabled={siteSettings.footerAdEnabled} stickyAdEnabled={siteSettings.footerStickyAdEnabled} />
         {siteSettings.footerStickyAdEnabled ? <FloatingAdSlot /> : null}
         <MobileBottomNav frontendOnly={frontendOnly} />
         <Analytics />

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFile } from "node:fs/promises";
 
 import {
   PROFILE_IMAGE_MAX_BYTES,
@@ -49,4 +50,17 @@ test("detects supported image signatures and rejects other bytes", () => {
     "image/webp",
   );
   assert.equal(detectProfileImageType(Uint8Array.from([0x3c, 0x73, 0x76, 0x67])), null);
+});
+
+test("profile replacement deletes only managed Cloudinary assets after saving", async () => {
+  const [route, cloudinary] = await Promise.all([
+    readFile(new URL("../app/api/profile/image/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("./cloudinary-profile.ts", import.meta.url), "utf8"),
+  ]);
+  const saved = route.indexOf("profileSaved = true");
+  const previousCleanup = route.indexOf("deleteManagedProfileImage(currentUser?.image");
+  assert.ok(saved >= 0 && previousCleanup > saved);
+  assert.match(route, /uploadedImage && !profileSaved/u);
+  assert.match(cloudinary, /url\.hostname !== "res\.cloudinary\.com"/u);
+  assert.match(cloudinary, /publicId\?\.startsWith\(`\$\{userFolder\(userId\)\}\/`\)/u);
 });

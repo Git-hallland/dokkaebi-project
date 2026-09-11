@@ -11,7 +11,7 @@ async function responseMessage(response: Response) {
   } catch { return "신고를 처리할 수 없습니다."; }
 }
 
-export function ReportModerationActions({ canModerate, reportId }: Readonly<{ canModerate: boolean; reportId: string }>) {
+export function ReportModerationActions({ canDeletePost, canModerate, reportId }: Readonly<{ canDeletePost: boolean; canModerate: boolean; reportId: string }>) {
   const router = useRouter();
   const [resolution, setResolution] = useState("");
   const [busy, setBusy] = useState(false);
@@ -26,10 +26,18 @@ export function ReportModerationActions({ canModerate, reportId }: Readonly<{ ca
     else { setMessage(await responseMessage(response)); setBusy(false); }
   };
 
+  const deletePost = async () => {
+    if (busy || !window.confirm("이 게시글을 삭제하시겠습니까?\n댓글 및 관련 데이터도 함께 삭제됩니다.")) return;
+    setBusy(true); setMessage("");
+    const response = await fetch(`/api/admin/community/reports/${reportId}`, { method: "DELETE" });
+    if (response.ok) { setMessage("게시글과 관련 데이터를 삭제했습니다."); router.refresh(); }
+    else { setMessage(await responseMessage(response)); setBusy(false); }
+  };
+
   return <section className={styles.actions} aria-labelledby="moderation-actions-title">
     <h2 id="moderation-actions-title">처리</h2>
     <label>처리 메모 <span>(선택)</span><textarea rows={4} maxLength={1000} value={resolution} disabled={busy} onChange={(event) => setResolution(event.target.value)} /></label>
-    <div><button type="button" disabled={busy} onClick={() => submit("DISMISSED", "NONE")}>신고 기각</button><button type="button" disabled={busy} onClick={() => submit("RESOLVED", "NONE")}>처리 완료</button>{canModerate ? <button className={styles.danger} type="button" disabled={busy} onClick={() => submit("RESOLVED", "HIDE_TARGET")}>대상 숨김 + 해결</button> : null}</div>
+    <div><button type="button" disabled={busy} onClick={() => submit("DISMISSED", "NONE")}>신고 기각</button><button type="button" disabled={busy} onClick={() => submit("RESOLVED", "NONE")}>처리 완료</button>{canModerate ? <button className={styles.danger} type="button" disabled={busy} onClick={() => submit("RESOLVED", "HIDE_TARGET")}>대상 숨김 + 해결</button> : null}{canDeletePost ? <button className={styles.danger} type="button" disabled={busy} onClick={deletePost}>게시글 삭제</button> : null}</div>
     {message ? <p role="status">{message}</p> : null}
   </section>;
 }

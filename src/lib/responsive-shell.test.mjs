@@ -42,21 +42,19 @@ test("mobile drawer no longer exposes or persists menu editing", () => {
   assert.match(mobileMenu, /menuItems\.map/u);
 });
 
-test("footer external links are accessible and open safely in a new tab", () => {
+test("community links moved out of the footer without removing policy information", async () => {
+  const cards = await readFile(new URL("../components/HomeCommunityCards.tsx", import.meta.url), "utf8");
   for (const href of [
     "https://open.kakao.com/o/gESeLyBi",
     "https://toon.at/donate/hallland",
   ]) {
-    assert.match(footer, new RegExp(`href="${href.replaceAll("/", "\\/")}"`, "u"));
+    assert.match(cards, new RegExp(`href="${href.replaceAll("/", "\\/")}"`, "u"));
   }
 
-  assert.equal((footer.match(/target="_blank"/gu) ?? []).length, 2);
-  assert.equal((footer.match(/rel="noopener noreferrer"/gu) ?? []).length, 2);
-  assert.equal((footer.match(/aria-label="[^"]+새 탭에서 열기"/gu) ?? []).length, 2);
-  assert.match(footerCss, /grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/u);
-  assert.match(footerCss, /min-height:\s*4rem/u);
-  assert.match(footerCss, /@media \(max-width: 30rem\)[\s\S]*grid-template-columns:\s*1fr/u);
-  assert.match(footer, /<SupporterRanking supporters=\{supporters\}/u);
+  assert.equal((cards.match(/target="_blank"/gu) ?? []).length, 2);
+  assert.equal((cards.match(/rel="noopener noreferrer"/gu) ?? []).length, 2);
+  assert.doesNotMatch(footer, /SupporterRanking|open\.kakao\.com|toon\.at/u);
+  assert.match(footer, /위키 운영 원칙/u);
 });
 
 test("supporter ranking is an accessible responsive modal", async () => {
@@ -102,11 +100,15 @@ test("search suggestions and video carousel stay responsive and keyboard accessi
   assert.match(carousel, /INTERACTION_PAUSE_MS = 7_000/u);
   assert.match(carousel, /document\.visibilityState/u);
   assert.match(carousel, /prefers-reduced-motion: reduce/u);
+  assert.doesNotMatch(carousel, /reducedMotionRef\.current\) return/u);
   assert.match(carousel, /ResizeObserver/u);
+  assert.doesNotMatch(carousel, /hoveredRef/u);
   assert.match(homeCss, /scroll-snap-type: inline mandatory/u);
   assert.match(homeCss, /overflow-x: auto/u);
   assert.match(homeCss, /scrollbar-width:\s*none/u);
   assert.match(homeCss, /\.videoRail::-webkit-scrollbar\s*\{[\s\S]*display:\s*none/u);
   assert.match(homeCss, /\.carouselActions\s*\{[\s\S]*position:\s*absolute/u);
   assert.match(homeCss, /\.carouselActions button\s*\{[\s\S]*top:\s*50%/u);
+  assert.match(homeCss, /\.popularPanel \[role="tabpanel"\][\s\S]*overflow:\s*hidden/u);
+  assert.match(homeCss, /flex-basis:\s*min\(82%, 19rem\)/u);
 });

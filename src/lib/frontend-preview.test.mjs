@@ -28,15 +28,16 @@ test("DB-backed pages branch before loading auth or Prisma", async () => {
 });
 
 test("home and community cached data stay preview-safe", async () => {
-  const [home, communityData, editorial] = await Promise.all([
+  const [home, communityData, supporters] = await Promise.all([
     source("../app/page.tsx"),
     source("./community-data.ts"),
-    source("./editorial-content.ts"),
+    source("./supporter-data.ts"),
   ]);
   assert.match(home, /getPopularGuidePosts\(\)/u);
-  assert.match(home, /getRecentPublishedEntities\(\)/u);
+  assert.match(home, /getVisibleSupporters\(\)/u);
+  assert.doesNotMatch(home, /getRecentPublishedEntities/u);
   assert.match(communityData, /isFrontendOnly\(\) \? Promise\.resolve\(\[\]\)/u);
-  assert.match(editorial, /isFrontendOnly\(\) \? Promise\.resolve\(\[\]\)/u);
+  assert.match(supporters, /if \(isFrontendOnly\(\)\) return \[\]/u);
 });
 
 test("preview clients do not mount live auth or notification hooks", async () => {

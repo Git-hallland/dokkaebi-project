@@ -14,7 +14,6 @@ const INTERACTION_PAUSE_MS = 7_000;
 export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly PopularYouTubeVideo[] }>) {
   const listRef = useRef<HTMLUListElement>(null);
   const activeSnapRef = useRef(0);
-  const hoveredRef = useRef(false);
   const reducedMotionRef = useRef(false);
   const resumeAtRef = useRef(0);
   const scheduleAutoplayRef = useRef<(delay: number) => void>(() => undefined);
@@ -84,7 +83,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
 
     function schedule(delay: number) {
       clearTimer();
-      if (document.visibilityState === "hidden" || reducedMotionRef.current || hoveredRef.current) return;
+      if (document.visibilityState === "hidden") return;
       timer = window.setTimeout(runAutoplay, Math.max(0, delay));
     }
 
@@ -94,7 +93,7 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
         schedule(remainingPause);
         return;
       }
-      if (document.visibilityState === "hidden" || reducedMotionRef.current || hoveredRef.current) return;
+      if (document.visibilityState === "hidden") return;
 
       move(1);
       schedule(AUTO_SLIDE_INTERVAL_MS);
@@ -107,8 +106,6 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
 
     function handleMotionPreference(event: MediaQueryListEvent) {
       reducedMotionRef.current = event.matches;
-      if (event.matches) clearTimer();
-      else schedule(AUTO_SLIDE_INTERVAL_MS);
     }
 
     reducedMotionRef.current = motionQuery.matches;
@@ -147,14 +144,6 @@ export function YouTubeVideoCarousel({ videos }: Readonly<{ videos: readonly Pop
           event.preventDefault();
           move(event.key === "ArrowLeft" ? -1 : 1);
         }
-      }}
-      onMouseEnter={() => {
-        hoveredRef.current = true;
-        scheduleAutoplayRef.current(AUTO_SLIDE_INTERVAL_MS);
-      }}
-      onMouseLeave={() => {
-        hoveredRef.current = false;
-        pauseAutoplay();
       }}
       onPointerDown={pauseAutoplay}
     >
