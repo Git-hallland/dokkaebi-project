@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/deploy-production-migrations.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
@@ -14,7 +14,7 @@
     "test:search": "node --test src/lib/site-search.test.mjs",
     "test:community": "node --test src/lib/guide-community.test.mjs src/lib/community-posting.test.mjs src/lib/community-interactions.test.mjs src/lib/community-comments.test.mjs src/lib/community-reports.test.mjs src/lib/community-video.test.mjs",
     "test:cms": "node --test src/lib/admin-content.test.mjs src/lib/admin-content-data.test.mjs src/lib/cms-content-format.test.mjs src/lib/cms-board-connections.test.mjs src/lib/cms-event-status.test.mjs src/lib/cms-entity.test.mjs src/lib/homepage-performance.test.mjs",
-    "test:settings": "node --test src/lib/site-settings.test.mjs src/lib/supporters.test.mjs",
+    "test:settings": "node --test src/lib/site-settings.test.mjs src/lib/supporters.test.mjs src/lib/production-migration.test.mjs",
     "test:ui": "node --test src/lib/responsive-shell.test.mjs",
     "test": "npm run test:auth && npm run test:nickname && npm run test:search && npm run test:community && npm run test:cms && npm run test:settings && npm run test:ui"
   },
